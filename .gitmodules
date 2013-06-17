@@ -1,0 +1,36 @@
+[submodule "bundle/fugitive"]
+	path = bundle/fugitive
+	url = http://github.com/tpope/vim-fugitive.git
+[submodule "bundle/snipmate"]
+	path = bundle/snipmate
+	url = http://github.com/msanders/snipmate.vim
+[submodule "bundle/nerdtree"]
+	path = bundle/nerdtree
+	url = https://github.com/scrooloose/nerdtree
+[submodule "bundle/surround"]
+	path = bundle/surround
+	url = http://github.com/tpope/vim-surround
+[submodule "bundle/jellybeans"]
+	path = bundle/jellybeans
+	url = https://github.com/nanotech/jellybeans.vim
+[submodule "bundle/repeat"]
+	path = bundle/repeat
+	url = http://github.com/tpope/vim-repeat
+[submodule "bundle/syntastic"]
+	path = bundle/syntastic
+	url = https://github.com/scrooloose/syntastic.git
+[submodule "bundle/matchit"]
+	path = bundle/matchit
+	url = https://github.com/benjifisher/matchit.zip.git
+[submodule "bundle/commentary"]
+	path = bundle/commentary
+	url = https://github.com/tpope/vim-commentary
+[submodule "bundle/erl"]
+	path = bundle/erl
+	url = http://github.com/oscarh/vimerl
+[submodule "bundle/vividchalk"]
+	path = bundle/vividchalk
+	url = http://github.com/tpope/vim-vividchalk
+[submodule "bundle/bufferexplorer"]
+	path = bundle/bufferexplorer
+	url = https://github.com/corntrace/bufexplorer.git
