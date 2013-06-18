@@ -34,3 +34,9 @@
 [submodule "bundle/bufferexplorer"]
 	path = bundle/bufferexplorer
 	url = https://github.com/corntrace/bufexplorer.git
+[submodule "bundle/autocomplepop"]
+	path = bundle/autocomplepop
+	url = https://github.com/vim-scripts/AutoComplPop.git
+[submodule "bundle/perlomni"]
+	path = bundle/perlomni
+	url = http://github.com/c9s/perlomni.vim
