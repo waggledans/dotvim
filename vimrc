@@ -8,7 +8,7 @@ set ignorecase
 " The set nocompatible setting makes vim behave in a more useful way
 set nocompatible
 syntax on
-so ~/.vim/bundle/filetype.vim
+so ~/.vim/filetype.vim
 au BufWinLeave * mkview
 au BufWinEnter *.* silent loadview
 set cpt=.,k~/docs/dict,b,w,u
