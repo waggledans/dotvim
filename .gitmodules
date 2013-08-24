@@ -46,3 +46,9 @@
 [submodule "bundle/bufferexplorer"]
 	path = bundle/bufferexplorer
 	url = https://github.com/corntrace/bufexplorer.git
+[submodule "ftbundle/bash/awk-support"]
+	path = ftbundle/bash/awk-support
+	url = https://github.com/vim-scripts/awk-support.vim.git
+[submodule "bundle/vimwiki"]
+	path = bundle/vimwiki
+	url = https://github.com/vimwiki/vimwiki.git
