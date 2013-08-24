@@ -30,7 +30,7 @@
 	url = https://github.com/tpope/vim-commentary
 [submodule "bundle/erl"]
 	path = bundle/erl
-	url = http://github.com/oscarh/vimerl
+	url = https://github.com/oscarh/vimerl.git
 [submodule "bundle/vividchalk"]
 	path = bundle/vividchalk
 	url = http://github.com/tpope/vim-vividchalk
@@ -40,9 +40,12 @@
 [submodule "bundle/autocomplepop"]
 	path = bundle/autocomplepop
 	url = https://github.com/vim-scripts/AutoComplPop.git
-[submodule "ftbundle/perl/perlomni"]
-	path = ftbundle/perl/perlomni
-	url = http://github.com/c9s/perlomni.vim
 [submodule "ftbundle/bash/bash-support.vim"]
 	path = ftbundle/bash/bash-support.vim
 	url = https://github.com/vim-scripts/bash-support.vim.git
+[submodule "ftbundle/perl/perlomni"]
+	path = ftbundle/perl/perlomni
+	url = http://github.com/c9s/perlomni.vim
+[submodule "ftbundle/erl/erl"]
+	path = ftbundle/erl/erl
+	url = https://github.com/oscarh/vimerl.git
