@@ -25,12 +25,6 @@
 [submodule "bundle/vividchalk"]
 	path = bundle/vividchalk
 	url = http://github.com/tpope/vim-vividchalk
-[submodule "bundle/bufferexplorer"]
-	path = bundle/bufferexplorer
-	url = https://github.com/corntrace/bufexplorer.git
-[submodule "ftbundle/bash/bash-support.vim"]
-	path = ftbundle/bash/bash-support.vim
-	url = https://github.com/vim-scripts/bash-support.vim.git
 [submodule "ftbundle/perl/perlomni"]
 	path = ftbundle/perl/perlomni
 	url = http://github.com/c9s/perlomni.vim
@@ -46,3 +40,9 @@
 [submodule "bundle/snipmate"]
 	path = bundle/snipmate
 	url = http://github.com/msanders/snipmate.vim
+[submodule "ftbundle/bash/bash-support"]
+	path = ftbundle/bash/bash-support
+	url = https://github.com/vim-scripts/bash-support.vim.git
+[submodule "bundle/bufferexplorer"]
+	path = bundle/bufferexplorer
+	url = https://github.com/corntrace/bufexplorer.git
