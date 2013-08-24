@@ -1,5 +1,5 @@
 "call pathogen#runtime_append_all_bundles()
-runtime bundle/unbundle/unbundle.vim
+runtime plugin/unbundle/unbundle.vim
 set nowrap
 set number
 set title

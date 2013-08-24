@@ -1,12 +1,6 @@
-[submodule "bundle/unbundle"]
-	path = bundle/unbundle
-	url = https://github.com/sunaku/vim-unbundle.git
 [submodule "bundle/fugitive"]
 	path = bundle/fugitive
 	url = http://github.com/tpope/vim-fugitive.git
-[submodule "bundle/snipmate"]
-	path = bundle/snipmate
-	url = http://github.com/msanders/snipmate.vim
 [submodule "bundle/nerdtree"]
 	path = bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree
@@ -28,18 +22,12 @@
 [submodule "bundle/commentary"]
 	path = bundle/commentary
 	url = https://github.com/tpope/vim-commentary
-[submodule "bundle/erl"]
-	path = bundle/erl
-	url = https://github.com/oscarh/vimerl.git
 [submodule "bundle/vividchalk"]
 	path = bundle/vividchalk
 	url = http://github.com/tpope/vim-vividchalk
 [submodule "bundle/bufferexplorer"]
 	path = bundle/bufferexplorer
 	url = https://github.com/corntrace/bufexplorer.git
-[submodule "bundle/autocomplepop"]
-	path = bundle/autocomplepop
-	url = https://github.com/vim-scripts/AutoComplPop.git
 [submodule "ftbundle/bash/bash-support.vim"]
 	path = ftbundle/bash/bash-support.vim
 	url = https://github.com/vim-scripts/bash-support.vim.git
@@ -49,3 +37,12 @@
 [submodule "ftbundle/erl/erl"]
 	path = ftbundle/erl/erl
 	url = https://github.com/oscarh/vimerl.git
+[submodule "plugin/unbundle"]
+	path = plugin/unbundle
+	url = https://github.com/sunaku/vim-unbundle.git
+[submodule "bundle/autocomplepop"]
+	path = bundle/autocomplepop
+	url = https://github.com/vim-scripts/AutoComplPop.git
+[submodule "bundle/snipmate"]
+	path = bundle/snipmate
+	url = http://github.com/msanders/snipmate.vim
