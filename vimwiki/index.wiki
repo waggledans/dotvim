@@ -1,0 +1,5 @@
+= vim plugins =
+* c plugins
+* bash plugins
+* perl plugins
+* awk plugins
