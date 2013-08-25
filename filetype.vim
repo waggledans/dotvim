@@ -18,7 +18,11 @@ au! BufRead,BufNewFile *.tcl	set filetype=tcl
 au! BufRead,BufNewFile *.v	set filetype=sv
 au! BufRead,BufNewFile *.vh	set filetype=sv
 au! BufRead,BufNewFile *.vs	set filetype=sv
+au! BufRead,BufNewFile *.vams	set filetype=vams
+au! BufRead,BufNewFile *.va	set filetype=vams
 au! BufRead,BufNewFile *.xlt	set filetype=skill
 au! BufRead,BufNewFile *.vim	set filetype=vim
+au! BufRead,BufNewFile *.m	set filetype=matlab
+au! BufRead,BufNewFile *.mat	set filetype=matlab
 augroup END 
 
