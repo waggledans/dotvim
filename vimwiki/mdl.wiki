@@ -1,3 +1,0 @@
-# measurement descr lang
-
-mdl -d trans.msr -r sklfvrpwmana_exp2_1.fsdb

@@ -1,7 +1,0 @@
-simulator( 'spectre )
-simulator( 'ams )
-solver( 'APS )
-design(  "dispdfga_sklip_sch" "skldfgtdc_staticinv"  "schematic")
-ocnAmsSetOSSNetlister()
-createNetlist()
-

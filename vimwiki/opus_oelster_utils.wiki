@@ -1,8 +1,0 @@
-#oelster skill/tcl files:
-/nfs/iil/proj/mpg/procw22/oelster/opus_procs
-#oelster API tcl to icde connect:
-~oelster/v11/bin/general/MyOpus.tcl
-# also in ayona dir:
-/nfs/iil/proj/mpg/mpg53/std/ayona/al/v11/bin/general/MyOpus.tcl
-# files there are:
-ChangePinNames.il CheckSave.il PrintPropertiesValues.il change_ll_nom.tcl change_labels.tcl replace_prims.tcl replace_templates.il PrintPropertiesValues.il
