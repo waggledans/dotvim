@@ -1,0 +1,99 @@
+= GSR RTL =
+setGSR -m core -w <your model root name>
+In order to copy the repository to the local area:
+setGSR -m core -w -copy
+cd to $MODEL_ROOT
+bk -r edit  (check out source files)
+To run the Partitioner flow, use the following command:
+	 simbuild -dut core syn
+
+= Repository Actions (BK commands) =
+== Common Commands ==
+
+* bk edit - Make a file editable (writable)
+* bk pull - updates the repository from its parent
+* bk lastpull - Shows the files pulled in the last pull
+* bk compare [-pullonly] [-pushonly] [-v]- Compares files changed between two repositories
+* bk helptool - GUI Man Pages
+* bk difftool - GUI side-by-side file diffs
+* bk revtool - GUI revision browsing and diff tool
+* bk revtool - GUI revision browsing and diff tool
+* bk citool - Check-In / Commit locally
+== BK Don't Do's ==
+* Do not use the Unix "cp" command. Use "bk clone".
+* Do not use the Unix "chmod" to make files writeable. Use "bk edit "
+* Do not use the Unix mv or rm commands. Use "bk mv", "bk rm".
+
+= Compiling and simulating the model =
+* Compile the model with simbuild:
+% cd $MODEL_ROOT
+% simbuild -dut
+Example:
+% simbuild -dut core
+
+* you can run a specific stage stand-alone the following way:
+% simbuild -dut core -s all +s .
+* when you would like to run a specific stage in rtlbuild (chef, vcs, etc), do the following:
+To run chef stand-alone:
+% simbuild -dut core -s all +s rtl -rtl "-s all +s chef"
+To run VCS stand alone:
+% simbuild -dut core -s all +s rtl -rtl "-s all +s vcs"
+To run Lint stand-alone:
+% simbuild -dut core -s all +s rtl -rtl "-s all +s lint"
+To run Syn flow (valid from ww24 2011 models, integ1):
+% simbuild -dut core -s all +s rtl -syn
+netlist is created in $MODEL_ROOT/target/part_core_nlapp/sch/
+The flow uses netbatch, to run without netbatch, add -no_parallel to your simbuild command line.
+To bring up fcm (Flow Control Manager that manages the netbatch runs), type:
+% fcm& 
+* Add any option to vcs:
+% simbuild -dut ... -vcs -any_flag "-load liblfdhdls_vlog_gcc452.so:simlinkserver"
+= PLI =
+In order to run with Matlab, Verilog should be compiled with Simulink shared library and PLI tab file that enables access to internal nets of Verilog modules, for example my command is:
+vcs -R -sverilog -f skldisplllcdco_tb.f -f rtlincdirs.f -override_timescale=1ns/1ps -debug_all -full64  +vpi -P adpll.pli_acc.tab -load liblfdhdls_vlog_gcc452.so:simlinkserver
+Where adpll.pli_acc.tab is
+
+acc=r,frc:skldisplllcdco_tb,skldisplllcdco,skldisplllcdcocntl
+
+After I compile the model (in my case its just two adpll files), I can launch the simulation from Matlab.
+It basically cd's into the rtl directory and executes "launch script" that should be called:
+* tmwESLDS.launch.sh
+After that I can read any internal signal value (if read access is defined in the tab file) from Matlab. 
+Matlab can be a testbench or DUT or any mix of both depending where stimuli are defined.
+* In RTL models, pli's are configured  in $MODE_ROOT/cfg/RTLToolData.pm:
+            PLIFiles    => [
+        (defined $ENV{SETUP_ON_64BITS} and $ENV{SETUP_ON_64BITS}) ? "&get_tool_path(verdi)/share/PLI/VCS/LINUX64/pli.a":
+                  "&get_tool_path(verdi)/share/PLI/VCS/LINUX/pli.a",
+                  "&get_tool_path(denali)/verilog/denverlib.o", # For mc
+                  (defined $ENV{SETUP_ON_64BITS} and $ENV{SETUP_ON_64BITS}) ? "&get_tool_path(IntelProps)/obj/vcs2005.06/debug/x86-64_linux26/intelprops.o" : "&get_tool_path(IntelProps)/vcs/intelprops.o",
+                  (defined $ENV{SETUP_ON_64BITS} and $ENV{SETUP_ON_64BITS}) ? "&get_tool_path(Protoni)/lib64/libppp.a":"&get_tool_path(Protoni)/lib/libppp.a",
+        (defined $ENV{SETUP_ON_64BITS} and $ENV{SETUP_ON_64BITS}) ? "&get_tool_path(verdi)/share/FsdbWriter/LINUX64/libnffw.a" : "&get_tool_path(verdi)/share/FsdbWriter/LINUX_GNU_32/libnffw.a",
+            ],
+            PLITabFiles => [
+            (defined $ENV{SETUP_ON_64BITS} and $ENV{SETUP_ON_64BITS}) ? "&get_tool_path(verdi)/share/PLI/VCS/LINUX64/novas.tab":  "&get_tool_path(verdi)/share/PLI/VCS/LINUX/novas.tab",
+              "&get_tool_path(denali)/verilog/pli.tab", # For mc
+              "&get_tool_path(Protoni)/pli/proto_preparepp.tab",
+              "&get_tool_path(plisystf)/plisystf.tab",
+              "&get_tool_path(vcs/vcs_utils)/cfg/vcspli.tab"
+            ],
+
+* PLIFiles are pointers to the pli binaries, and PLITabFIles are pointers to the corresponding .tab files of each pli.
+* Simply add yours to these entries and compile the model.
+
+= MNR RTL =
+alias setMNR 'source /p/mnr/rtl/proj_bin/setMNR.csh \!:*;'
+> setMNR -m core -w /nfs/iil/stod/stod075/w.dslov.101/mnr_rtl -copy
+SUSE64 Platform detected.
+#############################################################################
+# You are running MNR environment (Cheat-sheet: firefox http://mnr-wiki.intel.com/twiki/bin/view/Main/MNREnvironment )
+# PROJECT ............... MNR 
+# MODEL ................. core-ertl-mnr-a0-11ww47b
+# CENTRAL_ROOT .......... /nfs/site/disks/mnr.models.1/core/core-ertl-mnr-a0-11ww47b 
+# MODEL_ROOT (W/A) ...... /nfs/site/stod/stod075/w.dslov.101/mnr_rtl 
+# RTL MODELS ............ /p/mnr/rtl/models
+# Central Model is in sync with: 
+#
+# To restore this setup run:
+setMNR -m core-ertl-mnr-a0-11ww47b -w /nfs/site/stod/stod075/w.dslov.101/mnr_rtl
+#############################################################################
+

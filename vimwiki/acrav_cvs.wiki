@@ -1,0 +1,19 @@
+setenv CVSROOT /nfs/iil/proj/mpg/analog_dev/analog/acrav
+setenv CVSEDITOR vim
+
+alias select        'setenv TOPDIR \!*'
+
+alias add           'cvs add \!*'
+alias commit        'cvs commit \!*'
+alias update        'cvs update \!*'
+alias checkout      'cvs checkout \!*'
+alias get           'cvs checkout \!*'
+alias buildall      '$TOPDIR/cvs_utils/buildall.pl'
+alias remove        'cvs remove \!*'
+
+set prompt = "%B(%m) %c Analog-CVS>%b "
+
+
+cd /nfs/iil/proj/mpg/procw42/dslov/acrav
+select $PWD
+

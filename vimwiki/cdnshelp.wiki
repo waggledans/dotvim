@@ -1,0 +1,22 @@
+ = How to setup cdnshelp so that multiple users see same set of libraries =
+== Problem ==
+I want to setup cdnshelp in such a way that all the users see same set of libraries or documentation. Because, users are typically not equipped to do the setup of libraries in cdnshelp. They may not be aware of path to installation hierarchy and doc xmlreg directory and library.lbr file of different tools:
+<install_dir>/doc/xmlreg/lnx86/library.lbr
+If someone from CAD can do this setup for them and that can be utilized by everybody that would be great.
+== Solution ==
+A CCR 849676 was filed to enhance cdnshelp to read help.conf file from a central location other than $HOME based path. In CadenceHelp 1.3 P009 and later tool have been enhanced to read a file named help.ini as shown below:
+<install_dir>/tools/cdnshelp/config/help.ini
+The file name help.ini has been deliberately kept different to indicate that it is tool default initialization file. A sample help.ini file containing two libraries will look like this:
+[library]
+/home/installations/cadence/IC615ISR/doc/xmlreg/library.lbr
+/home/installations/cadence/IC615BASE/doc/xmlreg/library.lbr
+In the above [library] is a mandatory keyword entry. The other two entries are path to library.lbr file of installation hierarchy.The $HOME/.config based help.conf file will still be read after the help.ini file located in installation directory. And that is the place where users personal settings can reside. The help.ini is more useful for CAD who builds the installations to deploy at multiple places. 
+When you add libraries in cdnshelp the settings are saved in help.conf file located at $HOME/.config/cadence directory.
+If the $HOME/.config directory is copied over to all the users $HOME then users will be able to observe the same set of documentation as the original user saw. Make sure that path to documentation is same and reachable from users machine also.
+In CadenceHelp 1.3 P004 and later a switch named hierarchy is provided which can be used to launch or invoke cdnshelp with multiple libraries. For example one can call below to open documentation libraries added from two hierarchies:
+cdnshelp -hierarchy /cdsind/IC613ISR/doc/xmlreg/library.lbr:/cdsind/IC614ISR/doc/xmlreg/library.lbr &
+The hierarchy names are a colon separated paths to library.lbr file. 
+One can also setup alias in central .cshrc files so that whenever someone launches cdnshelp it automatically runs for multiple document installation. For example: 
+alias cdnshelp          '<path_to_latest_cdnshelp>/cdnshelp -hierarchy
+<installDir1>/doc/xmlreg/library.lbr:<installDir2>/doc/xmlreg/library.lbr:<installDir3>/doc/xmlreg/library.lbr&'
+Whenever user launches cdnshelp it will get launched with all hierarchies specified in above command.

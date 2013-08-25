@@ -1,0 +1,28 @@
+############## ViVA ###################
+# to open file just open <dir_name>.raw database directory:
+> ls standalone_viva/ampsim.raw/
+ac.ac  dcOp.dc  dcOpInfo.info  finalTimeOP.info  logFile  modelParameter.info  tran.tran
+
+# marker bindkeys:
+m - point marker
+h - horizontal marker
+v - vertical marker
+D - show delta (select two markers and hit Shift d or one and move the cursor to the next location) ie the diff between two points for example
+# generally all intercept points (for vertical and horizontal markers) can be make "persistent" ie to stay on the graph
+                # rmb on marker and choose "persistent"
+a - (and then b) two markers with delta between them. to change a or b points just hit a (or b) one more time
+# spec markers (in adexl in "Outputs setup" tab press "Plotting options" button and make sure "Spec markers are checked"
+# specs could be (in "Spec" column):   >250 or "range 7n 8n" or "tol 2.5m 10%" it would shade areas in the graph
+# in the graph RMB on the trace and choose "Spec options" to change colors
+#
+ 
+# using cursors
+5 types of cursors
+a) trace cursors - shows coordinates ('c' bindkey) - RMB and choose "Snap to data points" to make it discrete
+b) vertical cursor - movable vertical line ('v' bindkey)
+c) horizontal cursor - movable horizontal line ('h' bindkey)
+d) delta cursor - difference between two points on a trace ('d' bindkey) or select a number of point (or horizontal/vertical) markers and "d"
+bindkey 'a' and 'b' create a special type of markers that can be moved 
+e) marker (bindkey 'm' or little red flag icon in the menubar) enable to place point, horizontal or vertical marker
+
+Ctrl E   delete all markers

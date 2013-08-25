@@ -1,0 +1,9 @@
+1707@ilic2020.iil.intel.com:7438@ilic2003.iil.intel.com:7438@ilic2014.iil.intel.com:7438@ilic2015.iil.intel.com
+setenv MLM_LICENSE_FILE 7438@ilic2014.iil.intel.com
+lmstat -c 7438@ilic2014.iil.intel.com -f simulink
+
+grep '^GROUP.*6489' /nfs/site/gen/adm/license/folders/mathworks_MLM_ilic2014/MLM.opt
+GROUP SKL_648927 enoll efayneh zshmueli eavner adamr syoskovi enassar jshor odadashe kluria omerv gsizikov zelikson msotman yvainbau zyekutie smalevsk pzorea dslov saarabes erana nwiner pzorea saarabes norbach rkol ecopty mcheredn vhodos rgabbai fbeziz
+GROUP IMG_PFV_648927 gcorem ifefer apopov4 boazh azabatan rkol norbach saarabes pzorea mlev ebespech rgovrin oeli orozenma mmorashx zaviv jdanowit idiner mjacob akolaman alitvino rrubinst yshpalen sshwart1 dstanhil ryehezk1 yuvalf dmitriab darbel davner nberkovi bfreedma gharpaz orozenma smarkiew zaviv abronste mbronste rkimmel harelm vsurazhx srosentr eostrovs
+set musers="eknoll|efayneh|zshmueli|boazh|eavner|adamr|enassar|jshor|kluria|omerv|zelikson|msotman|yvainbau|zyekutie|smalevsk|dslov|saarabes|erana|nwiner|saarabes|rkol|ecopty|mcheredn|vhodos|rgabbai|fbeziz|lalexan"
+lmstat -c 7438@ilic2014.iil.intel.com -f simulink |g "$musers"

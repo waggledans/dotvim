@@ -1,0 +1,167 @@
+= prop.xx: =
+These files are also known as property bags, and contain properties for
+objects.  The prop.xx in the library directory contains properties
+affecting the entire library; the prop.xx in the cellView directory
+contains only the cellView properties; and the cell prop.xx contains
+only cell properties, such as cell CDF's.
+ 
+The cellView prop.xx file contains meta-data properties that in 4.3
+were stored in the libName.lib catalog file.  One use of the
+library/cell/cellView prop.xx file is to store the technology binding.
+ 
+Property bag data can be accessed via the 4.4 Skill property bag
+functions, including dbOpenBag(), dbGetBag(), dbCloseBag(),
+dbSaveBag(), and dbGetBagDdId, among others.  See the OpenBook document
+"Design Framework II Skill Reference Manual", December 1995, for
+further information on these Skill functions.
+=pc.db=
+The pc.db file stores a cellView's parent/child relationships.    It
+tracks the on-disk image, but not the VM image, of the cellView.
+Therefore, tools within Opus cannot necessarily rely on them being up
+to date with regard to changes in a CDBA database, at least until a
+dbSave() occurs.  These files are used in several places in the flow,
+and that number will probably grow, but they are not yet used by all
+applications.
+ 
+So who uses it?
+ 
+    Hierarchical copy; Hierarchy Editor; Composer's hierarchy
+    traversal function, which is used by many apps.  When the data
+    are not CDBA, the pc.db file allows the traverser to navigate
+    through other descriptions like VHDL and Verilog while avoiding
+    the differences in VM CDBA.
+ 
+You should not modify this file.
+ 
+= *.cdb =
+------
+This file contains the actual design data, whether it's schematic,
+layout, behavioral, or user-customized.  For example, the sch.cdb file
+is what the Cadence software reads when you bring up a schematic for
+editing.  If you were to access it through Skill, you would use a
+function such as dbOpenCellViewByType().
+ 
+= *.cd% =
+--------
+A temporary backup file. It keeps the content
+of the cellView before the latest save.
+You should not modify this file.
+= *.cd+ =
+------
+An auto-save file maintained by the system.
+ 
+You should not modify this file.
+ 
+= *.cd- =
+--------
+This is the panic cellView file; in general, it is
+"cellViewFileName.cd-".  You can access it in Skill with the
+dbOpenPanicCellView() command.
+ 
+= master.tag =
+-----------
+This is a text file describing which file under the cellView directory
+is the master; that is, the one that determines what tool is invoked
+when the cellView is edited.  You can edit this file with a text editor
+if you want to, but you shouldn't.  You could modify it, for example,
+to have a schematic cellView contain layout data.  Typical contents
+of the master.tag file might be "layout.cdb", "sch.cdb", "symbol.cdb",
+"text.txt", or "verilog.v".
+= data.dm =
+data.dm file is the equivalent of the prop.xx file for IC5141. 
+It contains library and cellview information such as tech library, oa version etc.
+It is a co-managed file which is to be checked in/out whenever the master file is check in/out in a managed environment.
+It is also a co-master file which means that it does not contains the primary schematic or layout data but nevertheless contains design information
+which cannot be derived from the primary data, such as the view property files created by Virtuoso applications.
+In OpenAccess the properties of objects such as library, cell or view are created directly in the data.dm file and
+accessed through the corresponding objects.
+Since it contains design management information, it gets modified whenever design information is updated, e.g. cdf info is changed,
+tech library is changed, design is edited, etc. Basically it gets updated whenever the schematic/symbol save button is pressed.
+File permission for all levels of data.dm is 744. 
+Library and cellview level data.dm files are automatically generated whenever a new cellview or library is created.
+Cell level data.dm file gets generated whenever a symbol is created from a schematic. Data.dm file does not exist in a layout cellview directory.
+ 
+ 
+The registry files at $CDSHOME/share/cdssetup/registry/data determines the set of co-managed files. E.g. the contents of virtuoso.reg are:
+ 
+DataFormat MaskLayout {                      // Define Virtuoso data
+    Pattern                      = layout.oa;
+    Default_Editor            = Virtuoso;
+    dfII_ViewType            = maskLayout;
+    Co_Managed             = layout.oa master.tag data.dm pc.db *.att verilog.v
+                                      verilog.vams ams_direct.dat amsAPT.apt es.db esb.db
+                                      *.conf *.ctstch *.mode enc.pref.tcl siFix.option
+                                      *.fp *.fp.pg *.rcdb.gz *.ymp;
+    updaterProg               = ccpDFIIUpdtr;
+    checkerProg              = ccpDFIIChecker;
+}
+ 
+=== Partial contents of composer.reg file ===
+DataFormat ComposerSchematic {          // Define Composer Schematics
+    Pattern                      = sch.oa;
+    Default_Editor            = schematic;
+    dfII_ViewType            = schematic;
+    Co_Managed             = sch.oa master.tag data.dm pc.db
+                                      verilog.v verilog.vams ams_direct.dat amsAPT.apt;
+    updaterProg               = ccpDFIIUpdtr;
+    checkerProg              = ccpDFIIChecker;
+}
+ 
+ 
+It can exist at 3 levels: in a library directory, in a cell directory, within a cellview directory
+ 
+e.g.
+myLib (dir)
+->data.dm (file)
+->cdsinfo.tag (file)
+->myCell (dir)
+ 
+myCell (dir)
+->data.dm (file)
+->schematic (dir)
+ 
+schematic(dir)
+-> data.dm (file)
+-> master.tag (file)
+-> schematic.oa (file)
+ 
+Doing a unix "strings data.dm" for the data.dm file at each level will reveal the different info which each contains.
+ 
+More information can be found in "Cadence Application Infrastructure User Guide" at:
+$CDSHOME/doc/caiuser/caiuser.pdf
+ 
+ 
+=== Cellview level ===
+2.2-p001 or above
+2.2-p079
+2.2p085
+linux_rhel21_32 gcc_3.2.3
+dependency
+children
+ILList
+(("gpdk090" "pmos2v" "symbol") ("gpdk090" "nmos2v" "symbol"))
+ 
+ 
+=== Cell level ===
+2.2-p001 or above
+2.2-p079
+2.2p085
+linux_rhel21_32 gcc_3.2.3
+cdfData
+ILList
+(promptWidth nil fieldHeight nil fieldWidth nil buttonFieldWidth nil formInitProc nil doneProc nil parameters nil propList (simInfo (nil auLvs (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure ansLvsCompPrim) auCdl (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure ansCdlSubcktCall) spectre (nil termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil) hspiceD (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil) UltraSim (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil))))(promptWidth nil fieldHeight nil fieldWidth nil buttonFieldWidth nil formInitProc nil doneProc nil parameters nil propList (modelLabelSet "" opPointLabelSet "" paramLabelSet "" simInfo (nil auLvs (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure ansLvsCompPrim) auCdl (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure ansCdlSubcktCall) spectre (nil termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil) hspiceD (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil) UltraSim (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil))))(promptWidth nil fieldHeight nil fieldWidth nil buttonFieldWidth nil formInitProc nil doneProc nil parameters ((storeDefault "unset" defValue "" name "LN" type "string" parseAsCEL "yes" parseAsNumber "yes" prompt "LN" units "" propList nil) (storeDefault "unset" defValue "" name "LP" type "string" parseAsCEL "yes" parseAsNumber "yes" prompt "LP" units "" propList nil) (storeDefault "unset" defValue "" name "WN" type "string" parseAsCEL "yes" parseAsNumber "yes" prompt "WN" units "" propList nil) (storeDefault "unset" defValue "" name "WP" type "string" parseAsCEL "yes" parseAsNumber "yes" prompt "WP" units "" propList nil)) propList (modelLabelSet "" opPointLabelSet "" paramLabelSet "" simInfo (nil auLvs (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure ansLvsCompPrim) auCdl (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure ansCdlSubcktCall) spectre (nil termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil) hspiceD (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil) UltraSim (nil namePrefix "X" termOrder ("GND" "IN" "OUT" "VDD") componentName "subcircuit" netlistProcedure nil))))
+ 
+ 
+=== Library level ===
+2.2-p001 or above
+2.2-p079
+2.2p084
+linux_rhel21_32 gcc_3.2.3
+cdfData
+ILList
+techLibName
+cdsDefTechLib
+gpdk090
+gpdk090_v39
+(promptWidth 175 fieldHeight 35 fieldWidth 350 buttonFieldWidth 340 formInitProc nil doneProc nil parameters nil propList (instDisplayMode "instName" instNameType "schematic" termDisplayMode "none" termSimType "DC" netNameType "schematic" paramDisplayMode "parameter" paramSimType "DC" paramEvaluate "t nil nil nil nil" simInfo (nil)))
+

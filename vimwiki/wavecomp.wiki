@@ -1,0 +1,38 @@
+# Compare values of outputs at specfied time-points between two simulations.
+# -compareX <list / range of times>
+-compareX "1e-09,2e-09,3e-09,4e-09,5e-09"
+-compareX "1e-09:1e-09:5e-09" 
+# Compare times at which output crosses specified value between two simulations
+# -compareY <list of cross points>
+# Time for the circuit to settle after some kick start. Comparisons wont be done for <val> amount of time from time 0. Default: 0
+-settlingTime <val> (optional)
+-delay <val> (optional)
+<val> is the amount of shift that will be applied to output before doing any comparisons. Default:0
+-absTol <val> (optional)
+Absolute Tolerance for  differences between outputs from two simulations
+-relTol <val> (optional)
+Relative tolerance for differences between outputs from two simulations
+
+
+
+
+
+# config file example:
+ALIAS arf addr_valid
+ALIAS tx TXitermcontrolSnnnH[8:0]
+ALIAS cx CompDoneSnnnL
+ALIAS hier pcie_te/gio/giopci
+ALIAS hier2 giopcicomc/giopci_comp//
+ALIAS hier1 edram_te/edram/opio/opiocgu/
+
+#Example of Event Sequence - spec is a range - Use : operator
+EvtSeq <hier1/arf,fall> <hier1/arf,rise>
+Spec <hier1/arf,.5,hier1/arf,.1:.15> <hier1/afr,1>
+
+#Example of Event Sequence - spec is range for a bus 
+EvtSeq <hier/hier2/cx,rise>
+Spec <hier/hier2/tx,0x88:0x97,hier/hier2/TXitermcontrolSnnnH[5],1>
+
+#Example of measurement with spec
+edram_te/edram/opio/opiocgu/anaobs_edpll_a,edram_te/edram/opio/opiocgu/anaobs_edpll_a,edram_te/edram/opio/opiocgu/anaobs_edpll_a -meas max,min -settlingTime 100e-09 -probe V -spec 1,0:2
+edram_te/edram/opio/opiocgu/anaobs_edpll_a,edram_te/edram/opio/opiocgu/anaobs_edpll_a,edram_te/edram/opio/opiocgu/anaobs_edpll_a -meas max,min -settlingTime 100e-09 -probe V -spec 0.85:2,0

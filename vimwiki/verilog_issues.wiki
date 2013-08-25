@@ -1,0 +1,403 @@
+= Import Verilog to the library and create symbol =
+* In the CIW, choose File -> Import -> Verilog.
+= Import Vams to the library (will not create a symbol) =
+* (it will not create symbol) - export verilog or vams file to the library pointed by -work: 
+ncvlog -use5x -ams -cdslib ./cds.lib -work amsPLL -view verilogams dcc/dline.vams
+= How can I use a SystemVerilog netlist to generate a symbol? Can verilogIn do it? Can SKILL do it? =
+= How to parse a verilog file verilog.v for syntax and other checks in batch mode? =
+= How to disable cross view check during vmsUpdateCellViews() or during schInstallHDL =
+= How to create a verilog (behavioral or functional) view with SKILL ? =
+= How do I check and save a functional view using SKILL ? =
+= How to update pins from verilog view during schematic check and save =
+= How to parse a verilog file verilog.v for syntax and other checks in batch mode? =
+= ncelab: *E, CUVPOM -- reasons for this error message =
+= ncvlog: *E,DLPAKW: Attempt to write module into a read-only library. =
+= DLIORG error from renamed library =
+= COFILX -  Header files in verilog/verilogams files with relative paths =
+= hdl.var ncvlogopts not read when edit cell in dfII =
+######################################################################################
+How can I use a SystemVerilog netlist to generate a symbol? Can verilogIn do it? Can SKILL do it?
+--------------------------------------------------------------------------------
+Error Message
+SystemVerilog *E,  NCVNF: Cannot find ncvlog executable from your path. Please update your path to point to the correct executable
+                          or use vmsNcvlogExecutable variable to specify the executable to use.
+Definition
+How can I use a SystemVerilog netlist to generate a symbol?
+--------------------------------------------------------------------------------
+Solution
+If you want to create systemVerilog view using SKILL, you can follow the below steps:
+First compile your systemVerilog file using 'ncvlog', something like below -sv switch; 
+This will parse the systemVerilog file for any syntax, parser errors etc, and you can correct them beforehand. 
+The compiled data is created in the workLib defined in the cds.lib file. 
+You may refer to the solution 20088160 (How to parse a verilog file verilog.v for syntax and other checks in batch mode?),
+which talks about the parsing of the verilog code.
+        % ncvlog -sv -use5x -work workLib -view systemverilog test.sv
+If you want to create just a single view using SKILL, set the below SKILL variable in CIW:
+vmsParseAllModules = t
+And then use the schInstallHDL function in CIW to create the particular cellview:
+schInstallHDL("testLib" "myDesign" "systemVerilog" "verilog.sv" )
+where testLib/myDesign/systemVerilog is the lib/cell/view name, this will create the systemVerilog view.
+Then use the SKILL function 'vmsUpdateCellViews(?lib "myLib") command in CIW to create the 'symbol' view and also creates the 
+"verilog.cdb" (IC5141) or "netlist.oa" (IC61X) for systemVerilog views of all cells of myLib library.
+######################################################################################
+How to parse a verilog file verilog.v for syntax and other checks in batch mode?
+Error Message
+ncvlog: *F,DLIORG: Library (physical path) <path>/<New libName> was originally compiled with logical name '<Old libName>'.
+Please include the original definition of library in cds.lib file.
+ncvlog: *E, DLPAKW: Attempt to write module <libName>.<cellName>:<viewName> (VST) into a read-only library.
+ncelab: *E,CUVPOM (./netlist.v,32|12): Port name 'y' is invalid or has multiple connections.
+--------------------------------------------------------------------------------
+Definition
+I am creating a verilog behavioral/functional view for a cell using libManager with File¿New CellView
+View = behavioral or functional
+Type = Verilog
+When I save and quit from the vi editor opened by virtuoso/DFII for the behavioral/functional view, I am getting the error messages as above.
+How can I parse the written code using ncvlog or irun in the batch mode without having to do the manual steps using the library manager, which runs the ncvlog parser?
+--------------------------------------------------------------------------------
+Solution
+User can parse verilog code using below commands at the UNIX shell terminal window in batch mode. ncvlog and irun binaries are available in the INCISIVE install hierarchy.
+Using ncvlog
+a. At first create a directory by name of ¿work¿.
+b. Then edit cds.lib and define this library as below
+DEFINE work ./work
+c. Now run below command at Unix/Linux prompt
+UNIX%    ncvlog <filename>.v -work work -cdslib <path>/cds.lib -message
+This will run the ncvlog parser on the .v file and write all the compilation data associated with the design to a local directory called work. If there are any error messages while compilation these are printed on the xterm window.
+Using irun
+a. At first create a directory by name of ¿work¿.
+b. Then edit cds.lib and define this library as below
+DEFINE work ./work
+c. Now run below command at Unix/Linux prompt
+UNIX%   irun -mess -clean <filename>.v -work work -cdslib <path>/cds.lib
+This will run the ncvlog parser on the .v file and write all the compilation data associated with the design to a local directory called INCA_libs/work. If there are any error messages while compilation these are printed on the xterm window.
+You can refer to the following documentation link for more details on irun.
+http://support.cadence.com/wps/PA_DocumentViewer/pubs/irun/irun12.20/overview.html#how_irun_works
+irun takes files from different simulation languages, such as Verilog, SystemVerilog, VHDL, Verilog AMS, VHDL AMS, Specman e, and files written in general programming languages like C and C++, and compiles them using the appropriate compilers. After the input files have been compiled, irun automatically invokes ncelab to elaborate the design and then invokes the ncsim simulator.
+User can get the explanation of related INCISIVE error message for either ncvlog, ncelab as below
+Linux> nchelp <binary name> <message code>
+Examples:
+UNIX%  nchelp ncvlog DLPAKW
+######################################################################################
+How to disable cross view check during vmsUpdateCellViews() or during schInstallHDL
+--------------------------------------------------------------------------------
+Problem
+You are using the SKILL function vmsUpdateCellViews() to update the "shadow"
+database files for some textual VerilogAMS views.
+or 
+You are trying to create new verilog/verilogAMS view for your cell using the "schInstallHDL" function
+You wish to disable the cross-view check because you are getting popups
+related to inconsistent portOrder between views - but this message does not
+concern you.
+Is it possible to turn off the cross view check during vmsUpdateCellViews() during schInstallHDL?
+--------------------------------------------------------------------------------
+Solution
+The SKILL variable:
+vmsCrossViewCheck=nil
+######################################################################################
+How to create a verilog (behavioral or functional) view with SKILL ?
+--------------------------------------------------------------------------------
+Definition
+What I have: Verilog Module Files ( mod1.v, mod2.v, mod3.v, etc.)
+What I want: Valid verilog (behavioral or functional) views for these modules.
+Requirement is to do this in batch job using SKILL commands. OR
+How to convert my verilog module description, into a valid Cadence Library Cellview ?
+--------------------------------------------------------------------------------
+Solution
+Use schInstallHDL(libName cellName viewName "sourceVerilogFile")
+schInstallHDL can also create the symbols, the fifth argument if set to t/nil is to create the symbol or not.
+The second t is to overwrite the  existing "behavioral" view if it exists
+schInstallHDL("mylib" "mycell" "behavioral" "myverilogfile.v" t/nil t)
+This function is PUBLIC and well documented in CDSDOC. This function does it all in just one step, 
+have your verilog.v file ready, use this function and you are done with a complete cellview with all the required files.
+It also runs HDL parser, Verilog Analyzer and cross view checker. 
+Refer Documentation: http://support.cadence.com/wps/PA_DocumentViewer/pubs//skcompref/skcompref5.1.41/chap2.html#78075
+For multiple files with single modules, you may simply use foreach() and process them one by one.
+If you have the verilog files with multiple verilog modules, defined in each of such verilog file
+and you would like to import several modules at once into DFII, all from one concatenated verilog file.
+Please refer to the below solution on Cadence Online Support;
+http://support.cadence.com/wps/mypoc/cos?uri=deeplinkmin:ViewSolution;solutionNumber=11222984
+######################################################################################
+How do I check and save a functional view using SKILL ?
+--------------------------------------------------------------------------------
+Problem
+How can I perform a 'check and save' of a functional view using a SKILL command without opening the functional view graphically?
+--------------------------------------------------------------------------------
+Solution
+In CIW, the following steps should be done:
+1) Load context :
+           loadContext(prependInstallPath("etc/context/schHDL.cxt"))
+2) set schHdlCrossViewCheck = nil  ;;// to NOT run the cross view checker
+3) run vmsUpdateCellViews() 
+The function "vmsUpdateCellViews" can take three arguments like vmsUpdateCellViews(?lib <libname> ?cell <cellname> ?view <viewname>)
+If you want to run vmsUpdateCellViews() for all the cells in all the libraries defined in your cds.lib, do not specify any arguments to the function.
+Set following variable in CIW or through .cdsinit to turn OFF cross view checker pop-ups while running vmsUpdateCellviews:
+vmsCrossViewCheck=nil
+schHdlCrossViewCheck should also be set to nil to turn off cross-view checking, so that no interactive questions are asked.
+You can also turn off or stop symbol creation by running following skill command in CIW or .cdsinit. It will turn off symbol creation and the query pop-up  box.
+vmsUpdateSymbolAfterEdit = nil
+If the variable vmsUpdateSymbolAfterEdit is set to
+A) t - symbol will be always generated . No query box.
+B) nil -  symbol will not be generated. No query box
+C) "query" or not defined -  user will be asked for confirmation.
+Similarly for vhdl, variable name is vhdlUpdateSymbol
+For veriloga views the variable name is AHDLUpdateViewInfo and can be set as:
+AHDLUpdateViewInfo=t
+######################################################################################
+How to invoke Verilog-A or Verilog-AMS Parser using SKILL
+--------------------------------------------------------------------------------
+Problem
+I am trying to make changes to a text file (verilog/veriloga/verilogams) and recompile the view (reparse) for downstream tools.  How do I run the parser command line so that it would create the proper .cdb (or .oa) representations of the
+data in dfII.  
+The idea is to write a pin update script as we are trying to automate keeping views in sync when pin names change.
+--------------------------------------------------------------------------------
+Solution
+SKILL function vmsUpdateCellViews() can be used to compile the veriloga.cdb (or
+.oa) or verilogAMS.cdb file in the cellview.
+To Automate this, you may call this function within a SKILL procedure that is registered to a schematic check and save functionality via schRegPostCheckTrigger().
+Example:
+;;----------------------------------------
+procedure(CCSupdateViews(cv nErr nWarn)
+      vmsUpdateCellViews(?lib cv~>libName ?cell cv~>cellName ?view
+"functional")
+    )
+   ;; Set the post check trigger to call the procedure defined above
+      schRegPostCheckTrigger( 'CCSupdateViews)
+;;----------------------------------------
+Possible issue:
+With this methodology, there is one possible issue that you may run into->
+If you have a bad cds.lib definition (say a bad unix path to a defined library), then check and save will result in a DLCPATH warning:
+##################
+Parsing of verilog file produced warnings.
+If you say yes and the HDL Parser Error/Warnings file opens with the DLCPTH ncvlog warning.
+You will also get a pop-up which states:
+geSave
+Not a graphics window: window: #
+##################
+Solution for the issue:
+If you indeed run into this situation, the solution is to go back to your SKILL script and to make sure before running vmsUpdateCellViews (which calls the parser) that you capture the current DFII window and then afterwards set the current window to that captured windowID.
+This works fine even if you get an error as mentioned above.
+######################################################################################
+How to parse a verilog file verilog.v for syntax and other checks in batch mode?
+--------------------------------------------------------------------------------
+ncvlog: *F,DLIORG: Library (physical path) <path>/<New libName> was originally compiled with logical name '<Old libName>'.
+Please include the original definition of library in cds.lib file.
+ncvlog: *E, DLPAKW: Attempt to write module <libName>.<cellName>:<viewName> (VST) into a read-only library.
+ncelab: *E,CUVPOM (./netlist.v,32|12): Port name 'y' is invalid or has multiple connections.
+Definition
+I am creating a verilog behavioral/functional view for a cell using libManager with File¿New CellView
+View = behavioral or functional
+Type = Verilog
+When I save and quit from the vi editor opened by virtuoso/DFII for the behavioral/functional view, I am getting the error messages as above.
+How can I parse the written code using ncvlog or irun in the batch mode without having to do the manual steps using the library manager, which runs the ncvlog parser?
+--------------------------------------------------------------------------------
+Solution
+User can parse verilog code using below commands at the UNIX shell terminal window in batch mode. ncvlog and irun binaries are available in the INCISIVE install hierarchy.
+Using ncvlog
+a. At first create a directory by name of ¿work¿.
+b. Then edit cds.lib and define this library as below
+DEFINE work ./work
+c. Now run below command at Unix/Linux prompt
+UNIX%    ncvlog <filename>.v -work work -cdslib <path>/cds.lib -message
+This will run the ncvlog parser on the .v file and write all the compilation data associated with the design to a local directory called work. If there are any error messages while compilation these are printed on the xterm window.
+Using irun
+a. At first create a directory by name of ¿work¿.
+b. Then edit cds.lib and define this library as below
+DEFINE work ./work
+c. Now run below command at Unix/Linux prompt
+UNIX%   irun -mess -clean <filename>.v -work work -cdslib <path>/cds.lib
+This will run the ncvlog parser on the .v file and write all the compilation data associated with the design to a local directory called INCA_libs/work. If there are any error messages while compilation these are printed on the xterm window.
+You can refer to the following documentation link for more details on irun.
+http://support.cadence.com/wps/PA_DocumentViewer/pubs/irun/irun12.20/overview.html#how_irun_works
+irun takes files from different simulation languages, such as Verilog, SystemVerilog, VHDL, Verilog AMS, VHDL AMS, Specman e, and files written in general programming languages like C and C++, and compiles them using the appropriate compilers. After the input files have been compiled, irun automatically invokes ncelab to elaborate the design and then invokes the ncsim simulator.
+User can get the explanation of related INCISIVE error message for either ncvlog, ncelab as below
+Linux> nchelp <binary name> <message code>
+Examples:
+UNIX%  nchelp ncvlog DLPAKW
+You may refer to the following solutions to resolve these DLPAKW, DLIORG, CUVPOM errors;
+######################################################################################
+ncelab: *E, CUVPOM -- reasons for this error message
+--------------------------------------------------------------------------------
+Error Code
+None
+Error Message
+ncelab: *E, CUVPOM : Port name 'a' is invalid or has multiple connections.
+Definition
+Verbose information for error mnemonic CUVPOM is
+ncelab/cuvpom =
+        The indicated port was either not declared in the instanced
+        module, or it was mentioned too many times in the connection
+        list.
+What are the possible scenarios that result in this error ?
+Solution
+The error message points at incorrect way of using/defining ports in the design description.
+Common reasons are ¿
+   1. Port name being referenced is misspelled or undeclared.
+   2. Connecting the part selects of a port.
+       Example #1 - 
+      module abc ( a[0], a[1], a[2], b );
+             input wire [2:0] a ;
+             ...
+             ...
+        In above code snippet, there are only 2 ports "a" and "b".
+        So, connecting part selects of port "a", as in code below will give CUVPOM error.
+       module top;
+              reg [2:0] lnet;
+              wire [1:0] out;
+       abc abc(
+              .\a[0] (lnet[1]),
+              .\a[1] (lnet[2]),
+              .\a[2] (lnet[0]),
+              .b(out)
+              );
+       endmodule
+          This coding style is not legal as per the LRM. 
+          In above code, bit selects of the module "abc" are connected to the "lnet" reg, which is not allowed. 
+          Refer Section 12.3.6 of Verilog LRM 1364-2005.
+NOTE - The port name cannot be a bit-select, a part-select, or a concatenation of ports. 
+          Correct code to overcome this issue is¿
+       module abc (.p0(a[0]), .p1(a[1]), .p2(a[2]), b);
+              input [2:0]a;
+              ...
+          And its instantiation looks like ¿
+       abc abc(
+              .p0 (lnet[1]),
+              .p1 (lnet[2]),
+              .p2 (lnet[0]),
+              .b(out)
+              );
+         This solution is Verilog LRM 1364-2005 compliant, refer section 12.3.3 " PORT DECLARATIONS ".
+   3.  More than one libraries have definition of same module.
+        Same module can have more than one flavors of its declaration. 
+        Check in the log files, for modules that are recompiled.
+        If the port definition of the two module definition is different, latest definition is considered.
+        This may cause CUVPOM error.
+    4. Incorrect declaration style.
+        Incorrect way of declaring ports in instantiation also gives CUVPOM 
+        Example #2 - 
+        Failing case (give the CUVPOM error)¿
+      module top (dataout);
+             output[7:0] dataout;
+             sub_top sub_top_i(.dataout(dataout));
+      endmodule
+      module sub_top(dataout[7:0]);  //SEE HERE
+             output[7:0] dataout;
+      endmodule
+        Passing case (Elaborates successfully)¿
+      module top (dataout);
+             output[7:0] dataout;
+             sub_top sub_top_i(.dataout(dataout));
+      endmodule
+      module sub_top(dataout);       // SEE HERE
+        output[7:0] dataout;
+      endmodule
+######################################################################################
+ncvlog: *E,DLPAKW: Attempt to write module into a read-only library.
+--------------------------------------------------------------------------------
+Problem
+While creating/saving a verilog view in DFII library, I am getting the following error;
+==========================================================
+ncvlog: 11.10-s060: (c) Copyright 1995-2012 Cadence Design Systems, Inc.
+ncvlog: *E,DLPAKW: Attempt to write module TestVlog.INV_1:behavioral (VST) into a read-only library.
+==========================================================
+Or
+If I do the following steps, I also get the same error message as above.
+I have the following defined in the cds.lib file;
+========================
+DEFINE TestVlog ./TestVlog
+========================
+UNIX%   ncpack ¿readonly TestVlog
+UNIX%   ncvlog verilog.v ¿message ¿work TestVlog
+How can I resolve these errors?
+Solution
+These errors can happen when the cds.lib file you are using has many numbers of read only libraries.
+Many design environments include a set of shared design libraries that have had their file system permissions set to read-only so that only an authorized user can add additional design units to, or delete or move, a shared library.
+The compiler/parser (ncvlog/ncvhdl_p) or elaborator (ncelab) needs to modify this library and write into it, the error DLPAKW occurs as you are attempting to write to the read only library.
+1. If you do not have write access, as a workaround, the old VAN parser can be used instead by setting the following SKILL variable:
+schHdlUseNcvlogForVerilog=nil
+This switch can be set in the CIW or in the .cdsinit file:
+Note:  VAN parser does not recognize any verilog2001 syntax.
+2. There is an nchelp utility in the tool (INCISIVE) which can be used as follows to elaborate on the error message:
+UNIX%   nchelp ncvlog DLPAKW
+The output of above command will further elaborate on the error message.  
+Please check the permissions on the library and its contents, or adjust the database properties to make it read-write. The "ncpack -database" command can be used to make database read-write
+UNIX%  ncpack -database TestVlog
+3.   Using TMP directories to compile
+a)   Assign a TMP directory in your cds.lib file. Any of these will allow ncvlog/ncvhdl_p/ncelab to write into the library.
+Add an ASSIGN line in cds.lib as following:
+UNIX% cat cds.lib
+define TestVlog ./TestVlog
+ASSIGN TestVlog TMP ./temp_TestVlog
+ Please note that this directory, temp_TestVlog, needs to exist
+If the user has multiple logical libraries pointing to same physical path in his cds.lib file, then (for writing a TMP directory) it¿s necessary that user assigns a TMP directory for the logical name, with which the library was originally compiled.
+b)   If you have multiple read only libraries then instead of writing out ASSIGN TMP statements for each library in your cds.lib file you can use the following command to deal with them all;
+ ASSIGN AllLibs TmpRootDir ./myTMPs
+This will then write all the compilation data associated with any read only libraries in your design to a local directory called myTMPs.
+Please note that this directory, myTMPs, needs to exist.
+For more details on this please refer to the documentation on "Binding One Library to Multiple Directories":
+http://support.cadence.com/wps/mypoc/cos?uri=deeplinkmin:DocumentViewer;src=pubs;q=SettingUp/SettingUp12.1/setting_up.html#1065306
+4.  In one of the scenario, user had inca pak files checked into DM (data management) system. These pak file gets created in the current library as a result of running ncvlog parser. When second designer tried modifying the functional view in the same library, it resulted in the error message as above.
+The problem was fixed after removing the pak file.
+######################################################################################
+DLIORG error from renamed library
+--------------------------------------------------------------------------------
+Error Message
+ncelab: *F,DLIORG: Library (physical path) 
+/home/cad/mydesign/ADC_OLD was originally compiled 
+with logical name 'ADC'. Please include the original definition of library in 
+cds.lib file.
+Definition
+You are simulating a design with AMS in ADE, and are getting an error such as the above
+about a library which is not referenced anywhere in your design. 
+The library has been renamed at some point.
+Solution
+PCR 886169 has been filed for this issue.
+The issue here is the elaborator fails because the data which
+was previously compiled into the pak file for the renamed library is out of
+date. This is accessed as part of the elaborator searching libraries in case they 
+are needed for any unresolved modules.
+Until this is fixed,   the simplest solution is to delete the pak file in the root of the 
+renamed library.
+######################################################################################
+Header files in verilog/verilogams files with relative paths
+--------------------------------------------------------------------------------
+Error Message
+*******************
+`include "tv02.h"
+                |
+ncvlog: *E,COFILX (/myverilog/functional/verilog.v,7|16): cannot open include file 'tv02.h'.
+*******************
+Definition
+You are including the header files in verilog/verilogams editor with the relative paths, but you get the error message as mentioned above when saving and exiting it.
+How to specify the relative path from where the header files can be searched?
+Solution
+The above error will appear regardless of the filetype (.h,.v,.sv etc) provided with a `include statement.
+Make sure that the filename is correct and you have read permission. Also ensure that file PATH (relative/absolute) is correct. use "-incdir" option to search for directories for `include files.
+If you have your header files in one directory say "/home/my_headers" and you want to include this path to be searched for the header files, then:
+- Use "-incdir" option with ncvlog or irun to search for directories for `include files.
+OR
+- Create an hdl.var file in your current working directory and can add the following statement to it:
+ DEFINE NCVLOGOPTS -incdir "/home/my_headers"
+OR
+ setenv NCVLOGOPTS -incdir "<path_to_directory_containing_include_file>"
+This will make sure the files are compiled with the "-incdir" option .
+######################################################################################
+hdl.var ncvlogopts not read when edit cell in dfII
+--------------------------------------------------------------------------------
+Problem
+You are using ncvlog and have this in your hdl.var:
+DEFINE NCVLOGOPTS -f ncvlog.args
+Your verilog cell contains a 'define which is created in one of the files in ncvlog.args.
+When you run ncvlog command line, everything works fine.  When you open your verilog cell in dfII and :wq, you see something similar to this:
+if (!`MYVAR)
+       |
+ncvlog: *E,NOTDIR
+(/usr1/mylib/mycell/module/verilog.v,558|15): `MYVAR: not
+a recognized directive or macro [2.7.3][16.3.1][16(IEEE)].
+It looks like the hdl.var is being ignored.
+Solution
+CCR 707392 has been filed for this issue.  The hdl.var is not being ignored, but the ncvlog command line that is created by dfII is incorrect.
+ This issue is fixed in IUS 8.2s21 and INCISIV 9.2s013.
+This version has a new variable NCVLOGPRESOURCE that makes sure the ncvlog command line created is in the correct order.
+In your hdl.var, add something like this:
+define NCVLOGPRESOURCE define.v
+with define.v being the file with the define 'MYVAR in it.

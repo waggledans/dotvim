@@ -1,0 +1,16 @@
+usage:  crontab [-u user] file
+        crontab [-u user] [ -e | -l | -r ]
+                (default operation is replace, per 1003.2)
+        -e      (edit user's crontab)
+        -l      (list user's crontab)
+        -r      (delete user's crontab)
+*     *     *   *    *        command to be executed
+-     -     -   -    -
+|     |     |   |    |
+|     |     |   |    +----- day of week (0 - 6) (Sunday=0)
+|     |     |   +------- month (1 - 12)
+|     |     +--------- day of        month (1 - 31)
+|     +----------- hour (0 - 23)
++------------- min (0 - 59)
+
+0 20 * 1,6,12 1-5   From Su to Fr on Jan, June and Dec at 20:00

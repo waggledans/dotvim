@@ -1,0 +1,17 @@
+SOFTINCLUDE /home/user/eda/solaris/cadence_2003/LDV/LDV40/tools.sun4v/inca/file/hdl.var
+# include default setup
+DEFINE ncuse5x
+# set library structure for 5.X. The 5.X format is a Cadence library standard directory structure,
+# where each cell is reference by library.cell:view .
+DEFINE cdslib ./cds.lib
+# include libraries
+Define NCVLOGOPTS -linedebug ¿messages
+# tell ncvlog to compile the code in a manner that allows setting breakpoint in the analog and
+# digital code in the CadenceAMS Simulator Windows
+Define NCVHDLOPTS -V93 -linedebug ¿messages
+# tell ncvhdl to compile the code in a manner that allows setting breakpoint in the analog and
+# digital code in the CadenceAMS Simulator Windows
+DEFINE WORK PLL_examples
+# setting current working library
+DEFINE MODELPATH ./model/logs353va.scs(tt)
+# include models need for transistor level simulation

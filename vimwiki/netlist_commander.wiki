@@ -1,0 +1,28 @@
+# Run generate netlist (from  bin/createNetlist.il)
+
+OMcreateCadenceDirectNetlist(runDir simN cv~>libName cv~>cellName cv~>viewName display)
+# runDir
+# simN <"spectre"/"hspiceD">
+# display <t/nil>
+
+OMcreateCadenceDirectNetlist("$ENV{WORK}/netlists/spectre" "spectre" "adpll" "dco_test2" "config" t)
+# what will happen is:
+simulator('hspiceD) # or any other simulator
+design("adpll" "dco_test2" "config" "r")
+createNetlist(?recreateAll 't ?display 't)
+######
+
+############### OCEAN script #######################
+#! /usr/bin/csh
+
+virtuoso -nograph -nocdsinit -log ./icms.log <</
+load("/nfs/iil/disks/home12/dslov/my_files/cadence/c9prim6_c9n3t.cdf")
+load("/nfs/iil/disks/home12/dslov/my_files/cadence/c9prim_c9un.cdf")
+envSetVal("asimenv.startup" "projectDir" 'string "/tmp/simulation")
+simulator('hspiceD)
+design("adpll" "dco_test2" "config")
+createNetlist()
+exit()
+exit()
+/
+exit 1

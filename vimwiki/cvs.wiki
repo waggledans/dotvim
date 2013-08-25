@@ -1,0 +1,73 @@
+Setting CVS at your area.
+ 
+1.       Create area for development. Say acrav
+2.       cp ~omedlins/bin/cvs_acrav  ~/bin/.
+3.       Open  and replace the pointer at the end of the file to point to your acrav area
+4.       source ~/bin/cvs_acrav
+5.       get -P flow_mgr
+6.       This will create flow_mgr dir under acrav dir
+ls flow_mgr/
+total 40
+8 CVS/  8 bin/  8 cfg/  8 structure/  8 tcl/
+9. omedlins acrav area is here: /nfs/iil/proj/mpg/procw39/omedlins/tool_dev/acrav 
+
+do:
+setenv CVSROOT /nfs/iil/proj/mpg/analog_dev/analog/acrav
+setenv CVSEDITOR vim
+
+alias select        'setenv TOPDIR \!*'
+
+alias add           'cvs add \!*'
+alias commit        'cvs commit \!*'
+alias update        'cvs update \!*'
+alias checkout      'cvs checkout \!*'
+alias get           'cvs checkout \!*'
+alias buildall      '$TOPDIR/cvs_utils/buildall.pl'
+alias remove        'cvs remove \!*'
+set prompt = "%B(%m) %c Analog-CVS>%b "
+
+cd /nfs/iil/proj/mpg/procw42/dslov/acrav
+select $PWD
+
+
+= common CVS commands =
+ 
+* checkout
+Copy from repository to your area
+ 
+* update
+cvs update -P -d ###################
+cvs update -r dir version   #revert to old version
+update your copy with any changes from the central repository. -P means "Prune empty dirs"
+and -d means "Create new dirs even though they havent been checked out"
+You will get a list of file printed out with following prefixes -
+U - file was updated
+M - file was modified by you but yet wasnt committed
+C - you have conflicts. Need to resolve conflicts manually
+
+cvs -n update   ######################## Compare local files to repo
+
+* commit
+Checking your files back in.
+Can be performed on an up-to-date copy!
+ 
+* add
+* remove
+Adding or removing file.
+Note that it handle your copy only, you will still have to commit in order for your changes get into the repository.
+
+
+ >$ cd myproj
+ >$ ls
+     README.txt  a-subdir/   b-subdir/   hello.c
+ >$ cvs import -m "initial import into CVS" myproj jrandom start
+# cvs import -m "log msg" projname vendortag releasetag
+# this would init the cvs project repo
+# to check out the project do:
+ >$ cvs checkout myproj
+### adding a header to the file that will contain CVS info: 
+ $Id$. This CVS keyword will expand out to the name of the RCS file (which is the name of the file plus a ,v),
+ the revision number, the last modified date, and the username of the person to last modify the file.
+$Revision$ - will contain just the revision number. 
+$Date$  -   date
+

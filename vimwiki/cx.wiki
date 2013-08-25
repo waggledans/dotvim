@@ -1,0 +1,11 @@
+# licenses:
+'sx_apx'  'spice_explorer' and 'cx_ultra'
+/nfs/site/eda/tools/synopsys/customexplorer/G-2012.06-SP1/linux_2.6.16_x86-64/bin/wv -ace_no_gui /nfs/iil/stod/areas/d/w.dslov.101/tdd/ace0.txt
+
+>cat $s101/tdd/ace0.txt
+sx_open_sim_file_read "/nfs/iil/proj/mpg/procw42/dslov/repo/avtipus/testcase/flow_test/rgabbai_files/sklfvrpwmana_exp2_1.fsdb"
+foreach signal [ sx_signal * ] {
+sx_display $signal
+set avg [ sx_equation mean($signal) ]
+puts "average value is $avg"
+}

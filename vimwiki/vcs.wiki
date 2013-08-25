@@ -1,0 +1,59 @@
+ = VCS help =
+* [[vcs_help]]
+* [[vlogan_help]]
+* [[vtbsim]]
+* [[how2use_search]]
+ 
+ = VCS setup =
+setenv VCS_HOME /p/mnr/mnr.cad.2/i386_linux26/synopsys/vcs/latest
+set path=($VCS_HOME/bin $path)
+setenv SNPSLMD_LICENSE_FILE port@host
+setenv SNPSLMD_LICENSE_FILE port@host
+
+
+ = VCS command examples =
+* my vcs command (to allow fdsb dump):
+	vcs -R -line -sverilog pfd_half.vs pfd.vs pfd_tb.vs -override_timescale=1ns/1ps -debug_all -full64 -P $NOVAS_HOME/share/PLI/vcs/LINUX64/novas.tab ${NOVAS_HOME}/share/PLI/vcs/LINUX64/pli.a
+	vcs +cli+3 -sverilog -f dlycell.f -override_timescale=1ps/1ps -debug_all -full64 -P $NOVAS_HOME/share/PLI/VCS/LINUX64/novas.tab  ${NOVAS_HOME}/share/PLI/VCS/LINUX64/pli.a  -R
+* my vcs command in tech:
+	vcs -RI -line -sverilog FILES -override_timescale=1ns/1ps -debug_all +define+ASSERT_ON+COVER_ON
+#debussy fsdb use
+under $NOVAS_HOME/share/PLI/vcs71:
+> vcs -line +cli+3 \
+-P ${NOVAS_HOME}/share/PLI/vcs/LINUX64/novas.tab ${NOVAS_HOME}/share/PLI/vcs/LINUX64/pli.a design.v
+ = typical VCS flags =
+ -line  Enables stepping through the code and source line breakpoints in  DVE.
+ -R     Run the executable file immediately after VCS links together the executable file.
+        You can add any runtime option to the vcs command line.
+ -debug_all Enables the use of UCLI and DVE. Also enables line stepping
+ -P <pli.tab>   Specifies a PLI table fil
+-v - verilog library file
+-y - directory file (could be used with libext)
++incdir+directory+
++libext+extension+
+vcs -y rev1 -y rev2 -y rev3 +libext+.v top.v
+-R run the compiled file immediately
++define+macro=value+
+	vcs design.v +define+USELIB="dir=dir1 dir=dir2"
+	(it could be used in compiler directive `uselib `USELIB libext+.v)
+-PP Enables you to enter in your Verilog source code system tasks like  $vcdpluson to create a VPD file during simulation. This option 
+    minimizes net data details for faster post-processing. 
+
+
+= 3 stages run =
+* analyse:
+vlogan -sverilog [vlogan_options] file4.sv file5.v
+* elaborate
+vcs [elab_options] top_cfg/entity/module
+* simulate
+simv [simv_options]
+
+VCS Verilog-2001 (+v2k) aliases to: compile & run; compile, run & dump 
+alias	vcsr="vcs	-R +v2k"
+alias vcsdump="vcs -PP -R +v2k +define+VPD" 
+VCS SystemVerilog (-sverilog) aliases to: compile; compile & run; compile, run & dump
+
+alias svcs="vcs 	-sverilog +define+SV"
+alias svcsr="vcs	-R -sverilog +define+SV"
+alias svcsdump="vcs -PP -R -sverilog +define+SV +define+VPD"
+

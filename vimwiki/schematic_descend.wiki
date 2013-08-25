@@ -1,0 +1,139 @@
+Problem
+
+Setting bindkey to descend to schematic or symbol view.
+
+How to set a bindkey to descend to 'schematic' view and another bindkey to descend to 'symbol' view. This should happen without the dialog box coming up which prompts for which view do you want to descend into ?
+ 
+
+Solution
+
+You can use the following entry in .cdsenv to specify how schematic descend command behaves:
+
+ 
+
+schematic      descendTarget   string "use viewNameList"
+
+ 
+
+You can also do below interactively in CIW or place it in .cdsinit:
+
+envSetVal("schematic"  "descendTarget"    'string  "use viewNameList")
+
+ 
+
+By default, this environment variable is set to "query user" and hence it asks you to select the view to descend into. After setting this variable to use viewNameList, the descend command will directly go to the first view available in viewNameList defined at following places:
+
+ 
+
+1. viewNameList property found on the schematic cellview from where you are descending. This has a higher precedence over point 2 below.
+
+ 
+
+2. .cdsenv variable:
+
+schematic  viewNameList  string  "schematic symbol"
+
+ 
+
+Finally, it descends in the first view specified in above variables.
+
+ 
+
+The viewNameList can also be defined in View Name List field of Options -> Editor form of Virtuoso Schematic.
+
+To have unique bindkeys one for descend to schematic and one for descend to symbol, include the following in your .cdsinit file:
+
+
+;-------------------x From Here x-----------------
+
+/*************************************************************************
+
+* DISCLAIMER: The following code is provided for Cadence customers       *
+
+* to use at their own risk. The code may require modification to         *
+
+* satisfy the requirements of any user. The code and any modifications   *
+
+* to the code may not be compatible with current or future versions of   *
+
+* Cadence products. THE CODE IS PROVIDED "AS IS" AND WITH NO WARRANTIES, *
+
+* INCLUDING WITHOUT LIMITATION ANY EXPRESS WARRANTIES OR IMPLIED         *
+
+* WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.         *
+
+*************************************************************************/
+
+procedure(CCSdescSymbol()
+
+let( ()
+
+    getCurrentWindow()->viewNameList = "symbol"
+
+    schHiDescend()
+
+) ;let
+
+)
+
+procedure(CCSdescSchematic()
+
+let( ()
+
+     getCurrentWindow()->viewNameList = "schematic"
+
+     schHiDescend()
+
+     ) ;let
+
+)    
+
+hiSetBindKey("Schematics" "<Key>e"  "CCSdescSymbol()")
+
+hiSetBindKey("Schematics" "Shift<Key>e"  "CCSdescSchematic()")
+
+;-------------------x Till Here x-----------------
+
+Key "e" will work for descend to symbol. Key "Shift-e" will work for descend to Schematic view.
+
+
+
+If you would like to define two bindkeys say "k" and "Shift-k" such that "k" should automatically descend into the first view i.e. schematic as per the viewNameList .cdsenv variable and another key "Shift-k" to query the user about the particular view to descend into. We can define the following SKILL code and load it in .cdsinit file.
+
+
+;-------------------x From Here x-----------------
+
+procedure(CCSDescendSchematic()
+
+let( ()
+
+envSetVal("schematic" "descendTarget"  'string  "use viewNameList")
+
+schHiDescend()
+
+) ;let
+
+) ;proc
+
+
+procedure(CCSDescendqueryuser()
+
+let( ()
+
+envSetVal("schematic" "descendTarget"  'string  "query user")
+
+schHiDescend()
+
+) ;let
+
+);proc
+
+
+
+hiSetBindKey("Schematics" "<Key>K" "CCSDescendSchematic()")
+
+hiSetBindKey("Schematics" "Shift <Key>K" "CCSDescendqueryuser()")
+
+;-------------------x Till Here x-----------------
+
+

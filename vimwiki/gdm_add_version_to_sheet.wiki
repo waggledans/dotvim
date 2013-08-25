@@ -1,0 +1,46 @@
+How to display the checkedout version of schematic in GDM based DM software like designSync?
+
+Problem
+How to display the version number of schematic cellview on a sheet, while working in DesignSync, VersionSync?
+Solution
+You can do it using the SKILL program given at the end. DesignSync supplies SKILL command dssGetViewVersionP(lib cell view) to achieve this.
+ 
+You may put the complete program in .cdsinit file or put the following line in your .cdsinit file and store the code in file named CCSVsGetCurrentVersion.il.
+------------
+load "<full_path_name>/CCSVsGetCurrentVersion.il"
+------------
+ 
+Add a label in the Asize(Sheet) symbol view, of type "ILLabel". Put the following line in text field :
+ 
+strcat( "Version: " CCSVsGetCurrentVersion( ilInst~>cellView ) )
+ 
+When you open a cell schematic view (with the Asize symbol), the current value (version) of a cellview will be shown.
+ 
+/*******************************************************************************
+*  DISCLAIMER: The following code is provided for Cadence customers to use at  *
+*   their own risk. The code may require modification to satisfy the           *
+*   requirements of any user. The code and any modifications to the code may   *
+*   not be compatible with current or future versions of Cadence products.     *
+*   THE CODE IS PROVIDED "AS IS" AND WITH NO WARRANTIES, INCLUDING WITHOUT     *
+*   LIMITATION ANY EXPRESS WARRANTIES OR IMPLIED WARRANTIES OF MERCHANTABILITY *
+*   OR FITNESS FOR A PARTICULAR USE.                                           *
+*******************************************************************************/
+;   Tested in     : IC5141
+;   SKILL Lint Score IC5.1.41 (Max=100) : 100
+;   SKILL Audit IC5141: Passed, no private functions were found.
+; ============ Cut Here ===================
+; File name is CCSvsGetCurrentVersion.il
+ 
+procedure( CCSVsGetCurrentVersion( cv )
+let( (myspec returnval )
+myspec=gdmCreateSpec("" "" "" cv~>fileName "CDBA")
+returnval = gdmstatus(myspec 10)
+returnval = cadr( parseString(caar(returnval) ))
+) ;end of let
+) ; end of procedure
+ 
+============ Upto Here ===================
+ 
+Although this solution is written for versionsync, it will work for any Design manager integrated into DFII using GDM interface.
+ 
+Note: This SKILL code will not work on IC446 and earlier releases because SKILL function gdmstatus() got introduced in IC5.0 onwards.

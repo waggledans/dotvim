@@ -1,0 +1,64 @@
+= Netlisting and Compiling with AMS Design Prep =
+# Plugins -> AMS. Then AMS -> Initialize, Then AMS-> QuickSetup, then AMS->NetlistAndRun 
+# In Netlist and Run ... choose Transient Stop Time and Model Libraries (.scs) to be NN (nominal)
+# Run to netlist and simulate (may need to define ncvlog (if it is not found in the $PATH)):
+# set vmsNcvlogExecutable = "/nfs/site/eda/tools/cadence/ius/ius92-e383/linux_2.6.16_x86-64/tools/bin/ncvlog"
+# simulation log should be in: <run_dir(as defined in ams->initialize)>/psf/simulation.log
+= ncvlog compile =
+(http://alliance.intel.com/cadence_doc/amssimug/chap6.html#1031356)
+% ncvlog -ams foo.v foo2.vms          // foo.v and foo2.vms are source files
+creates inca.architecture.lib_version.pak which is a single database file containing all the design
+# export vams file to the library pointed by -work:
+% ncvlog -use5x -ams -cdslib ./cds.lib -work amsPLL -view verilogams dcc/dline.vams
+
+= ncelab elaborate =
+* If ncelab does not find any errors, it produces a snapshot (simulation data at time 0)
+* simulation log should be in: <run_dir(as defined in ams->initialize)>/psf/ncelab.log
+= ncsim simulate =
+* ncsim [options] [Lib.]Cell[:View]
+% ncsim -amslic top
+= Examples of 3-command run =
+# ex1:
+> ncvlog -ams top.v test1.vams
+> ncelab -snap mysnapshot top
+> ncsim -ana test.scs mysnapshot
+# ex2
+> ncvlog -ams -cdslib cds.lib ./source/digital/*.v
+> ncelab worklib.testbench connectLib.ConnRules_18V_full -cdslib cds.lib -hdlvar hdl.var -snapshot top:snapshot \
+        -amsf -timescale 1ns/100ps -discipline logic -prop prop.cfg
+> ncsim top:snapshot -cdslib cds.lib -analogcontrol top.scs -input probe.tcl -simcompat hspice
+= Examples of 1-command run (irun) =
+# Running ex2 with one command:
+> irun ./source/digital/*.v ./amscf.scs -amsf -timescale 1ns/100ps -input probe.tcl
+# amscs.scs will contain all model files (scs format)
+# probe.tcl will specify what nodes to probe and save the info to waves.shm database
+ in addition one may specify some_name.scs - analog solver control file:
+    simulator lang=spice lookup=spectre
+    .tran 1ns 200ns
+    *ultrasim: .usim_opt method=gear2
+    *ultrasim: .usim_opt progress_p=10
+    .probe v(*) depth=3 preserve=port
+    .probe v(testbench.p1.vcom) v(testbench.p1.vcop)
+    .end
+
+
+irun -spectre_args +turbo  # enable spectre turbo mode
+
+schematics:
+cdsHierEditor -cdslib cds.lib -lib lib_name -cell cell_name -view <view> -mode <r|w|a> -log 
+
+= AMS netlisting =
+amsdirect -LIb libName[ -Cell cellName][ -VIew <schematic, symbolic, maskLayout, or netlist>][ -VERIlog] 
+        [ -LOg logFileName][ -Incremental][ -Help]
+example: amsdirect -lib mylib -view schematic -verilog
+amsdesigner -lib libName -cell cellName -view viewName
+                 action_option {action_option} {setup_option}
+
+= My amsd notes =
+I used an example in /nfs/iil/stod/stod075/w.dslov.101/analog_setup/cadence/spice_in_middle
+copied from: /nfs/site/eda/tools/cadence/ius/8.10.002/linux_2.6.5_x86-64/tools/amsd/samles
+spice_in_middle/source/analog:
+ChargePump.sp*  Gates.sp*  PLL.sp*  PhaseDetector.sp*  VCO.va*
+spice_in_middle/source/digital:
+counter.v*  divider.v*  stimuli.vams*
+

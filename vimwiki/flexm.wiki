@@ -1,0 +1,4 @@
+lmstat -c 26586@ilic2004.iil.intel.com:26586@ilic2005.iil.intel.com:26586@ilic2006.iil.intel.com:26586@ilic2007.iil.intel.com:26586@ilic2008.iil.intel.com:26586@ilic2009.iil.intel.com:26586@plxs0412.pdx.intel.com:26586@plxs0413.pdx.intel.com:26586@fmylic36c.fm.intel.com:26586@scylic13.sc.intel.com:26586@fmylic36a.fm.intel.com.com:26586@pgllic11.png.intel.com:26586@inllic04.iind.intel.com -f artistIF | grep Total
+Users of artistIF:  (Total of 5 licenses issued;  Total of 1 license in use)
+
+lmstat -c 26586@ilic2004.iil.intel.com -f artistIF -i

@@ -1,0 +1,138 @@
+How to check for saved CDF instance parameters overwriting iPar / pPar expressions?
+How to get field value in SKILL form callback?
+How to create CDF entries for schematic with pPar() statements?
+How to OK pop up form automatically while updating library manager and CDFs, use ddsRefresh
+######################################################################################
+How to get field value in SKILL form callback?
+--------------------------------------------------------------------------------
+Problem
+My PDK/designkit contains devices with CDF parameters having default values set as iPar, pPar expressions.
+These parameters are not visible or editable. 
+It turned out that the netlist generated for the schematic containing instances of these devices is incorrect in some cases.
+It turned out that the problem is due to saved parameter value at the instance level instead of getting evaluated based on the expressions. 
+I am looking for a solution to find such devices and remove saved values.
+Solution
+We can use the following SKILL approach:
+(CCSDelParamValue lib) 
+######################################################################################
+How to get field value in SKILL form callback?
+--------------------------------------------------------------------------------
+Problem
+I am writing SKILL to create a form with one cyclic field that has three choices.  When the user clicks "Close" I want to run a callback based on the value of what was chosen in the cyclic field.  I don't seem to be passing the value of the field to the callback. Instead I get some information about the type of field.
+Here is my code:
+THEfield = hiCreateCyclicField(
+    ?name 'My_field
+    ?choices list("First Choice" "Second Choice" "Third Choice")
+    ?prompt "Please make your choice."
+)
+hiCreateAppForm( 
+    ?name 'My_form
+    ?buttonLayout 'Close   
+    ?buttonDisabled '(Help)
+    ?fields list(THEfield)
+    ?formTitle "Chooser"
+    ?callback "getChoice(THEfield)"
+) ; end hiCreateAppForm
+hiDisplayForm( My_form )
+procedure( getChoice(FieldReturn)
+    print( FieldReturn )
+)
+I expected that print(FieldReturn) would give me "First Choice", "Second Choice" or "Third Choice", depending on what was chosen.  Instead, I get something like this:
+cyclicStruct@0xb5cdef8
+What I am doing wrong?
+--------------------------------------------------------------------------------
+Solution
+You could just pass the form structure rather than the field structure, something like:
+   ?callback 'getChoice ;; automatically passes form structure
+Then modify the callback function to get the current value of the field:
+procedure( getChoice(form)
+   print( form->My_field->value )
+)
+returns =>    t
+prints:        "First Choice"
+The issue with the above is that the callback explicitly uses the name of the field, which is not very portable/re-usable.
+Another approach then would be to explicitly pass the form structure and the name of the field to the callback:
+   ?callback "getChoice(My_form 'My_field)"
+The 'My_form' variable is global (it has to be) so it is fine to use this global variable directly.  The value passed to the callback needs to exist at the global scope.  Then the field is being named, again, rather than passing the field structure, we use the "symbol" of the field.  The callback code itself might be something like this:
+procedure( getChoice(form field)
+   print( getq(get(form field) value) )
+)
+In the above, "getq" is the same as "->" but the "get" is needed so that "field" is evaluated rather than being taken literally (i.e. form->field->value will *not* work as "field" will not be evaluated but taken literally instead).
+######################################################################################
+How to create CDF entries for schematic with pPar() statements?
+--------------------------------------------------------------------------------
+Problem
+After adding some pPar statements to a schematic, how can I get 
+these to automatically generate the cell CDF parameters just like 
+when the symbol is created? 
+--------------------------------------------------------------------------------
+Solution
+Cell CDF is created from pPar statements in the schematic when 
+you select Create -> Cellview -> From Cellview 
+(this is the schHiViewToView() SKILL function). 
+You can call the above function even when an existing symbol is 
+present, and if so, a pop-up is generated with the message: 
+Cellview 'xxx' symbol already exists. 
+(Replace) (Modify) (Cancel) (Help) 
+It is possible to choose "Modify" and things like new pins will be 
+added, and the cell CDF will be regenerated. 
+Another method that you might consider to trigger the CDF creation: 
+artGenerateHierSymbolCDF( geGetEditCellView() ) 
+;; assuming the schematic is open and current 
+This function will create or re-create the CDF, here's a excerpt from 
+the documentation: 
+artGenerateHierSymbolCDF( d_cellView [g_overwrite] ) 
+=> t 
+Creates the cell CDF for the specified cellView, in the same way as 
+happens when you create a symbol from a schematic in Composer. 
+The cellView will be examined for any use of pPar() in expressions, 
+and the corresponding parameters will be added to the CDF if they are 
+not already present. Whilst both schematic and symbol cellViews may 
+be passed to this function, it is usually best to pass a schematic 
+cellView, in order to get the pPar()s used into the CDF. 
+======================================================= ========== 
+You could choose either method, in the latter case there is no danger 
+of touching the symbol, it only creates or recreates the cell CDF. 
+######################################################################################
+How to OK pop up form automatically while updating library manager and CDFs, use ddsRefresh
+--------------------------------------------------------------------------------
+Problem
+I need a way to update the library & CDFs via SKILL code.  CIW->File->Refresh requires user interaction.
+The function ddsHiRefresh also requires a user to "OK" the pop-up so that CDFs get updated and is essentially same as running above. 
+I need a way to accomplish this without user interactions, is there a SKILL function to do that?
+Solution
+IC6.1.4.500.2 onwards there is a non HI SKILL function called ddsRefresh() available which can be used instead of ddsHiRefresh() which the menu calls.  
+ddsRefresh supports 3 key type arguments called cellview, cdf and property. So, for only refreshing CDF's you can call in CIW:
+ddsRefresh(?cdf t )
+For updating CDF's, as well as cellviews and property bags, run in CIW:
+ddsRefresh(?cellview t ?cdf t ?property t)
+WORKAROUND FOR EARLIER RELEASES:
+=====================================
+For releases prior to IC6.1.4.500.2 load the SKILL code mentioned below in CIW. It will define a function CCSrefresh() .
+Call this function whenever you want to refresh the CDF's and library list. 
+;****************refresh.il************************ 
+/********************************************************************
+* DISCLAIMER: The following code is provided for Cadence customers       *
+* to use at their own risk. The code may require modification to         *
+* satisfy the requirements of any user. The code and any modifications   *
+* to the code may not be compatible with current or future versions of   *
+* Cadence products. THE CODE IS PROVIDED "AS IS" AND WITH NO WARRANTIES, *
+* INCLUDING WITHOUT LIMITATION ANY EXPRESS WARRANTIES OR IMPLIED         *
+* WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.         *
+***********************************************************************/
+procedure(CCSrefresh()
+   ;; In 1 second, if a "No Data to Refresh" dialog box
+   ;; appears, dismiss it. Also in 1 second, when the
+   ;; "Refresh Data From Disk" appears, OK the form.
+   hiRegTimer("and(boundp('ddsDBox) ddsDBox
+       hiDBoxOK(ddsDBox))
+     and(boundp('ddsRefreshForm) ddsRefreshForm
+       hiFormDone(ddsRefreshForm))" 10)
+   ;; Call the Refresh function
+   ddsHiRefresh()
+)
+;***********************************************
+So, if you give CCSrefresh() in CIW, it will automatically OK the form which
+pops up during the refresh. It also takes care of the condition where
+"nothing to refresh" message  comes.
+######################################################################################

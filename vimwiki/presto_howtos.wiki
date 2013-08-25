@@ -1,0 +1,209 @@
+### General Notes ###
+# 
+### Running simulation
+## Build
+prs_build -cell < name of design > -view <iif,sn,sch> -path <full to netlist files>
+# Examples
+prs_build -file netlists/netcvs/iftlbd.iif -no_dms -bboxes {gm_buffer gm_lgpg}
+# Simulation type:
+set_analysis -type tran -step limit -start 0.0 -pairs {<step> <stop>} -index 0
+# Input stimuli
+    set_wave -type <v|i> -shape dc -dc <dc value> name
+    set_wave -type v -shape dc -dc vss cse0dc
+    set_wave -type V -shape pwl -dc 0.0 -pwl "1.35e-10 0.0 1.55e-10 0.25 1.75e-10    1.0 1.95e-10 1.25 4.65e-10 1.25 4.85e-10 1.0 5.05e-10 0.25 5.25e-10 0.0" -repeat -1.35e-10 vadr
+    set_wave -type V -shape dc -dc 1.25 vcc
+    set_wave -type V -shape pwl -dc 0.0 -pwl "1.35e-10 0.0 1.55e-10 0.25 1.75e-10    1.0 1.95e-10 1.25 3e-10 1.25 3.2e-10 1.0 3.4e-10 0.25 3.6e-10 0.0" -repeat 3e-11 vclock
+    set_wave -type V -shape pwl -dc 0.0 -pwl "3e-10 0.0 3.2e-10 0.25 3.4e-10    1.0 3.6e-10 1.25 4.65e-10 1.25 4.85e-10 1.0 5.05e-10 0.25 5.25e-10 0.0" -repeat 1.95e-10 vclock2
+    set_wave -type V -shape dc -dc 0.0 vss
+    set_source -stimuli vcc {name%pin}
+    set_source net $pin -stimuli wave1 $pin
+    set_source -stimuli cse0dc tag_all:vss
+
+# setting source using a loop
+    foreach_epin_of [get_top_elem] pin {
+    if { [epin_get_direction $pin]=="In" } {
+        set_source -net $pin -stimuli $pin $pin
+    }
+}
+
+# for each input pin create a default dc stimuli 
+foreach_epin_of [get_top_elem] pin {
+    if { [epin_get_direction $pin]=="In" } {
+        set_wave -shape dc -dc 0 $pin
+    }
+}
+# parameterize the dc value of wave zm8binv%a
+set_wave  -dc =dv_value zm8binv%a 
+# print the definition of all the stimuli waves 
+foreach wave [get_wave -reg .*] {
+    puts "Definition of wave $wave : [get_wave -formula $wave]"
+}
+
+
+# set probing points:
+set_probe -type <v|i|vp> <net|pin>
+# set_parameter
+#Example: To set the values of the parameter 'csedefl' to 0.16, 0.17, 0.18, 0.19, 0.2:
+set_parameter -start 0.16 -incr 0.01 -last 0.19 -add 0.2 csedefl
+## measurements
+set_measurement -type <type> -wave <wave name> <name> # calculate one wave:
+# example
+set_measurement -type max -cond_color {{>0.9 #ff0000 #ffff9c}} -from 0.0 -wave ms_fvrptr_bump_scaledp72/bmp0ptrn/ifvrptrbdn:dd,V max0
+# To calculate one wave involving a scalar:
+set_measurement -type <type> -wave <wave name> -scalar <value>    <name>
+# To calculate multiple waves:
+set_measurement -type <type> -wave <wave name> -ref <wave name>    <name>
+get_measurement -value <name> # Getting measurement results
+###  splits:
+set_split_mode -auto ; # - set split mode to automatic
+generate_split          # in auto mode generate all the parameters permutations
+set_split -ref_split split2 split3 # To copy split2 to split3:
+set_group -add c1 mygroup   # create a new group and add there a parameter named c1
+
+
+# create sub_circuit if the only a certain path is interesting
+set_sub_circuit -elems iftlbd/i486/ismtag/icore_way01/i109/i38  -active rd_path 
+set_sub_circuit -elems iftlbd/i486/ismtag/icore_way01/i109/i38 -active rd_path
+set_sub_circuit -append -elems iftlbd/i486/ismdata/icore/itop[1] rd_path
+set_sub_circuit -append -elems  iftlbd/i486/ismdata/icore/ibankc0v0/ismdataslice_bottom/i68[17]/sliceway_01 rd_path
+set_sub_circuit -append -elems iftlbd/i486/ismdata/icore/ibankc0v0/ismdataslice_bottom/i68[17]/i0  rd_path
+
+
+set_sim_driver mynx
+set_analysis -pairs {10ps 1us} -index 0
+
+#### udmpp introduction
+# pin
+epin_get_direction <pin name> # Return the direction if pin (In/Out/InOut)
+epin_get_external_enet < pin name> #Return the net connect to the pin from the "outside of the pin"
+epin_get_internal_enet <pin name>  # Return the net connect to the pin from the "outside of the pin"
+epin_get_owner_elem <pin name>  #Return the cell in which the pin exists
+# net
+enet_get_epins  <net name> #return a list of all the pins connected to the net
+enet_get_owner_elem <net name> #Return the cell in which the net exists 
+enet_get_node <net name> #Return the top level net to which this net connected to.
+enet_get_master_net <net name> #return the template of the net.
+enet_get_interface_epin <net name> #Return list of interface pin the net connect to
+# cell
+elem_get_child_elems  <cell> #Returns a list of all the child of a cell
+elem_get_enets <cell> #Return a list of all the top level nets in the cell
+elem_get_epins <cell> #Return a list of all the interface pin of the cell
+elem_get_master_cell <cell> #Return the template of the cell
+# traversal
+# foreach_e[pin|net|lem]  <varname>  [-context <elem to start from>] [-regex <regular expression>]  { code block }
+# example:
+foreach_epin pin -regex ddrckeafetopana%vcc.* {set_source -stimuli vcc $pin}
+foreach_epin  pin {puts $pin} # Print all the pins in the design
+foreach_enet net {puts $net} # Print all the nets in the design
+foreach_elem elem {puts $elem} # Print all the cells/devices in the design
+# dynamic properties
+get_property <object> <property name>
+set_property <object> <property name> <value>
+
+# parametrization
+> set_property -name z -object a/m1 -formula "a/m2->z * 2"
+# formula says : the property z of transistor a/m1 will have double the value of property z of transistor a/m2
+> set_property -name z -object a/m1 -formula myz
+# formula says : the property z of transistor a/m1 will have the value of a split parameter called myz.
+# In the next chapter  we will see way to assign values to split parameters in Presto.
+
+# Categories: pin, net, cell etc
+# foreach_elem elem {
+ switch -- $elem { 
+    Pin { puts "$elem is a pin" }
+    Net { puts "$elem is a net" }
+    NMOS { puts "$elem is nmos transistor " }
+    PMOS { puts "$elem is pmos transistor " }
+    default  { puts "Object type is unknown"}
+}
+# parasititcs
+set_parasitics_mode –parest_heuristics  1268+  // new heuristics
+
+##### Gate/Neck Resistance
+# In  the new heuristics “1268+” parest estimates the gate resistance (gate_r) and the gate wiring connection resistance (neck_r).
+# Gate_r can only be activated if “1268+” heuristics is on. Neck_r can only be activated if the gate_r flag is on.
+set_parasitics_mode –gate_r  <1|0> // gate r
+set_parasitics_mode –neck_r  <1|0> // neck r
+
+# Global nets parasitics estimation
+# ich_global – PdmParest heuristics that allows parasitics estimation for “global nets”.
+set_parasitics_mode –ich_global  <1|0> // estimate global nets
+
+#### Presto allows loading different post layout data files set for each split:
+# a)	State the types of post layout data files to be used.
+set_parasitics_config -post_layout_splits  { ntcl dpf rcd …} // will automatically create parameters under the group “pl_group” in the split table.
+# b)	Under pl_dpf_files parameters set you dpf files in the discrete values and the correct order
+# c) do b) for ntcl files.These values are treated as any split parameters values.      
+
+
+
+
+
+
+################ PRESTO XA #######################
+The PDMI="1" will exist in spice file when
+a) Environment variable pdmi_lib is set in xterm
+    setenv pdmi_lib <pdmiso path> 
+b) in presto shell:
+    set_setup -value <pdmiso path> prs_pdmi_path
+
+The former step will generate only
+.option PDMI="1"
+While the latter will generate
+.option PDMI="1"
+.option pdmi_lib="<pdmiso path>
+####################################################
+# mynx simulate
+mynx -x +presto -s=vcs -o=dcc_exp2 /nfs/iil/stod/areas/d/w.dslov.101/skl_aip/analog_setup/presto/mynx/dcc_exp2/dcc_exp2_1/mynx.ssp
+# prs exec:
+$PRESTO/bin/mynx_job_man.tcl -spl=1 $MYNX/bin/mynx NONE vcs NONE -o=dcc_exp2 dcc_exp2 /nfs/iil/stod/areas/d/w.dslov.101/skl_aip/analog_setup/presto NONE NONE NONE /nfs/iil/stod/areas/d/w.dslov.101/skl_aip/analog_setup/presto/mynx/dcc_exp2/dcc_exp2_1/mynx.ssp
+
+
+
+set_setup -type string -value path_to_hsp_file/filename.hsp hsp_upf
+set_setup -type string -value /p/mpg/proc/cad/em64t_linux26/sklupf/p1272_6x0r0/p1272_6x0r0.hsp hsp_upf
+# set multithreading mode:
+set_lynx_options  -threads 8
+
+# reduce simulation time
+Hi Ofir,
+Your case is using step factor 1 and table loop-up disabled. Please enable table loop-up and set step factor to 1000, 
+this should improve the lynx simulation time which I think will not lose your result accuracy.
+
+    set_lynx_options -mode standard -look_up 1 -vtol 0.003 -step_factor 1000
+
+Another way is as what Yee Leck suggested which trade accuracy for simulation time reduction:
+lumping over distributed parasitics - in your case will have significant speed up because the parasitics is much simplified, the spice file generated to lynx also much smaller. You can selectively choose which nets to lump or keep distributed to improve run time.
+
+Among all the experiments, there are 2 experiments able to reduce the simulation run time and yet maintain the accuracy
+
+- Lumping all distributed parasitics
+It only took about 15 minutes to get the simulation done. From my point of view, The accuracy of the simulation result still acceptable if compare to original one.
+
+- Running Lynx in parallel (8 threads) with step factor 1000
+It has high accuracy in the simulation result. Regarding the simulation time, it took about 3 hours which I think is reasonable as well.
+
+
+## add step 
+set_analysis -pairs {0.022 =100ns} -index 3
+## remove step
+remove_analysis -index 3
+
+## Parasitics 
+# the next command sets xcoupler to coord (could be  lumped or none) and sets a victim net  sklllttmrcv:cvwrwayc120lnnb
+# to connect to driver on attacker's net
+
+set_parasitics_config -mode hier_smashed -ic_sources .ntcl -dp_sources .dpf 
+-cell_config {{sklllttmrcv {/nfs/iil/stod/stod125/w.dslov.102/analog_setup/presto/tickets/motym/sklllttmrcv.ntcl.gz 
+/nfs/iil/stod/stod125/w.dslov.102/analog_setup/presto/tickets/motym/sklllttmrcv.dpf}}} -force_hier 1 -laos 0 -keep_opens 0 
+-keep_mismatches 0 -plexus 0 -p2p_res 0 -keep_postlayout {} -glob_R_mult 1.1 -glob_C_mult 1.0 -glob_mcf 1.5 -r2ftr_thresh -1 
+-r2ftr_files {} -convertedFTRCfac {-1 -1} -mcf_per_net {} -lumped none -max_lumped_res 0 -dist_nets {} 
+-xpar {cap no_minduct} -xtab none -xcaps {sklllttmrcv:cvwrwayc120lnn sklllttmrcv:cvwrwayc120lnnb} 
+-xcoupler coord -xcoupler_addnl_op {} -xcap_profile connect2driver -xcap_profile_nets sklllttmrcv:cvwrwayc120lnnb
+
+## netlist
+If you wish to get hierarchical netlist, please run
+    write_netlist -format sp -path <location>
+If you wish to get flatten netlist together with simulation settings, please run
+    simulate -nojob
+

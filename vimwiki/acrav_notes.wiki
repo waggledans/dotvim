@@ -1,0 +1,58 @@
+set args = ($args:q "$arg")
+exec  $CAD_ROOT/tcl/8.4.6o_64/bin/tclsh8.4 $ACRAV/structure/StructInit.tcl $args:q
+
+# if run with '-gui' flag : $ACRAV/bin/acravshell is started
+# where acrav_create is started from  $ACRAV/tcl/pack_acrav_gui.tcl
+# if no gui then:
+# $ACRAV/structure/StructInit.tcl $args:q
+#
+###################### StructInit
+# Load Phases and define $phases
+source $env(ACRAV)/structure/tcl/AcrPhase.itcl
+source $env(ACRAV)/tcl/acrav_pkg/phases/AcrPhasesCfg.tcl
+# Load Struct Code
+source $env(ACRAV)/structure/tcl/getopt.tcl
+source $env(ACRAV)/structure/tcl/Flow.itcl
+source $env(ACRAV)/flow_mgr/tcl/acrav_pkg/phases/AcrPhStart.itcl
+######## the flow starts here ##############
+AcrPhGlobal phglobal
+AcravFlowObj addPhase -phase phglobal
+
+AcrPhStart Start
+AcravFlowObj addPhase -phase Start
+
+foreach phase $phases {
+    lassign $phase phase name object title tip
+    $object $name
+    AcravFlowObj addPhase -phase $name
+}
+
+AcrPhEnd End
+AcravFlowObj addPhase -phase End
+source $env(ACRAV)/structure/tcl/AcrIOmgr.tcl
+
+eval "AcravFlowObj run $argv"
+
+########### GUI ##################
+#the file is here:
+flow_mgr/tcl/pack_acrav_gui.tcl
+#the gui contols is here:
+flow_mgr/tcl/acrav_pkg/gui/AgFlowCtl.itk
+
+########### classes ##############
+AcrPhFlow
+AcrIOmgr
+AcrPhase
+    AcrPhGlobal
+    AcrPhStart
+    AcrPhEnd
+    AcrPhAipFev
+    AcrPhNetlist
+
+
+# running acrav from the command line:
+
+acrav -gui -gui_table file.csv
+acrav -cell comp_uga -phases netlist,aipfev -pargs "aipfev model=fc-ertl-skl-a0-12ww28a:part_uncore_c4gmw16"
+acrav -cell c82mdcpiphvm2 -phases Netlist,aipfev -pargs "Netlist:onlySn=True,runMachine=local aipfev:milestone=cdr1,skew=ffff,uselib=sklip"
+

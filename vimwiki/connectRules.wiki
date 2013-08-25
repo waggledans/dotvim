@@ -1,0 +1,41 @@
+= Standard connectRules compile script =
+$AMSHOME/tools/affirma_ams/etc/install/amsConnectLibCompile
+= You are using the AMS in ADE with OSS Netlister and would like to add connect rule from connect rules file.=
+== Problem ==
+Is there any way to setup AMS in ADE to automatically add connect rule from connect rule file, to the list of connect rules used in simulation?
+== Solution ==
+For one connect rule add the following to .cdsinit file: 
+  envSetVal("ams.envOpts" "rulesAndModulesFiles" 'string "/home/user1/ConnRules_full_fast.vams")
+  envSetVal("ams.envOpts" "rulesNames" 'string "ConnRules_1v")
+    This example will add ConnRules_12V_full_fast to list of connect rules used in simulation
+ For multiple connect rules add the following to .cdsinit file:
+  envSetVal("ams.envOpts" "rulesAndModulesFiles" 'string "/home/user1/ConnRules_full_fast.vams")
+  envSetVal("ams.envOpts" "rulesNames" 'string "ConnRules_12V_full_fast ConnRules_15V_full_fast")
+ This example will add ConnRules_12V_full_fast & ConnRules_15V_full_fast to list of connect rules used in simulation
+
+ also:
+
+  envSetVal("ams.envOpts" "selectRules" 'string "User defined")
+  envSetVal("ams.envOpts" "userRuleLib" 'string "connectLib")
+  envSetVal("ams.envOpts" "userRuleCell" 'string "mixedsignal")
+  envSetVal("ams.envOpts" "userRuleView" 'string "connect")
+= How to add user defined connect rules to "Built-in" cyclic field in ADE =
+== Problem ==
+You have written some "user-defined" connect rules and you would like to compile them and keep them in a common place so that they can be seen in ADE for all users.
+How is this done?
+== Solution ==
+This can be done by creating a connectRules.il file. You may follow the below steps to do this.
+1) Compile your connect modules once in a library. Say you have compiled it in a library "MY_CONNECTLIB"
+2) Create a connectRules.il file with the above connect modules information. Ex:
+% genConnRulesFile -destpath /home/central -lib MY_CONNECTLIB /home/central/myconnect_lib/*.vams
+If your connect modules have *.v extension, please change them to *.vams. The above command will create a connectRules.il file in /home/central directory and this will have information about the modules compiled in MY_CONNECTLIB
+For more information regarding the usage of genConnRulesFile, please refer to Chapter 2, 'Environment Setup' of "Virtuoso Analog Design Environment User Guide",  
+3) Keep this connectRules.il in user home directory or in current working directory or inside the library containing these compiled connect modules. In this case, it's MY_CONNECTLIB. Please refer to above mentioned documentaion for more details regarding the connectModules.il search order. 
+4) In user's cds.lib file, define and add the path to MY_CONNECTLIB library where you have compiled it centrally.
+5) Now, when the user opens ADE-> Setup-> Connect Rules window, these compiled connect modules will appear in 'Built-In' section. Please be noted that this information is picked from the connectRules.il file and hence it's visible in 'Built-In' section.
+In this way, a CAD engineer can compile connect modules in a central location, create a connectRules.il and provide this file to all users. And these modules will be visible in ADE for them.
+= you have major changes (or want to define alternative connect rule library =
+* Create an empty library connectlib
+* modify the files you want in src directory and recompile:
+* genConnRulesFile -lib connectlib  <path_to_src>/*.vams
+

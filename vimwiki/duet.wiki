@@ -1,0 +1,1351 @@
+Contents:
+1. HSW duet_erc MPP rules
+2. IVB MPP (not much really)
+3. SKL duet AIP cheat sheet
+
+1. HSW MPP concepts:
+Violation   - is presented in the Duet Gui.
+Relation    - is created for pair of signals. One is non-supply interface signal and another is supply or non-supply signal. Relation can not be resolved to assertion on the current level and is added to the collateral file to be resolved upper.
+Assertion   - is created for pair of supply interface signals. Usually assertion is accompanied by violation   
+	      and is used to propagate upper information about existing prohibited connections. 
+	      At FC level assertion can be resolved or transformed to the FC violation. 
+	      Assertion is added to the collateral file and can not be waived/excluded.
+
+HZ is High Impedance connection between two signals (nets). This relation is order dependent. 
+    First net should be powered first. Example is a gate and diffusion
+BHZ is same as HZ, but between bulk and diffusion. (bulk should be powered first apparently)
+LZ is Low Impedance connection between two signals (nets). This relation is not order dependent.
+    Example is a relation between two diffusions of the same transistor
+Example:
+  <relation type=LZ p1=vcc_in p2=out />
+  <relation type=HZ p1=in p2=vcc_in1 /> 
+  <relation type=HZ p1=in p2=vcc_in2 />
+
+
+HSW assertions:
+<assertion type=power_master|greater_or_equal|power_gate|uhv|ehv|highv|nomv|lowv|
+	diffusion_connected_supplies p1=string p2=string />
+
+power_master - temporal. First signal should powered before the second:
+#     <assertion type=PM p1=vcc_in1 p2=vcc_in />
+power_gate   - same as power_master but voltages are related via power gate
+greater_or_equal - level. Min-of-Vcc1 must be greater than Max-of-Vcc2.
+	      Required if power-domain of the PMOS bulk is different from the power-domain of the diffusion
+	      in order to avoid forward biasing
+uhv, ehv, highv, nomv, lowv - some pins of level shifters need to be connected to certain voltage level only
+#HIGH_VOLTAGE_LIMIT_ERC = 1.2
+    UHV_LIMIT_ERC          = 1.89
+    EHV_LIMIT_ERC          = 1.6
+    HIGHV_LIMIT_ERC        = 1.05
+    NOMV_LIMIT_ERC         = 0.65
+see MPPBaseCheck for more  
+
+
+
+HSW rules:
+/p/hsw/pu_tu/prd/duet_queries/6.91p4.p52/ERC/
+BDW duet archive:
+/p/bdw/archive/subblock/block_name/duet_erc/
+# ERC/MPP
+ruleset=GlobalPowerRename
+ruleset=LocalSupplyConnection
+ruleset=MPPBaseCheck
+#ruleset=MPPFoundBBWoSupplyXml
+ruleset=MPPHierCellWoSupplyXml
+
+
+MPPBaseCheck
+  gate2diff
+    Different Supplies at gate and Diffusion (HZ relation between signal and supply).
+    Power_Master assertion to guarantee that vcc@gate is a superset of the vcc@diff to avoid crow-bar currents 
+  bul2diff
+    Power_Master assertion to guarantee that vcc@bulk is a superset of the vcc@diff to avoid crow-bar currents 
+    Greater_Equal assertion to guarantee that vcc@bulk >= vcc@diff. The comparison check is within limits
+  diffusion_connected_supplies
+    check that only one is active (for power muxes for instance)
+  supply_xml_power_master - From lower hier, either as an assertion, or relation (HZ/BHZ)
+    E.g. HZ(x, Vcc1) && LZ(x, Vcc2); or BHZ(y, Vcc1) && LZ(y, Vcc2)
+  supply_xml_assertion_${type}
+  supply_xml_assertion_same_supplies_${type}  2 power pins of nested block A are connected to the same pin in parent block
+  power_master_assertion_cyclic_depend, greater_or_equal_cyclic_depend
+    E.g. PM(vcc1,vcc2); PM(vcc2,vcc3); PM(vcc3,vcc1) or same with greater_or_equal instead of PM
+  bulk_not_vss	- for NMOS devices
+  dangling_fub_out_pin	- Flags output pin not connected to supply by diffusion
+  fet_bulk_net_wo_possupp, hier_cell_bulk_net_wo_possupp  - PMOS bulk should be connected to possup
+  gate2diff_ncap, vss_gate2diff_ncap, gate2diff_pcap, vss_gate2diff_pcap
+    To the best of my understanding P should be connected to VSS and N to VCC (Xtor cap related)
+
+
+
+
+2. IVB duet rules:
+
+VccConnectedToData  Vcc pins which receives Data signals. 
+DataConnectedToVcc  Data pins connected to Vcc .
+SoftVcc		    Gate should not be connected to vcc.
+PPLevelShifter	    Passes where driver min Vcc < receiver max Vcc with different voltage parent.
+PPIsolation	    Require logic isolation on interface
+
+3. SKL AIP rules:
+/p/mpg/proc/common2/utils/tool_utils/duet_queries/5.1/aip1.init
+FanoutLimit = 50
+FaninLimit = 50
+LEGAL_SPEC_TYPES = "^possupp$|^negsupp$|^qualified_clock$"
+WEAK_DRIVER_THR = 80
+DanglingOutLegalName = "nocon|no_con"
+AIPWeakDriver   recommended  (checks that Ctot/Zeff ratio < 80) 
+SupplyNamingConvention  checks that all supplies are marked either possupp or negsupp and if marked the name starts with vcc or vss
+PmosB
+
+
+
+
+
+
+
+
+3. SKL DUET AIP 
+Running duet for sklip:
+uesetup -p sklip -hp sklip -pr 1272.4 -milestone CDR1 -m ckt_model -t analog -n <area name> -b aips  -d
+    -b analog          will load all analog libraries
+    -b fivrana         will load all fivr related libraries
+    -b pad:pll         will load both pad and pll related libraries  
+
+set cell = <AIP block name>
+make sure exists: ${WORK}/netlists/tango/${cell}.sn
+#run:
+$PROJECT_DUET/utils/run_duet_aip -cell $cell -ruleset aip1 -gentextreports
+
+after the first duet run:
+cp ${WORK}/duet/report/template_${cell}_spec.init ${WORK}/duet/control/template_${cell}_spec.init   
+duet -violdb ${WORK}/duet/report/${cell}_viol_db
+check-in: $PROJECT_DUET/utils/aip_archive_ci.pl -cell . 
+
+# mtolchinsk statistics
+/nfs/iil/proj/skl/duet_regressions2/duet//DuetStats/SKL_AIP/sklip/ViolFull/
+
+
+Debug:
+temp file is created in duet/report/${aip}_builder.duet.tmp.log
+Zelig asked about the following rules (apparently he copied them from BDF rev1 ppt):
+Inherited rules:
+    SequentialInCharIP
+    SignalAttributeMissedAtCharIPpin
+    IllegalArrayedDeviceWidth
+    SignalAttributeFound
+    DanglingInNode
+    AnalogSignal
+    Vcc2GateInput
+    MPP rules
+Updated & New Rules
+    SignalTypeConflict will generate violation if attr_sys is supply but net is not possupp.
+    SignalTypeVsSAConflict
+    LimitedUsageCells
+
+## TODO::make it readable
+# mtolchin regressions script: ~mtolchin/bin/cmp_regressions_arch.csh
+# example for digital duet rule AsyncReset
+~mtolchin/bin/cmp_regressions_arch.csh SKL/skl/ViolFull AsyncReset
+# example for aip duet rule AsyncReset
+~mtolchin/bin/cmp_regressions_arch.csh SKL_AIP/sklip/ViolFull AsyncReset
+
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1255">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 11">
+<meta name=Originator content="Microsoft Word 11">
+<link rel=File-List href="duet_help_files/filelist.xml">
+<title>duet object</title>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>lnisim</o:Author>
+  <o:LastAuthor>lnisim</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>1</o:TotalTime>
+  <o:Created>2006-06-19T07:55:00Z</o:Created>
+  <o:LastSaved>2006-06-19T07:55:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>930</o:Words>
+  <o:Characters>4655</o:Characters>
+  <o:Company>Intel Corporation</o:Company>
+  <o:Lines>38</o:Lines>
+  <o:Paragraphs>11</o:Paragraphs>
+  <o:CharactersWithSpaces>5574</o:CharactersWithSpaces>
+  <o:Version>11.6360</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:PunctuationKerning/>
+  <w:ValidateAgainstSchemas/>
+  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
+  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
+  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
+  <w:Compatibility>
+   <w:BreakWrappedTables/>
+   <w:SnapToGridInCell/>
+   <w:WrapTextWithPunct/>
+   <w:UseAsianBreakRules/>
+   <w:DontGrowAutofit/>
+  </w:Compatibility>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
+ </w:LatentStyles>
+</xml><![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	text-align:right;
+	mso-pagination:widow-orphan;
+	direction:rtl;
+	unicode-bidi:embed;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;
+	mso-gutter-direction:rtl;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-ansi-language:#0400;
+	mso-fareast-language:#0400;
+	mso-bidi-language:#0400;}
+</style>
+<![endif]--><!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext="edit" spidmax="2050"/>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext="edit">
+  <o:idmap v:ext="edit" data="1"/>
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1 dir=RTL>
+
+<p class=MsoNormal align=center dir=LTR style='text-align:center;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><b><u><span
+style='font-size:24.0pt'>initFile</span></u></b></span></span><b><u><span
+style='font-size:24.0pt'> object<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>NAME <o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE>initFile</span></span><span
+class=GramE>-</span> <i>class for holding init files.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>SYNOPSIS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE>initFile</span></span> <span
+class=SpellE><i>initObj</i></span><i> &lt;init file path&gt;<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>DESCRIPTION<i><o:p></o:p></i></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i>Create new init object. <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>initObj</i></span></span><i>
+– init object<span style='mso-spacerun:yes'>  </span>name <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=GramE><i>init</i></span><i> file path –
+path to init file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>INIT FILE FORMAT<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'>[<span class=GramE>item</span>]<o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'>Key=value<o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'>Key=value2<o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'>Key1=value2<o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'>[<span class=GramE>item</span>]<o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'>Key2=value<o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='font-size:11.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i>Note: you can comment any line with '#' char<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>FUNCTIONS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>initFile</i></span></span><i> </i><span
+class=SpellE>getInitFile</span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return the init full path.</i><span lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>initFile</i></span></span><i> </i><span
+class=SpellE>getItemData</span><i> item<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return a constructed list of <span class=SpellE>key<span
+class=GramE>,value</span></span> of a specific item. </i><span lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>initFile</i></span></span><i> </i><span
+class=SpellE>getItemKeyValue</span><i> item key<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return value of specify key in specify item. </i><span
+lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>initFile</i></span></span><i> </i><span
+class=SpellE>getItemKeys</span><i> item<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return list of keys of a specify item.</i><span
+lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>initFile</i></span></span><i> </i><span
+class=SpellE>getItems</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return list of items in init file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>initFile</i></span></span><i> </i><span
+class=SpellE>isItemExists</span> <i>item<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return true if item exists. <span class=GramE>false</span>
+if not.</i><span lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>initFile</i></span></span><i> </i><span
+class=SpellE>isItemKeyExists</span> <i>item key</i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return true if item key exists. <span class=GramE>false</span>
+if not.</i><span lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal align=center dir=LTR style='text-align:center;direction:
+ltr;unicode-bidi:embed'><b><u><span style='font-size:24.0pt'><o:p><span
+ style='text-decoration:none'>&nbsp;</span></o:p></span></u></b></p>
+
+<p class=MsoNormal align=center dir=LTR style='text-align:center;direction:
+ltr;unicode-bidi:embed'><span class=GramE><b><u><span style='font-size:24.0pt'>database</span></u></b></span><b><u><span
+style='font-size:24.0pt'> object<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>NAME <o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>database-</span><i> class to maintain <span
+class=SpellE>sqlite</span> database<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>SYNOPSIS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>database</span><i> <span class=SpellE>dbObj</span> &lt;database
+file path&gt;<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>DESCRIPTION<i><o:p></o:p></i></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i>Create new database object. <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i>
+– database object<span style='mso-spacerun:yes'>  </span>name <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=GramE><i>database</i></span><i> file path –
+path to database file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>FUNCTIONS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>createTable</span> <i>table fields<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Create new table. If table already exists the
+function will fail.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>e.x</i></span></span><span
+class=GramE><i> :</i></span><i> <span class=SpellE>dbObj</span> <span
+class=SpellE>createTable</span> <span class=SpellE>myTable</span> {{a text} {b
+real}…}.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>deleteTable</span><i> table<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Delete table. No error will return if table doesn't
+exist.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>dumpTable</span><i> table<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Dump table in the form of list. Each element in list
+is a list of cells.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>emptyTable</span><i> table<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Cause cleaning data in specified table. An error
+will occur if table doesn't exist.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>execSql</span><i> <span class=SpellE>sql</span><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Execute a <span class=SpellE>sql</span> query.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>getFile</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return the <span class=SpellE>sqlite</span> file
+name.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>getTableFields</span><i> table<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return specify table field.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>getTables</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return all tables names.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>insertTableFields</span><i> table <span class=SpellE>data_lists</span><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Insert records to a specify table.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>e.x</i></span></span><span
+class=GramE><i> :</i></span><i> <span class=SpellE>dbObj</span> <span
+class=SpellE>insertTableFields</span> <span class=SpellE>myTable</span>
+{{'string' 1} {'<span class=SpellE>stringb</span>' 2}}.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>isExistsTable</span><i> table<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return true if specify table exists, other false.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>dbObj</i></span></span><i> </i><span
+class=SpellE>selectTable</span><i> table ?what? ?conditions?<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return result of a select query<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>e.x</i></span></span><span
+class=GramE><i> :</i></span><i> <span class=SpellE>dbObj</span> <span
+class=SpellE>selectTable</span> <span class=SpellE>myTable</span> &quot;*&quot;
+&quot;field='value' &quot;.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal align=center dir=LTR style='text-align:center;direction:
+ltr;unicode-bidi:embed'><span class=GramE><b><u><span style='font-size:24.0pt'>query</span></u></b></span><b><u><span
+style='font-size:24.0pt'> object<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>NAME <o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>query-</span><i> class to maintain duet query</i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>SYNOPSIS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>query</span><i> <span class=SpellE>qryObj</span> &lt;query
+path&gt; &lt;database&gt;<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>DESCRIPTION<i><o:p></o:p></i></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>FUNCTIONS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getDatabase</span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return database handler associated with the query
+object. <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getDescription</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query description.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getFields</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query fields.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getFieldsType</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query &lt;field type&gt; in list form.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getInit</span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return init handler which is associated with the
+query.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getKeys</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query keys.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getName</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query name.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getPath</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query full path.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getScript</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query script.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getSeverity</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query severity.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getThreshold</span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query thresholds as defined in query init
+file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getType</span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return query type.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;text-indent:
+.5in;direction:ltr;unicode-bidi:embed'><span class=GramE><i>self</i></span><i>
+– standalone query .<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;text-indent:
+.5in;direction:ltr;unicode-bidi:embed'><span class=GramE><i>register</i></span><i>
+– callback function , will be called from central loop.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getViolations</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Return complete list
+of violations.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>getViolationsPerKey</span><i> key<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Return violation with
+constrains key should be in the form of <span class=SpellE>sql</span>
+constrains.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>e.x</i></span></span><span
+class=GramE><i> :</i></span><i> <span class=SpellE>qryObj</span> <span
+class=SpellE>getViolationsPerKey</span> &quot;field='value' &quot;.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i>run<i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Run specific query.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>setDatabase</span><i> database<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Set the database for
+the query, function get database handler.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>setDescription</span><i> description<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Set query
+description.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>setScript</span><i> script<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Set <span
+class=SpellE>runable</span> script in <span class=SpellE>tcl</span> format.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>setThreshold</span><i> list<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Set threshold for query, this command will override
+the query thresholds and will set new thresholds. The setting should be
+supplied as an even list in the form of {{threshold-name threshold-value}
+{threshold-name threshold-value}<span class=GramE>..}</span>.</i><span lang=HE
+dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span></i><i><span
+lang=HE dir=RTL><o:p></o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>qryObj</i></span></span><i> </i><span
+class=SpellE>setType</span><i> type<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Set query type.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal align=center dir=LTR style='text-align:center;direction:
+ltr;unicode-bidi:embed'><a name=M2></a><span class=GramE><span
+style='mso-bookmark:M2'><b><u><span style='font-size:24.0pt'>duet</span></u></b></span></span><span
+style='mso-bookmark:M2'><b><u><span style='font-size:24.0pt'> object<o:p></o:p></span></u></b></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='mso-bookmark:M2'><b><u><o:p><span style='text-decoration:
+ none'>&nbsp;</span></o:p></u></b></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='mso-bookmark:M2'><b><u>NAME</u></b></span><b><u> <o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>duet-<span class=SpellE>pv/erc</span></span> violation
+engine</p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><a name=M3><b><u>SYNOPSIS</u></b></a><b><u><o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>duet</span> <span class=SpellE><i>duetObj</i></span><i>
+&lt;queries root path&gt; &lt;database file name&gt;<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><a name=M4><b><u>DESCRIPTION</u></b></a><b><i><u><o:p></o:p></u></i></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i>Create new duet object. <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span><i>
+– duet object<span style='mso-spacerun:yes'>  </span>name <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=GramE><i>queries</i></span><i> root path –
+path to queries root <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=GramE><i>database</i></span><i> file name –
+full path to database file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>FUNCTIONS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> build</p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='mso-tab-count:1'>            </span><i>Construct duet
+object on path<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i>.</i><i><span lang=HE dir=RTL><o:p></o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>getGlobalThreshold</span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return global thresholds for all queries. These
+setting should reside in &quot;queries root path/.init&quot; as a form on init
+file.</i><i><span lang=HE dir=RTL><o:p></o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>getInit</span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return the global thresholds init file handler.</i><span
+lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>getQueries</span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return a list of queries handlers.</i><span lang=HE
+dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>getQuerysRootPath</span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return the queries root path.</i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>getDatabaseFile</span> <i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Return the database file as was specify when object
+was build.</i><span lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>runAllQueries</span></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Cause the engine to run all known queries.</i><span
+lang=HE dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>setGlobalThreshold</span> <i>list<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Set the global threshold, this command will override
+the global thresholds and will set new thresholds. The setting should be
+supplied as an even list in the form of {{threshold-name threshold-value}
+{threshold-name threshold-value}<span class=GramE>..}</span>.</i><span lang=HE
+dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>duetObj</i></span></span> <span
+class=SpellE>setQuerysRootPath</span> <i>path<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i>Modify the queries root path.</i><span lang=HE
+dir=RTL><o:p></o:p></span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal align=center dir=LTR style='text-align:center;direction:
+ltr;unicode-bidi:embed'><span class=GramE><b><u><span style='font-size:24.0pt'>builder</span></u></b></span><b><u><span
+style='font-size:24.0pt'> object<o:p></o:p></span></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>NAME <o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>builder-build</span> design (<span class=SpellE>sn</span>)
+and WC timing data violation engine</p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>SYNOPSIS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u><o:p><span style='text-decoration:none'>&nbsp;</span></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=GramE>builder</span> <span class=SpellE><i>buildObj</i></span><i>
+cell ?<span class=SpellE>workarea</span>? ?netlist? ?<span class=SpellE>timing_db</span>?
+?<span class=SpellE>ubmfrzfile</span>?<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>DESCRIPTION<i><o:p></o:p></i></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i>Create new builder object. <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i>
+– builder object<span style='mso-spacerun:yes'>  </span>name <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>workarea</i></span></span><i>
+– <span class=SpellE>workarea</span> root dir <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=GramE><i>netlist</i></span><i> – full path
+to netlist file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><i>timing_db</i></span><i> - full
+path to timing db file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><span class=SpellE><span class=GramE><i>ubmfrzfile</i></span></span><i>
+- full path <span class=SpellE>ubm</span> freeze file, will be used during the
+build.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='margin-left:.5in;text-align:left;direction:
+ltr;unicode-bidi:embed'><i><o:p>&nbsp;</o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><b><u>FUNCTIONS<o:p></o:p></u></b></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i> </i><span
+class=SpellE>getDesign</span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='mso-tab-count:1'>            </span><i>Return the design
+handler.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i> </i><span
+class=SpellE>getNetlist</span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Return the <span
+class=SpellE><span class=GramE>sn</span></span> file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i> </i><span
+class=SpellE>getTimingDB</span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span style='mso-tab-count:1'>            </span><i>Return the timing
+database file <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i> </i><span
+class=SpellE>getUbmFrzFile</span></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span style='mso-tab-count:1'>            </span>Return the <span
+class=SpellE>ubm</span> freeze file. <o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i> </i><span
+class=SpellE>getWorkArea</span><i><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Return the work area root dir<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i> </i><span
+class=SpellE>setNetlist</span><i> netlist<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Set new netlist file<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><span lang=HE dir=RTL><o:p>&nbsp;</o:p></span></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><span class=SpellE><span class=GramE><i>buildObj</i></span></span><i> </i><span
+class=SpellE>setTimingDB</span><i> <span class=SpellE>timing_db</span><o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;text-indent:.5in;direction:
+ltr;unicode-bidi:embed'><i>Set new timing db file.<o:p></o:p></i></p>
+
+<p class=MsoNormal dir=LTR style='text-align:left;direction:ltr;unicode-bidi:
+embed'><i><o:p>&nbsp;</o:p></i></p>
+
+</div>
+
+</body>
+
+</html>
+Contents:
+1. HSW/BDW duet_erc MPP rules. BDW duet AIP archive path
+2. IVB MPP (not much really)
+3. SKL duet AIP cheat sheet
+
+1. 
+
+BDW duet AIP archive path
+/p/bdw/archive/subblock/fvrpwmana/duet_erc/BDW6HSUPERA0LATEST/duet
+
+HSW MPP concepts:
+Violation   - is presented in the Duet Gui.
+Relation    - is created for pair of signals. One is non-supply interface signal and another is supply or non-supply signal. Relation can not be resolved to assertion on the current level and is added to the collateral file to be resolved upper.
+Assertion   - is created for pair of supply interface signals. Usually assertion is accompanied by violation   
+	      and is used to propagate upper information about existing prohibited connections. 
+	      At FC level assertion can be resolved or transformed to the FC violation. 
+	      Assertion is added to the collateral file and can not be waived/excluded.
+
+HZ is High Impedance connection between two signals (nets). This relation is order dependent. 
+    First net should be powered first. Example is a gate and diffusion
+BHZ is same as HZ, but between bulk and diffusion. (bulk should be powered first apparently)
+LZ is Low Impedance connection between two signals (nets). This relation is not order dependent.
+    Example is a relation between two diffusions of the same transistor
+Example:
+  <relation type=Â“LZÂ” p1=Â“vcc_in2Â” p2=Â“outÂ” />
+  <relation type=Â“HZÂ” p1=Â“inÂ” p2=Â“vcc_in1Â” />
+  <relation type=Â“HZÂ” p1=Â“inÂ” p2=Â“vcc_in2Â” />
+
+
+HSW assertions:
+<assertion type=power_master|greater_or_equal|power_gate|uhv|ehv|highv|nomv|lowv|
+	diffusion_connected_supplies p1=string p2=string />
+
+power_master - temporal. First signal should powered before the second:
+#     <assertion type=Â“PMÂ” p1=Â“vcc_in1Â” p2=Â“vcc_in2Â” />
+power_gate   - same as power_master but voltages are related via power gate
+greater_or_equal - level. Min-of-Vcc1 must be greater than Max-of-Vcc2.
+	      Required if power-domain of the PMOS bulk is different from the power-domain of the diffusion
+	      in order to avoid forward biasing
+uhv, ehv, highv, nomv, lowv - some pins of level shifters need to be connected to certain voltage level only
+#HIGH_VOLTAGE_LIMIT_ERC = 1.2
+    UHV_LIMIT_ERC          = 1.89
+    EHV_LIMIT_ERC          = 1.6
+    HIGHV_LIMIT_ERC        = 1.05
+    NOMV_LIMIT_ERC         = 0.65
+see MPPBaseCheck for more  
+
+
+
+HSW duet rules
+
+hsw rules:
+/p/hsw/pu_tu/prd/duet_queries/6.91p4.p52/ERC/
+# ERC/MPP
+ruleset=GlobalPowerRename
+ruleset=LocalSupplyConnection
+ruleset=MPPBaseCheck
+#ruleset=MPPFoundBBWoSupplyXml
+ruleset=MPPHierCellWoSupplyXml
+
+
+MPPBaseCheck
+  gate2diff
+    Different Supplies at gate and Diffusion (HZ relation between signal and supply).
+    Power_Master assertion to guarantee that vcc@gate is a superset of the vcc@diff to avoid crow-bar currents 
+  bul2diff
+    Power_Master assertion to guarantee that vcc@bulk is a superset of the vcc@diff to avoid crow-bar currents 
+    Greater_Equal assertion to guarantee that vcc@bulk >= vcc@diff. The comparison check is within limits
+  diffusion_connected_supplies
+    check that only one is active (for power muxes for instance)
+  supply_xml_power_master - From lower hier, either as an assertion, or relation (HZ/BHZ)
+    E.g. HZ(x, Vcc1) && LZ(x, Vcc2); or BHZ(y, Vcc1) && LZ(y, Vcc2)
+  supply_xml_assertion_${type}
+  supply_xml_assertion_same_supplies_${type}  2 power pins of nested block A are connected to the same pin in parent block
+  power_master_assertion_cyclic_depend, greater_or_equal_cyclic_depend
+    E.g. PM(vcc1,vcc2); PM(vcc2,vcc3); PM(vcc3,vcc1) or same with greater_or_equal instead of PM
+  bulk_not_vss	- for NMOS devices
+  dangling_fub_out_pin	- Flags output pin not connected to supply by diffusion
+  fet_bulk_net_wo_possupp, hier_cell_bulk_net_wo_possupp  - PMOS bulk should be connected to possup
+  gate2diff_ncap, vss_gate2diff_ncap, gate2diff_pcap, vss_gate2diff_pcap
+    To the best of my understanding P should be connected to VSS and N to VCC (Xtor cap related)
+
+
+
+
+2. IVB duet rules:
+
+VccConnectedToData  Vcc pins which receives Data signals. 
+DataConnectedToVcc  Data pins connected to Vcc .
+SoftVcc		    Gate should not be connected to vcc.
+PPLevelShifter	    Passes where driver min Vcc < receiver max Vcc with different voltage parent.
+PPIsolation	    Require logic isolation on interface
+
+3. SKL AIP rules:
+/p/mpg/proc/common2/utils/tool_utils/duet_queries/5.1/aip1.init
+Running duet for sklip:
+uesetup -p sklip -hp sklip -pr 1272.4 -milestone CDR1 -m ckt_model -t analog -n <area name> -b aips  -d
+    -b analog          will load all analog libraries
+    -b fivrana         will load all fivr related libraries
+    -b pad:pll         will load both pad and pll related libraries  
+
+set cell = <AIP block name>
+make sure exists: ${WORK}/netlists/tango/${cell}.sn
+cp ${WORK}/duet/report/template_${cell}_spec.init ${WORK}/duet/control/template_${cell}_spec.init
+after the first duet run:
+cp ${WORK}/duet/report/template_${cell}_spec.init ${WORK}/duet/control/template_${cell}_spec.init   
+duet -violdb ${WORK}/duet/report/${cell}_viol_db
+check-in: $PROJECT_DUET/utils/aip_archive_ci.pl -cell . 
+
+Debug:
+temp file is created in duet/report/${aip}_builder.duet.tmp.log
+Zelig asked about the following rules (apparently he copied them from BDF rev1 ppt):
+Inherited rules:
+    SequentialInCharIP
+    SignalAttributeMissedAtCharIPpin
+    IllegalArrayedDeviceWidth
+    SignalAttributeFound
+    DanglingInNode
+    AnalogSignal
+    Vcc2GateInput
+    MPP rules
+Updated & New Rules
+    SignalTypeConflict will generate violation if attr_sys is supply but net is not possupp.
+    SignalTypeVsSAConflict
+    LimitedUsageCells
+

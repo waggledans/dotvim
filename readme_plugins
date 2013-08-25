@@ -1,4 +1,4 @@
 a.vim (alternative.txt) - http://www.vim.org/scripts/script.php?script_id=31
 awk-support http://vim.sourceforge.net/scripts/script.php?script_id=4415
-
-
+tmux https://github.com/christoomey/vim-tmux-navigator
+vcscommand http://repo.or.cz/w/vcscommand.git

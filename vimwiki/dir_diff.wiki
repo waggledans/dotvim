@@ -1,0 +1,35 @@
+1. meld
+2.	dir_diff:
+dir_diff -help
+ 
+Usage: /p/skl/rtl/proj_bin_a/dir_diff <1st path> <2nd path>
+       /p/skl/rtl/proj_bin_a/dir_diff -repo [<RTL REPO path>]
+ 
+Example: /p/skl/rtl/proj_bin_a/dir_diff -r $MODEL_ROOT/src/common $CENTRAL_ROOT/src/common
+Example: /p/skl/rtl/proj_bin_a/dir_diff -repo $MODEL_ROOT/src/core/exe
+ 
+Parameters:
+===========
+       -r                  Runs recursively on the given directories (NOT to be used with -repo)
+ 
+       -paranoia           Ignores int, ifc, dftinst, xdir files (for paranoia).
+ 
+       -no_comment         Ignore lines starting with !, #, //, etc
+ 
+       -ignore [regexp]    Ignore lines containing regexp
+ 
+       -find [regexp]      Find lines containing regexp
+ 
+       -files [regexp]     Check for files which meets regexp.
+ 
+       -no_files [regexp]  Do NOT Check for files which meets regexp.
+ 
+       -no_xdir            Disregards xdir file.
+ 
+       -one_param          Instances of same template usually haves the same .params files, which differ only
+                           in the bit number. Use this parameter to avoid seeing the differences of each instance.
+ 
+       -no_diff            Lists the different files w/o opening their list in GUI for tkdiff
+ 
+       -repo               Compare files in given directory to the version in repository.
+                           Note: MUST run under RTL Setup.

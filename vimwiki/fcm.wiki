@@ -1,0 +1,499 @@
+fcmc run -id /a/b/c -name flow_name -group skl -inst aglad -cmd echo hi
+# it would show in fcm window: 'a' with plus next to it. Nested in 'a' is 'b' and then 'c'.
+# afterwards it would be group::inst (skl::aglad in this example). If smth isnt specified ::0 will show in fcm
+
+where:
+	run	  Returns job's id. has the following options:
+                -id:      directory. Job id -    <id name/group_name:flow_name[:index]/... Saved in __FCM_ID
+		-dir	  directory in which process will run. Default: pwd
+                -group:   sub_dir\command file
+                -name:    category\flow
+                -inst:    inst \ cell name
+                -info      <free text field>
+		-loginenv  - run job in standard login environment: Default same env
+		-cmd	  same as -commands "some_command" . The difference between the two is that we can run a number of jobs with -commands,
+			  like -commands "one job" "another job"
+		-setup	  when setup is needed eg -setup "uesetup -t ...."
+		-cmdfile   - file with commands. All commands will run in parallel
+		-keepenv   - run job in clean env, but copy env vars separated by comma
+Output example (which is Job ID):
+/a/b/c/skl:flow_name:aglad
+ 
+ 
+If -id is not specified, then a random number is peeked. If -id is specified the it is used thus a re-submission of the same id will also control the killing of the older one
+ 
+More examples:
+                fcmc run -id /a/b/c -cmd echo hi
+                fcmc run -id /a/b/c -inst aglad -cmd echo hi
+ 
+
+Presto example:
+ fcmc run -id /presto:22947 -name split -tries 5  -netbatch iil_design -class SLES10 -slot all_4 -logdir /nfs/.../ddrrx_b0/ddrrx_iref_log -cmdfile /nfs/iil/stod/areas/d/w.dslov.102/analog_setup/presto/ddrrx_b0/ddrrx_dc_allpvt_adrf_lpddr3_xlt_amp2_iref_jobs
+ fcmc run -id /presto:31263 -name split -tries 5  -netbatch iil_design -class SLES10 -slot all_4 -logdir /nfs/.../ddrrx_b0/ddrrx_iref_log -cmdfile /nfs/iil/stod/areas/d/w.dslov.102/analog_setup/presto/ddrrx_b0/ddrrx_dc_allpvt_adrf_lpddr3_xlt_amp2_iref.8274.parallel
+
+
+Reporting:
+  fcmc jobs -id /a/b/c -inst aglad
+    results (reports 3 jobs ran with id /a/b/c):
+	/a/b/c/flow_name:aglad
+	/a/b/c/:aglad
+	/a/b/c/skl:flow_name:aglad
+ 
+ 
+  fcmc jobs -rec
+    results: will print all the various jobs
+ 
+  fcmc status -rec
+    results: will print all jobs status
+tips:
+  fcmc status -rec | grep Used | sort | uniq -c       # will print a summary usage per Used resource
+	5 Used Resource: -host icsl4915.iil.intel.com
+	221 Used Resource: -netbatch iil_design -slot da_analog_4 -class SLES10
+ 
+ 
+  fcmc status -rec | grep Host | sort | uniq -c         à will print a summary usage per host
+      2 Host:          icsl6856.iil.intel.com
+      2 Host:          icsl6857.iil.intel.com
+ 
+ 
+#Command   Switches     Description
+#-------   --------     -----------
+                        #FCM Commands
+fcm                        #Flow Control Manager GUI application
+fcmc                       #Flow Control Manager command
+fcmserver                  #Flow Control Manager server
+
+#Command   Switches     Subcommand  Description
+#-------   --------     ----------  -----------
+fcmc       -admin       shutdown    #Closes the server
+           -clientver               #fcmc version (Internal FCM Parameter)  
+
+############################################################################
+##                               FCM Commands                             ##
+############################################################################
+
+dua                                        
+    #Invoke "Disk Usage Analyzer"
+
+submit [-flow string [-flowver string]]
+    #Invoke FCM Mini View
+    #-flow      - Flow Name
+    #-flowver   - Flow Version
+
+############################################################################
+##                               FCM Core Commands                        ##
+############################################################################
+
+#Value's types for commands and subcommands options
+#Type       Values
+#----       ------
+priority:   0-10                                #Job and signal priority
+priorities: all|1,5,7-9,6-3,0-2,9-              #Resource priorities
+value:      true|false|number|string
+signals:    var_name[:number|:all][:keep],var_name[:number|:all][:keep]...
+            # Example: test:2,tries:all,dbtry,sig::keep,sig2:4:keep
+time:       number[|s|sec|m|min|h|hr|hour|d|day|w|week]
+            # Examples: 5s,6m,1hr,etc. milisec - in case of no value 
+size:       number[|K|M|G|T]
+            # Examples: 10K,5M,3G,etc. bytes - in case of no value 
+strings:    string,string,string,...
+numbers:    number,number,number,number - number, number - ,...
+statuses:   [a|s|w|r|c|k|g|f|i]+
+            # List of statuses. Examples: iag, ck, fk
+            # a - alive (submitted, waiting or running)
+            # s - submitted
+            # w - waiting
+            # r - running
+            # c - completed
+            # k - killed
+            # g - successful jobs (completed with zero exit status)
+            # f - failed (completed with non zero exit status)
+            # i - inititalized (ususally: job bundles) 
+
+
+fcmc [-user string] [-id string] [-wait signals] [-notify signals] 
+    [-depend signals] [-sleep time] [-bg|-fg] fcm_subcommand_with_parameters
+    #This command will run one of the fcm subcommands (see bellow) 
+    #and will starts an FCM user server if no server is running
+    #
+    #fcmc command switches
+    #-user      - Will run as another user
+    #-id        - Job id name: /group_name:flow_name[:index]/...
+    #             Saved in __FCM_ID
+    #-wait      - wait until another process calls the 
+    #             notify or notifyAll command
+    #-depend    - wait until another process calls the 
+    #             notify or notifyAll command with true value
+    #             Otherwise the command will not be done
+    #-notify    - Wakes up process/es that are waiting
+    #-sleep     - runs command after some time period
+    #-bg        - runs the command in the background.
+    #             default when using -wait or -sleep options
+    #-fg        - runs the command in the foreground
+    #             default when not using -wait or -sleep options
+
+#Example:
+#Command   Switches                    Subcommand and Subcommand Switches
+#-------   --------                    ----------------------------------
+fcmc -wait init_test -notify post_test run -name flow -cmd bin/flow.pl -f 
+ 
+############################################################################
+##                               FCMC Subcommands                         ##
+############################################################################
+
+
+####################
+# Resource Manager #
+####################
+
+mgr [var_name] [-host strings] [-csd string [-pool string]]
+    [-netbatch string [-slot string] [-class string] [-nbparams string]] 
+    [-mgr strings] [-os strings] [-priority priorities] [-strength numbers]
+    [-n number] [-override]
+    #Adding resource to resource manager
+    #If this manager is already exist - updates its information
+    #No switches - returns 1 if manager exists and is not empty
+    #              0 - otherwise 
+    #
+    #If no manager name is specified - returns the list of existing not 
+    #empty resource managers
+    #
+    #var_name   - new/existing Resource Manager name
+    #
+    #Resource specification switches
+    #-host      - host names
+    #-csd       - csd group name
+    #-pool      - csd pool name
+    #-netbatch  - netbatch pool name
+    #-slot      - netbatch slot name
+    #-class     - netbatch class name
+    #-nbparams  - additional netbatch parameters
+    #-mgr       - use predefined Resource Manager
+    #
+    #-os        - resource Operation System
+    #-priority  - priorities the resource will be deal with
+    #-strength  - define resource's strength
+    #
+    #-n         - number of parallel jobs this resource can run
+    #             For Hosts - as number of processors
+    #             See also mgrlimit command
+    #-override  - clean manager and add specified resources 
+   
+mgrremove var_name [-host strings] [-csd string [-pool string]]
+    [-netbatch string [-slot string] [-class string] [-nbparams string]] 
+    [-mgr strings]
+    [-os strings] [-priority priorities] [-strength numbers] [-kill]
+    #Remove specified resources from the Resource Manager
+    #No switches - removes all the resources from the manager
+    #
+    #var_name   - existing Resource Manager name
+    #
+    #Filters:
+    #-host      - remove host names
+    #-csd       - remove csd group name
+    #-pool      -        csd pool name
+    #-netbatch  - remove netbatch pool name
+    #-slot      -        netbatch slot name
+    #-class     -        netbatch class name
+    #-nbparams  -        additional netbatch parameters
+    #-mgr       - remove predefined Resource Manager
+    #-os        - remove resources with specified Operation System
+    #-priority  - remove resources with specified priorities
+    #-strength  - remove resources with specified strength
+    #
+    #-kill      - if those resources in use - kill and resubmit the jobs 
+
+mgrstatus [-host strings] [-csd string [-pool string]]
+    [-netbatch string [-slot string] [-class string] [-nbparams string]] 
+    [-mgr strings] [-os strings] [-priority priorities] [-strength numbers]
+    #Get a status of the following resources
+    #
+    #Filters:
+    #-host      - host names
+    #-csd       - csd group name
+    #-pool      - csd pool name
+    #-netbatch  - netbatch pool name
+    #-slot      - netbatch slot name
+    #-class     - netbatch class name
+    #-nbparams  - additional netbatch parameters
+    #-mgr       - use predefined Resource Manager
+    #-os        - resource Operation System
+    #-priority  - priorities the resource will be deal with
+    #-strength  - resource strength
+
+mgrlimit [-n number] [-host strings] [-csd string [-pool string]]
+    [-netbatch string [-slot string] [-class string] [-nbparams string]]
+    #Limits the number of jobs, that can run on one host/netbatch slot. 
+    #If no host/netbatch was specified then limit will be default for all 
+    #hosts 
+    #
+    #-n         - number of jobs, that can run on one host/netbatch slot
+    #             If no -n parameter is provided the system will star using 
+    #             it's defaults (as number of CPUs on the host)
+    #
+    #Filters:
+    #-host      - host names
+    #-csd       - csd group name
+    #-pool      - csd pool name
+    #-netbatch  - netbatch pool name
+    #-slot      - netbatch slot name
+    #-class     - netbatch class name
+    #-nbparams  - additional netbatch parameters
+
+mgrlimitshow
+    #Prints current limit settings
+
+mgrclean
+    #Deletes all Resource Managers
+
+mgrimport username [-mgr strings]
+    #Copies Resource Managers from other user
+    #
+    #username   - user from whom the managers will be copied
+    #
+    #-mgr       - the list of managers. Default - all
+
+############################################################################
+
+##########
+# Runner #
+##########
+
+run [-group string] [-name string] [-inst string] [-info string]
+    [-priority priority] [-dir string] [-blocking] 
+    [[-cleanenv | -loginenv] [-keepenv strings]] 
+    [-setup string [-cleandir strings]]
+    [-project string] [-tag string]
+    [-logdir string] [-logname string] [-analyzer string]
+    [-tries number] [-es numbers] [-rs numbers]
+    [-rcmd string] [-time time] [-mintime time] [-autoclean time]
+    [-strength number] [-os strings] [-mem size]
+    [[-mgr string] | [-host string] | [-csd string [-pool string]] |
+    [-netbatch string [-slot string] [-class string] [-nbparams string]]] 
+    [-cmdfile string] [-commandsfile string]
+    [-commands commands] [-cmd script_with_prameters]
+    #Returns job's id
+    #
+    #Specify flow identifications
+    #-group     - job's group name
+    #-name      - job's name (flow name)
+    #-inst      - job's instance name/number
+    #-info      - additional information about the job
+    #-priority  - job's priority
+    #
+    #-blocking  - returns the shell prompt when job/all jobs is/are finished 
+    #-project   - job's project (used for display) 
+    #-tag       - job's tag (used for display) 
+    #-analyzer  - post analyzer. Example -analyzer "~/anlz %j %s %t"
+    #             %j - job id. %s - job exit status. %t - job runtime
+    #
+    #In what environment to run
+    #-dir       - directory in which process will run. Default: pwd
+    #-cleanenv  - run job in clean (empty) environment: Default same env
+    #-loginenv  - run job in standard login environment: Default same env
+    #-keepenv   - run job in clean env, but copy there few env vars
+    #-setup     - run job in new setup environment. The parameter is any 
+    #             setup or shell command in quotation marks.
+    #-cleandir  - clean list of direcories
+    #
+    #-logdir    - where to save log data
+    #-logname   - log name - the log will remain uncompressed
+    #
+    #What to run: Default: takes commands from Standard Input
+    #-cmdfile   - file with commands. All commands will run in parallel
+    #-commandsfile   - similar to -cmdfile. Each line may have other fcm
+    #             options like -logname and must have -cmd before command itself
+    #-command   - must be last option. Each parameter is a command to run 
+    #-cmd       - must be last option. Command to run with parameters
+    #
+    #<<< >>>    - Smart sub shell, while using -commands or stdin
+    #
+    #Where to run: Default: current host
+    #-mgr       - use predefined Resource Manager
+    #-host      - host name
+    #-csd       - csd group name
+    #-pool      - csd pool name
+    #-netbatch  - netbatch pool name
+    #-slot      - netbatch slot name
+    #-class     - netbatch class name
+    #-nbparams  - additional netbatch parameters
+    #
+    #What to do if job fails and how to detect it
+    #-tries     - maximal number of tries, if job is failed. Default: 1
+    #-es        - expected Exit Status (otherwise failed). Default: 0
+    #-rs        - exit statuses for which we would like automatic resubmission. 
+    #             Default: oposite to -es value
+    #-rcmd      - command to run when job automatically resubmitted
+    #-time      - maximal time period for job to run. Default not limited
+    #             Job will be killed if it runs more then that
+    #-mintime   - minimal time period for job to run. Default: 0
+    #             Job will be reported as failed if it runs less then that
+    #
+    #-autoclean - how long the job will stay before automatically deleted
+    #             Example: 7d
+    #
+    #Job's requirements from machine
+    #-os        - Operating System
+    #-strength  - Level of job's requirements
+    #-mem       - physical memory
+
+change [-jobid string]|[-group string -name string -inst string] [-rec]
+    [-info string] [-dir string] 
+    [-setup string [-cleandir strings]]
+    [-project string] [-tag string] [-analyzer string]
+    [-tries number] [-es numbers] [-rs numbers]
+    [-rcmd string] [-time time] [-mintime time] [-autoclean time]
+    [-priority priority] [-strength number] [-os strings]
+    [[-mgr string] | [-host string] | [-csd string [-pool string]] |
+    [-netbatch string [-slot string] [-class string] [-nbparams string]]] 
+    [-cmdfile string]  [-commandsfile string]
+    [-commands commands] [-cmd script_with_prameters]
+    #Change Jobs' properties
+
+############################################################################
+
+##########
+# Status #
+##########
+
+output [-jobid string]|[-group string -name string -inst string] [-rec]
+    [-stdout] [-stderr] [-stdin] [-try number] [-status statuses] [-html]
+    [-follow]  
+    #Get status of job
+    #    Submitted (queue status)/Waiting (signals status)/Running (host)/
+    #    Completed( Exit Status) / Killed (by user / by system / failed on 
+    #    requirements / timeout }
+    #-jobid     - job's id
+    #-group     - job's group name
+    #-name      - job's name
+    #-inst      - job's instance name/number
+    #-rec       - get output of all sub processes recursively
+    #-try       - output of specify try (if there were more then one)
+    #What channels to include: Default: stdout+stderr
+    #-stdout    - process output channel
+    #-stderr    - process errors channel
+    #-stdin     - input to the process
+    #-status    - filter: only jobs with specified statuses. Default: all
+    #
+    #-html      - print output in html format
+    #-follow    - append data as the output grows
+
+jobs [-group string] [-name string] [-inst string] [-rec]
+    [-priority priorities] [-strength number] [-os strings]
+    [-status statuses]
+    #Returns job ids
+    #-group     - job's group name
+    #-name      - job's name
+    #-inst      - job's instance name number
+    #-rec       - including sub processes
+    #-priority  - filter: only jobs with specified priorities. Default: all
+    #-strength  - filter: only jobs with specified strengths. Default: all
+    #-os        - filter: only jobs with specified OS. Default: all
+    #-status    - filter: only jobs with specified statuses. Default: all
+
+status [-jobid string]|[[-group string] [-name string] [-inst string]] 
+    [-priority priorities] [-strength number] [-os strings] [-rec]
+    [-status statuses] [-hasfails] [-line]
+    #Get status of job
+    #    Submitted (queue status)/Waiting (signals status)/Running (host)/
+    #    Completed( Exit Status) / Killed (by user / by system / failed on 
+    #    requirements / timeout }
+    #-jobid     - job's id
+    #-group     - job's group name
+    #-name      - job's name
+    #-inst      - job's instance name/number
+    #-priority  - status of jobs with specified priorities. Default: all
+    #-strength  - status of jobs with specified strengths. Default: all
+    #-os        - status of jobs with specified OS. Default: all
+    #-status    - status of jobs with specified statuses. Default: all
+    #-rec       - get status of all sub processes recursively
+    #
+    #-hasfails  - returns 0 if all jobs are done and success, 1 otherwise
+    #-line      - for each job print only one line. This good while using
+    #             grep command. After grep you can use (tr '\t' '\n') in 
+    #             order to convert it to multiline. Example:
+    #             fcmc status -line -rec | grep icsl6094.iil | tr '\t' '\n'
+
+clean [-jobid string]|[[-group string] [-name string] [-inst string]]
+    [-priority priorities] [-strength number] [-os strings]    
+    [-status statuses]
+    #Delete log files of the completed/killed jobs
+    #-group     - filter: group/project name. Default: all
+    #-name      - filter: flow name / fub / block. Default: all
+    #-inst      - filter: instance name/number. Default: all
+    #-priority  - filter: clean jobs with one of the specified 
+    #             priorities. Default: all
+    #-strength  - filter: clean jobs with one of the specified strengths. 
+    #             Default: all
+    #-os        - filter: clean jobs with one of the specified OS. 
+    #             Default: all
+    #-status    - filter: only jobs with specified statuses. Default: all
+
+rerun [-jobid string]|[[-group string] [-name string] [-inst string]]
+    [-priority priorities] [-strength number] [-os strings]
+    [-status statuses]
+    #Rerun the jobs
+    #-group     - filter: group/project name. Default: all
+    #-name      - filter: flow name / fub / block. Default: all
+    #-inst      - filter: instance name/number. Default: all
+    #-priority  - filter: rerun jobs with one of the specified 
+    #             priorities. Default: all
+    #-strength  - filter: rerun jobs with one of the specified strengths. 
+    #             Default: all
+    #-os        - filter: rerun jobs with one of the specified OS. 
+    #             Default: all
+    #-status    - filter: only jobs with specified statuses. Default: all
+
+setinfo [-jobid string]|[[-group string] [-name string] [-inst string]]
+    [-priority priorities] [-strength number] [-os strings]    
+    [-status statuses] string
+    #Setting info value to specified jobs
+    #To clean info value provide empty parameter - "" 
+    #-group     - filter: group/project name. Default: all
+    #-name      - filter: flow name / fub / block. Default: all
+    #-inst      - filter: instance name/number. Default: all
+    #-priority  - filter: clean jobs with one of the specified 
+    #             priorities. Default: all
+    #-strength  - filter: clean jobs with one of the specified strengths. 
+    #             Default: all
+    #-os        - filter: clean jobs with one of the specified OS. 
+    #             Default: all
+    #-status    - filter: only jobs with specified statuses. Default: all
+
+############################################################################
+
+##########
+# Killer #
+##########
+
+kill [-jobid string]|[[-group string] [-name string] [-inst string]]
+    [-priority priorities] [-strength number] [-os strings]
+    #Kill running job
+    #-jobid     - job's id
+    #-group     - filter: job's group name. Default: all
+    #-name      - filter: job's name. Default: all
+    #-inst      - filter: job's instance name/number. Default: all
+    #-priority  - filter: kill only jobs with specified priorities. 
+    #             Default: all
+    #-strength  - filter: kill only jobs with specified strengths. 
+    #             Default: all
+    #-os        - filter: kill only jobs with specified OS. Default: all
+
+############################################################################
+##                            Configuration File                          ##
+############################################################################
+
+#Known variables:
+${dir}
+    #Root tool version directory
+${pwd}
+    #Classpath directory
+${bin}
+    #bin files directory
+${user}
+    #Client's username
+~
+    #Client's home directory
+${wa}
+    #Client's working area
+ 

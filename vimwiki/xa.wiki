@@ -1,0 +1,103 @@
+* presto xa command
+/nfs/site/eda/tools/synopsys/xa/G-2012.06/common/bin/xa with 
+/nfs/iil/stod/areas/d/w.dslov.101/skl_aip/analog_setup/presto/sklfvrpwmana_exp1.sp -o 
+/nfs/iil/stod/areas/d/w.dslov.101/skl_aip/analog_setup/presto/sklfvrpwmana_exp1_1
+* rony cfg file:
+cat /p/gsr/gsr.pwr_reg.10/USERS/lrafael/4Ronen/uncore_dev-ertl-skl-a0-13ww26a_uvm_ams2/src/ams/clocks/hdmi_xa.cfg
+set_sim_level 4 
+#set_sim_level 6 -subckt dispdfgana
+set_sim_level -level 6  -inst single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana
+#set_sim_level 6 -subckt skldisplllcdco
+#set_sim_level 6 -subckt skldfg_tdc_56xtdccore
+#Set this for LC type blocks - change integration method to trapazoidal instead of gear
+#set_oscillator  -subckt skldisplllcdco -report 1 
+#set_oscillator  -subckt c84mindm11l0p6n -report 1 
+set_oscillator  -inst single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xidvco.xi82  -disable 1 -report 1 
+
+#set_multi_core -core max   -check_netlist 2
+set_multi_core -check_netlist 1
+#synchronize better between blocks integer and analog
+set_synchronization_level -level 6
+set_message_option -limit 50
+
+# connect undriven gatets to 0 - to gain performance 
+set_floating_node -val 0 -type all
+
+set_waveform_option -flush 1u -size 1g
+
+
+set_multi_rate_option -mode 2
+# split FSDB to 3G files 
+set_waveform_option -format fsdb -size 3000
+#set_waveform_option -format vpd -file merge
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdpll.xdispdfgana.* -level 1
+probe_waveform_voltage *
+
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.sd[0]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.sd[1]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.sd[2]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[0]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[1]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[2]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[3]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[4]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[5]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[6]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[7]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[8]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcofreqcntl[9]
+
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.bndsel[0]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.bndsel[1]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.bndsel[2]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.bndsel[3]
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.bndsel[4]
+
+
+
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dcoclk
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.tdccal
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.refp_b
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.refclkdv
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.refclk4stdc
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dsmclk
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.dlfclk
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.intdfeclk
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.tdcgate
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.vcoclk_inttdcb
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.rsto_b
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.refp
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.vcoclk_hp
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.vcoclk_simple
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.vcoclk_simple_b
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.refclk_b_hp
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.refclk_b_simple
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.refclkbf4stdco
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.refdither
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.vcodither
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.vcoout00
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.vcoout01
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.refout00
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.refout01
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.xis2.vcoout00
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.xis2.refout00
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.xis1.vcoout00
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdchp.xitdcvernier.xirow1.xis1.refout00
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.vcmtdc
+probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.xitdc_simple.xitdcvernier.xirow1.xis2.vcoout00
+
+
+#probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.tdcout_vdg*
+#probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.tdcout*
+#probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xidvco* -level 1
+#probe_waveform_voltage single_hdmipll.hdmipll_top_te.dplldispa.xdispdfgana.xitdc.* -level 4
+
+
+
+set_duplicate_rule -select_subckt last
+# remove sample noise 
+#set_sample_point -period 100p
+
+
+
+

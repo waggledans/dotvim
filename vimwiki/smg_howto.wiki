@@ -1,0 +1,22 @@
+# license:
+setenv CDS_LIC_FILE 5280@fmylic03e.fm.intel.com:$CDS_LIC_FILE
+
+// This model will checkout a run time license (SMG_Runtime) when simulated.
+// Only one license will be checked out irrespective of the number of licensed models used in the simulation.
+// This model makes use of compiled system calls that are defined in $CDSHOME/tools/dfII/etc/smg/lib
+// To simulate on a 32 bit system: setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${CDSHOME}/tools/dfII/etc/smg/lib
+// To simulate on a 64 bit system: setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${CDSHOME}/tools/dfII/etc/smg/lib/64bit
+// For simulators other than AMS Designer, the following is also required:
+// setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${INCISIVHOME}/tools/lib64
+// This model makes use of external definitions from one or more model files.
+// These files can be found in $CDSHOME/tools/dfII/etc/smg/bbtDefinitions.
+// Add this directory to the simulator search path or to the local hdl.var file being used.
+// E.g. in hdl.var: DEFINE NCVLOGOPTS -incdir $CDSHOME/tools/dfII/etc/smg/bbtDefinitions
+// End of IMPORTANT notes for simulating this Virtuoso Schematic Model Generator (SMG) generated model
+
+# compile verilog
+ncvlog -ams -use5x -work smg_tst_dslov -cdslib /nfs/iil/stod/stod075/w.dslov.101/tdd_work/cds.lib    \
+    -mess -assert -nocopyright -update -nowarn DLCILIB -view wreal \
+    -logfile /nfs/iil/stod/stod075/w.dslov.101/tdd_work/.smgWorkDir_21559/Wreal/smg_Wreal_calib.log  \
+    /nfs/iil/stod/stod075/w.dslov.101/tdd_work/.smgWorkDir_21559/Wreal/dllddr/osmg/dllddr_wreal.vams \
+    -incdir /p/mpg/proc/cad/em64t_linux26/virtuoso/6.1.5.500.14/tools/dfII/etc/smg/bbtDefinitions

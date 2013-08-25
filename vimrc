@@ -1,5 +1,12 @@
 "call pathogen#runtime_append_all_bundles()
 runtime plugin/unbundle/unbundle.vim
+source ~/.vim/global.vim
+source ~/.vim/filetype.vim
+source ~/.vim/status.vim
+source ~/.vim/settings.vim
+source ~/.vim/plugins.vim
+source ~/.vim/bindings.vim
+source ~/.vim/taglist_addons.vim
 set nowrap
 set number
 set title
@@ -36,6 +43,9 @@ syn match cm ".*::.*"
 "hi Visual guibg='Yellow' guifg='Darkred'
 "hi normal guifg=white guibg=darkblue 
 
+" regex-off like functionality
+command! -nargs=1 S let @/ = escape('<args>', '\')
+nmap <Leader>r :execute(":S " . input('Regex-off: /'))<CR>
 "Shift-RIGHT complete when inc search what's under the cursor
 "Shift-Down complete whole word - under cursor
 cnoremap <S-Down> <CR>yiw<BS>/<C-R>"

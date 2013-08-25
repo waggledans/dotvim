@@ -1,0 +1,48 @@
+# hspice flow:
+wwhelp/wwhimpl/js/html/wwhelp.htm#href=hs_1_sa_oview.012.11.html
+# setup:
+setenv LM_LICENSE_FILE port@hostname
+# Compiled function library
+setenv CFL_COMPILED_LIB CFL library_file_name
+setenv MY_OWN_INCLUDE_FILE inv.inc
+# example:
+     .inc '$MY_OWN_INCLUDE_FILE' $include the file inv.inc
+     .option list
+     .op
+     X1 in out inv
+     c1 out 0 0.1p
+     .global vdd gnd
+     .model n nmos level= 49
+     .model p pmos level= 49
+     vdd vdd  0  5
+     vin in 0 pulse 0 5 0 1n 1n  5n 10n
+     .tran 10p 100n
+     .option post=2
+     .end
+% setenv HSPICE_64 1
+% hspice -v  HSPICE Version D-2010 64-BIT
+% unsetenv HSPICE_64
+% hspice -v HSPICE Version C-2009.09 32-BIT
+
+setenv CDPL_HOME $INSTALLDIR/hspice/cdpl
+# Verilog-A (pVA) Environment Variables
+.hdl "/tmp/design01/lib/INV_linux4020110.pvalib"
+.hdl "${PVA_PATH}/${LIBNAME}_${PLATFORM}4020110.pvalib"
+.hdl "../../lib/${PVA_LIBRARY}.pvalib"
+# input files:
+.sp, .inc, .lib
+wwhelp/wwhimpl/js/html/wwhelp.htm#href=hs_1_sa_setup.013.13.html
+# output files formats:
+.st0    run status
+.lis    output listing
+.tr#    analysis data (transient)
+.sw#    analysis data (dc)
+.ac#    analysis data (ac)
+.ft#    FFT analysis data
+.m*#    measurements (ig mt0 transient measurement)
+wwhelp/wwhimpl/js/html/wwhelp.htm#href=hs_1_sa_setup.013.19.html
+# invocation:
+hspice -i design.sp -o design.list # .lis file will contain all results of .print, .op, .options
+hspice64 -i design.sp -o design.list
+
+

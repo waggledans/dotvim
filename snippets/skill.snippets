@@ -1,0 +1,40 @@
+snippet proc
+	(procedure ${1:name}(${2:args})
+	(let ( ${3:vars} )
+	   ${4:body}
+	) ;; let
+	) ;; procedure
+snippet let
+	(let ( ${1:vars} )
+	   ${2:body}
+	) ;; let
+snippet if
+	(if ${1:cond} then
+	   ${2:body}
+	 else
+	   ${3:else_body}
+	) ;;if
+snippet when
+	(when ${1:cond}
+	   ${2:body}
+	) ;;when
+
+snippet pri 
+	(printf "-I- ${1:txt}\n")
+snippet prw 
+	(printf "-W- ${1:txt}\n")
+snippet pre 
+	(printf "-E- ${1:txt}\n")
+snippet prd 
+	(printf "-D- ${1:txt}\n")
+snippet case
+	(case ${1:value}
+	    ( ${2:case1} ${3:statement} )
+	    ( t ${4:default} )
+	) ;; case
+snippet cond
+	cond(
+	    ( (${2:cond1}) ${3:statement} )
+	    ( (${4:cond2}) ${5:statement} )
+	    ( t ${4:default} )
+	) ;; cond

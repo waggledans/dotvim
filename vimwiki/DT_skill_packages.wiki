@@ -1,0 +1,133 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; GENERAL LOAD ORDER
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; The overall process is as follows:
+; $CDS_INSTALL_DIR/local/.cdsinit --> (this one gets loaded by cadence and calls $CDS_PROJECT_DIR/.cdsinit)
+; $CDS_PROJECT_DIR/.cdsinit -->         
+; $DA_PROJECTS/$PROJECT/$PROJECT.il   (Project level customization)
+; ~/.cdsinit -->                      (Individual user file)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; global variables used by $CDS_PROJECT_DIR/.cdsinit:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ DTLoadVerbose - value of DT_LOAD_VERBOSE env var. DTLoad will print which files it is loading when not nil
+ SKILLDEBUG - if env var is set, then check out skillDev license
+                    
+ DTLoadedPkgs - list of all packages that have been loaded
+ 
+SETUP_REV - value of SETUP_REV env var
+SETUP_REV_NUMBER  = (getShellEnvVar "SETUP_REV_NUMBER")
+PROJ_SKILL    = (getShellEnvVar "PROJ_SKILL") || "/dev/null"
+USER_SKILL    = (getShellEnvVar "USER_SKILL") || "/ue/skill"
+DA_PROJECTS = getShellEnvVar("DA_PROJECTS")
+PROJECT =  getShellEnvVar("PROJECT")
+PROCESS_NAME =  getShellEnvVar("PROCESS_NAME")
+ 
+ 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Project specific settings are in:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; loaded before :
+;; $DA_PROJECTS/$PROJECT/$PROJECT.pre.il
+;; $DA_PROJECTS/$PROJECT/$SETUP_REV_NUMBER/$PROJECT.pre.il
+;; Loaded somewhere in the middle
+;; $DA_PROJECTS/$PROJECT/$PROJECT.il
+;; $DA_PROJECTS/$PROJECT/$SETUP_REV_NUMBER/$PROJECT.il
+;; Loaded after :
+;; $DA_PROJECTS/$PROJECT/$PROJECT.post.il
+;; $DA_PROJECTS/$PROJECT/$SETUP_REV_NUMBER/$PROJECT.post.il
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Then DTSkillPackLoader.il loads bundles 
+
+; First DTBundleInit is called. It reads all the bundle def files (at most 4 of them to be exact) using DTReadBundles function.
+ Bundle loading algorithm: 
+ Phase 1 consists of parsing the bundleDef files and compiling a master bundle def data structure.
+ Phase 2 consists of using $SETUP_TOOLS to select a portion of the above data structure and loading the corresponding SKILL files.
+ The four files (at most)  are parsed in the following order if they exist. 
+   $CDS_PROJECT_DIR/DT.SkillBundleDef 
+   $DA_PROJECTS/$PROJECT/$SETUP_REV_NUMBER/$PROJECT.skillBundleDef
+   ~/$user.skillBundleDef
+   ~/.skillBundleDef
+
+ If any one of these is missing, it is simply and silently skipped, and the next is loaded in turn.
+ If any of the files contains a bundle definition that was already \
+ defined by an earlier file, the old definition is discarded.  This \
+ allows users and projects to override bundle definitions selectively, \
+ without having to duplicate the entire file." 
+;; or in more details:
+
+DTSetAutoloads is called with the following parameters:
+ (DTSkillPackLoader DTLoad DTConsOr DTLoadOne DTSkillPathSearch DTSetAutoloads DTGrowSkillPath DTReadBundles
+  DTLoadBundleFile DTLoadBundleItem DTLoadBundle DTPrependDirsToSkillPath DTPrependUserSkillPath DTBundleInit)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+DTLoadBundleItem function gets called on each item in a bundle list.  An item might be 
+a string selecting an additional bundle to load or might identify a package, i.e.
+it might be a pair of the form (pkg_name expr).  The expr is evaluated to derive the name 
+of the directory containing the init files for the pkg_name.  
+That directory gets autmatically added to the skillPath.
+Note that modifications to the item are loaded (via the skillPath) by the DTLoadBundle 
+function, if the dir $PROJ_SKILL/local<item_name> exists.
+#\
+#The init files get loaded in the following order:\
+#                              <pkg_name>Depend.il xor <pkg_name>Init.il \
+#                              <pkg_name>Autoloads.il\
+#                              <pkg_name>Globals.il\
+#                              <pkg_name>Menu[s].il\
+#                    and       <pkg_name>Forms.il\
+#However, for backward compatibility, if the <pkg_name>Init.il or any other \
+#files does load the other files explicitly and sets a <pkg_name><Suffix>.rcs \
+#property then the bundle loader will refuse to reload them.\
+#\
+#After the <pkg_name>Init.il gets loaded, the <pkg_name>.dependencies property\
+#is checked by DTLoadBundleItem.  If any or all of the dependencies have not\
+#already been loaded, then DTLoadBundleItem refuses to continue loading the\
+#package, and an error is issued.\
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; bundles ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+("opus"
+	  (lib		strcat(getShellEnvVar("CDS_PROJECT_DIR") "/lib"))
+	  (idc_skill	strcat(getShellEnvVar("CDS_PROJECT_DIR") "/idc_skill"))  
+
+)
+
+("opus_sch" 
+	  "opus"
+	  (sch		strcat(getShellEnvVar("CDS_PROJECT_DIR") "/sch"))  
+	  (sym		strcat(getShellEnvVar("CDS_PROJECT_DIR") "/sym"))  
+	  (devCnt	strcat(getShellEnvVar("CDS_PROJECT_DIR") "/devCount"))
+	  (dmscp	strcat(getShellEnvVar("CDS_PROJECT_DIR") "/dmscp"))
+	  (bkpg		strcat(getShellEnvVar("CDS_PROJECT_DIR") "/bkpg"))
+	  (de		strcat(getShellEnvVar("CDS_PROJECT_DIR") "/utils"))    
+	  (damenu	strcat(getShellEnvVar("CDS_PROJECT_DIR") "/damenu"))  
+	  (fw		strcat(getShellEnvVar("CDS_PROJECT_DIR") "/fw"))  
+)
+
+
+
+
+
+# Autoloads files loaded when running virtuoso
+<pkgNam>Depend.il  ;; includes packages that must be loaded prior to this one
+<pkgNam>Autoloads.il contains file name 
+<pkgNam>Forms.il
+In this file you'll simply find executable code to define forms and form component objects
+  (possibly via the DTDEFGLOBALS macro) for each Cadence Application impacted by the package.
+<pkgNam>Menus.il
+In this file you'll find a number of procedures define (one per Cadence Application impacted by
+  the package) and then one or more calls to a menu insertion registration procedure.
+<pkgNam>PkgInit.il file is MADE by concatenating WRAPPED template definitions of the UI and Body
+    specific init control flow code and then inserting a call to both of those procedures.
+  example: 
+  DTLoad("schIVM.il")
+

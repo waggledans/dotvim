@@ -1,0 +1,91 @@
+/*************************************************************************
+* DISCLAIMER: The following code is provided for Cadence customers       *
+* to use at their own risk. The code may require modification to         *
+* satisfy the requirements of any user. The code and any modifications   *
+* to the code may not be compatible with current or future versions of   *
+* Cadence products. THE CODE IS PROVIDED "AS IS" AND WITH NO WARRANTIES, *
+* INCLUDING WITHOUT LIMITATION ANY EXPRESS WARRANTIES OR IMPLIED         *
+* WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE.         *
+*************************************************************************/
+ 
+;; Load and initialize code that new context is dependent on.
+ 
+loadContext(strcat(getShellEnvVar("CDS_INST_DIR") "/tools/" getSkillVersion() "/context/skillCore.cxt"))
+callInitProc("skillCore")
+ 
+/* You may need to load other contexts as well which icfb or virtuoso does not
+load by default but your code is dependent on those contexts.
+Make sure that such context files get loaded here. */
+ 
+;; Set the context file you want to build
+setContext( "test") 
+ 
+;; Load your SKILL code which has procedures/functions defined.
+;; All files loaded after this will be part of your context
+load( "./YOUR_SKILL_CODE.il")
+ 
+/* Save the context file. Make sure you use the same name as
+used in setContext command above but with extension .cxt   */
+ 
+saveContext( "test.cxt")  ; saves your context file as test.cxt
+exit()
+ 
+/*------------------------------------------------------------------------------------------------------------
+ 
+ 
+Once you have created this file as per your requirement, you can run below command to build the context file:
+;; ###### dslov note: The following is taken from $CDS_INST_DIR/dfII/tools/local/.cdsinit
+;; Do NOT load ANY Customer SKILL if attempting to build a skill context file
+;; otherwise any and all definitions become a part of EVERY context file built...
+;; cxt creation process should be something like:
+;; setenv ILLOADIL t ; easy to remember as IC req:    vvvvvvvvv
+;; setenv CDS_AUTO_64BIT ALL
+;; $(CDS_INST_DIR)/tools/dfII/bin/virtuoso -nograph -ilLoadIL <path to cxt creation SKILL script>
+;; and then: (unless (getShellEnvVar "ILLOADIL")
+;; What it means is that they dont load CDS_PROJECT_DIR if ILLOADIL is set.
+;; ###### end dslov note
+
+MAKING 32BIT CONTEXT FILE
+==========================
+On IC5141:
+LINUX:>   setenv ILLOADIL t
+LINUX:>   icfb -ilLoadIL CCSbuildContext.il -nograph
+On IC6.1.4 and later:
+LINUX:>   setenv ILLOADIL t
+LINUX:>  virtuoso -ilLoadIL CCSbuildContext.il -nograph
+ 
+As per above example a 32bit context file test.cxt will get created. To use the functions which are part of context file now, 
+type in CIW of a new session:
+loadContext("/home/user1/test.cxt")
+ 
+And then you can try one of your functions defined in YOUR_SKILL_CODE.il to verify that it is now running from context file. 
+The above entry can be made in .cdsinit file so that context file gets loaded automatically in all new sessions.
+ 
+MAKING 64BIT CONTEXT FILE
+==========================
+
+The same file CCSbuildContext.il can be used for making 64bit context as well. 
+ 
+Before building the 64bit context set this variable:
+LINUX:> setenv CDS_AUTO_64BIT ALL
+ 
+From IC5141 to IC613, layout command can be used to build 64bit context:
+LINUX:>   layout -ilLoadIL CCSbuildContext.il -nograph
+ 
+From IC614 onwards virtuoso command can be used:
+LINUX:>   virtuoso -ilLoadIL CCSbuildContext.il -nograph
+ 
+Once you run the command the context file will be automatically placed in "64bit" directory under current working directory. 
+But, you dont need to change the loadContext command for loading of 64bit context. Command will still be:
+loadContext("/home/user1/test.cxt")
+This will tell the tool to automatically load it from: /home/user1/64bit/test.cxt
+
+
+
+
+############################### LINT ######################################
+sklint( ?prefixes '(MP)  ?file "myProg.il" ?outputFile "myLint.log")
+ where '(MP) = list of global prefixes allowed
+      myProg.il  = SKILL program
+      myLint.log = output Lint log file
+
