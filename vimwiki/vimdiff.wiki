@@ -1,0 +1,130 @@
+vim:
+http://tottinge.blogsome.com/use-vim-like-a-pro/
+http://aymanh.com/a-collection-of-vim-tips
+
+
+help after_directory
+
+vimdiff file1 file2 or vim -d file1 file2
+Commands :
+
+[c : Jump to previous diff
+]c : Jump to the next diff
+
+do or :diffget : Diff obtain (get the changes to the current buffer/file from the other buffer)
+dp or :diffput : Diff Put (Put the changes from the current buffer/file to the other buffer)
+diffupdate : refresh diffs
+
+nmap <F7> [czz 
+nmap <F8> ]czz
+nmap <F2> do
+nmap <F3> dp
+:set diffopt=filler
+By default, diffopt is set to filler. Filler doesnt do much, it just adds vertical spaces to keep the text of the left and right pane aligned. Its a good setting, and I dont much like working without it. But there are other settings which are overlooked, even by experts.
+: set diffopt+=iwhite
+ignore whitespace. It makes gvimdiff ignore leading, trailing, and embedded spaces so that simple acts like retabbing or deleting vertical spaces wont obscure actual changes. It really helps you to merge changes in situations where youve adopted code that was built to entirely different standards.
+:set diffopt+=icase
+ignore capitalization 
+:set diffopt+=horizontal
+:set diffopt+=vertical
+to get some help:
+:options
+:browse options
+:browse set
+In this window, you can browse through all the available options, and can even set them.
+You can read the short help messages associated with each, or you can hit the enter button on any short help to see the longer help text. If you press the enter key on an option, it will toggle that option or set a new value.
+
+.vimrc   Meaning
+#####################################################################################
+syntax enable       turn on all the magic, including Explorer and syntax highlighting
+set showmode        Show me when I'm in insert/overtype mode
+set showcmd         When a command is in progress, show it in the status bar
+set wildmenu        magic for completion at the : command line.
+set ruler<          turn on the "ruler" (status info) at the bottom of the screen.
+set autoindent      indent in a smart way, instead of returning to the left margin all the time
+set expandtab       expand tabs to spaces
+set nowrap          Don't wrap text (makes windows ugly)
+set hlsearch        Highlight all matches in text when you search
+set showmatch       Show matches for braces, parens, etc.
+set ignorecase      do case-insensitive searching
+set smartcase       When a search phrase has uppercase, don't be case insensitive
+set path=.,..,/usr/include/**,/usr/share/**         Tell the editor where to search for files
+set spelllang=en_us when I want spell-checking, I want it to be english
+
+######################################################################################
+The star is a great command, especially if you have the option hlsearch turned on in your .vimrc file.
+It will move to the next use of the word under the cursor. In doing so, it will highlight all uses of the word under the cursor.
+
+*   Move to next instance of word under cursor.
+#   Move to previous instance of word under cursor.
+
+Completion
+
+^n  In insert mode, complete a word (forward to through choice list)
+^p  In insert mode, complete a word (backward through choice list)
+
+:split code.h<enter>    splits window horizontally and loads code.h in a new window
+:vsplit code.h<enter>   splits window vertically and loads code.h in a new window
+
+Autoindent:
+
+set tabstop=8       Use industry standard 8-char tabs
+set shiftwidth=4    Use standard 4-char indentation
+set shiftround      Indent/Dedent to nearest 4-char boundary
+set autoindent
+
+%!astyle	Restyle the entire file with astyle (a nice reformatting program).
+%!indent	Restyle the entire file with indent (a nice, older program).
+
+ctags
+!ctags -R *	Run ctags (better to do this in your makefile)
+^]	        Jump to the definition of the term (class/method/var) under the cursor
+^t	        Pop the browsing stack, return to previous location
+compile
+:make	Run the makefile specified by the makefile variable
+:cw	Show the compile error window if there are compile errors.
+:cn	Go to the next compile error.
+:cp	Go to the previous compile error.
+{
+Macro example
+qa	Start recording the macro to register 'a'
+cw	deletes the current word to register ", and enter insert mode
+<b>	enters the text (we're in insert mode). This text is the beginning of the html tag for bold text.
+^r	start the paste-while-in insert mode
+"	paste from register ' ("falsify") into the current location in the file.
+</b>	enter the closing tag fror bold
+ESC	Return to command mode.
+q	Stop recording
+W	Move one word to the right.
+@@	replay the macro, wrapping the word under the cursor
+W	Move one more word to the right.
+.	replay the macro again, wrapping the word under the cursor
+
+
+}
+A brief summary of folding:
+
+:verbose set foldmethod?    #to see where foldmethod was set
+:set foldmethod?            #to see the value of the variable
+you will see where 'foldmethod' was set last.
+highlight some text using v visual mode
+zf to fold, 
+zo to unfold (ie open)
+put cursor on an opening curly bracket, and  zfa} to fold until closing curly bracket (or zfa) or zfa]
+add this to your .vimrc to remember folds:
+au BufWinLeave * mkview
+au BufWinEnter * silent loadview
+zf#j creates a fold from the cursor down # lines.
+zf/string creates a fold from the cursor to string .
+zj moves the cursor to the next fold.
+zk moves the cursor to the previous fold.
+zo opens a fold at the cursor.
+zO opens all folds at the cursor.
+zm increases the foldlevel by one.
+zM closes all open folds.
+zr decreases the foldlevel by one.
+zR decreases the foldlevel to zero -- all folds will be open.
+zd deletes the fold at the cursor.
+zE deletes all folds.
+[z move to start of open fold.
+]z move to end of open fold.

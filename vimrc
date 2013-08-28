@@ -19,7 +19,7 @@ so ~/.vim/filetype.vim
 au BufWinLeave * mkview
 au BufWinEnter *.* silent loadview
 set cpt=.,k~/docs/dict,b,w,u
-set history=20
+set history=40
 set wildchar=<TAB>
 set showmatch
 set hlsearch
@@ -74,8 +74,4 @@ nmap <RightMouse> <4-LeftMouse>
 vmap _c :s/^/#/gi<Enter>
 vmap _C :s/^#//gi<Enter>
 
-
-"additions to menu"
-amenu <silent> Wrap.Wrap :set wrap<CR>
-amenu <silent> Wrap.Nowrap :set nowrap<CR>
 

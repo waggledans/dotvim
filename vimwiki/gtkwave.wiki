@@ -1,0 +1,10 @@
+#install:
+./configure --prefix=$HOME/gtkwave --with-tk=/bin/tcl/8.5.9_64/lib --disable-xz --with-tcl=/bin/tcl/8.5.9_64/lib --disable-mime-update
+make
+make install
+
+# update LD_LIBRARY_PATH to include libtcl8.5.so
+setenv LD_LIBRARY_PATH /bin/tcl/8.5.9_64/lib:$LD_LIBRARY_PATH
+# update PATH to include gtkwave
+setenv PATH $HOME/gtkwave/bin:$PATH
+

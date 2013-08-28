@@ -1,0 +1,70 @@
+vcs xa compile:
+vcs -ad=xa_init.init -ams -ams_discipline logic -f lab1.f -l comp.log -o simv
+$VERDI/bin/nWave -ssf file_name.vcd
+set nWave=$VERDI/bin/nWave
+##############################################################################
+#mixed-signal simulation setup file example:
+use_spice -cell blk-1;
+use_spice -cell blk-2;
+choose nanosim -n blk-1.spi blk-2.spi -C ns.cfg ;
+bus_format _%d;
+##############################################################################
+# compilation command example:
+vcs -ad=control.init top_blk.v blk-2-1.v -l comp.log -o simv -l comp.log
+#################################################################################
+# Setting environment
+LM_LICENSE_FILE  or SNPSLMD_LICENSE_FILE PATH XA_64 XA_GCC 
+# command line switches:
+$XA/doc/webworks/wwhelp/wwhimpl/js/html/wwhelp.htm
+
+#
+#setup file: control.init
+use_spice -cell blk-1;
+use_spice -cell blk-2;
+choose nanosim -n blk-1.spi blk-2.spi -C ns.cfg ;
+bus_format _%d;
+#compile command:
+vcs -ad=control.init top_blk.v blk-2-1.v -l comp.log -o simv -l comp.log
+vcs -f lab1.f -R -full64 +v2k -timescale=1ns/1ps -ad=my_init.init -ams -ams_discipline logic | & tee vcs.log
+# to use $fsdbDumpVars
+vcs -f lab1.f -R -full64 +v2k -timescale=1ns/1ps -ad=my_init.init -ams -ams_discipline logic -P $NOVAS_HOME/share/PLI/vcs/LINUX64/novas.tab ${NOVAS_HOME}/share/PLI/vcs/LINUX64/pli.a | & tee vcs.log
+
+
+### xa output files:
+# log: .logic
+# waveform: .fsdb# (cscope, nWave, sx) .wdf# (sx) .wdb# .out# (nWave sx) .tr0
+# some stuff is here:
+
+#vcs xa compile:
+vcs -ad=xa_init.init -ams -full64 -ams_discipline logic -f lab1.f -l comp.log -o simv
+# or vcs -o xavcs -Mdir=csrcxa file.v -ad=xavcs.ctrl -nohsopt -l vcs.log -full64
+set nWave=$VERDI/bin/nWave
+nWave -ssf file_name.vcd
+
+# init file example (to be used with -ad flag)
+// -n is the same as -hspice or -nhspice, list all sp files here
+choose xa -n buffer.sp -c cfg;
+// in case of multiple views use_veriloga
+use_spice -cell buffer;
+######## end of ad file
+# xa cfg file example:
+set_message_option -limit 60
+###### end of xa cfg file example
+
+# use of verilog from spice:
+* declare buffer as a verilog
+.hdl "buffer"
+
+# spice file must contain .end statement. Example:
+.GLOBAL vss 
+.model n nmos level=54
+.model p pmos level=54
+.probe v(*)
+*******************
+.SUBCKT buffer inclk vccl  pclk nclk
+* INPUT: inclk vccl 
+* OUTPUT: pclk nclk 
+.ENDS
+Xbuffer inclk vccl  pclk nclk buffer
+.END
+######### end of spice file example

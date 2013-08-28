@@ -1,0 +1,4 @@
+lmstat -c 2926@flexm_server.com -f artistIF | grep Total
+Users of artistIF:  (Total of 5 licenses issued;  Total of 1 license in use)
+
+lmstat -c 2926@flexm_server.com -f artistIF -i

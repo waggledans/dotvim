@@ -1,0 +1,40 @@
+How irun Works
+The first time you run the simulator with the irun command, it:
+
+1.  Creates a directory called INCA_libs. 
+
+2.  Creates a subdirectory under the INCA_libs directory called 
+
+irun.<platform | platform.64>.<irun_version>.nc
+For example:
+irun.lnx86.09.20.nc/
+irun creates files and directories under this subdirectory to support tool operations.
+As a convenience, a symbolic link named irun.nc is created that points to the irun scratch subdirectory.
+3.  Parses the command line. 
+
+4.  Invokes the appropriate compiler for each file specified on the command line. 
+
+Design units contained in HDL design files are compiled into the work library (worklib).
+Verilog design units specified in -y libraries or -v library files are compiled into libraries that have the same names. These libraries are stored in subdirectories of irun.nc/xllibs. For example, the following command compiles top.v into worklib (INCA_libs/worklib). Design units in ./libs are compiled into a library called libs (INCA_libs/irun.nc/xllibs/libs), and design units in ./models are compiled into a library called models (INCA_libs/irun.nc/xllibs/models).
+% irun top.v -y ./libs -y ./models +libext+.v 
+The output from the Specman e compiler, sn_compile.sh, is stored in subdirectories under the irun.nc directory.
+5.  Invokes the elaborator (ncelab) to elaborate the design and generate a simulation snapshot. 
+
+6.  Invokes the simulator (ncsim) to simulate the snapshot. 
+
+The output of all tools is written to a common log file called irun.log in the directory in which irun was invoked. You can change the name of the log file with the -l option. For example:
+
+% irun -l run1.log .... 
+
+Recompilation and Re-Elaboration
+When irun is invoked again (that is, using an already existing INCA_libs scratch directory), irun determines if changes on the command line require any files to be recompiled (and then re-elaborated) or if the design needs to be re-elaborated.
+
+irun will go directly to simulation if:
+
+  The content of the input files has not changed since the last time they were compiled. This includes the content of Verilog -v library files and -y directories. 
+
+  The order of the input files on the command line is the same, including the order of Verilog -v library files and -y directories. 
+
+  Command-line options are the same, or, if they are different, the changes do not affect the output of the different language compilers or ncelab. 
+
+For example, some options, such as +gui and -s, affect only run-time behavior. Adding or removing them from the command line does not cause recompilation or re-elaboration. However, adding, removing, or changing other options that can affect compilation or elaboration (for example, removing the -notimingchecks option or changing -access +r to -access +rw) will force recompilation or re-elaboration.

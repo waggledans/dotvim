@@ -1,0 +1,30 @@
+= adding empty dir to git repo = 
+http://stackoverflow.com/questions/115983/how-do-i-add-an-empty-directory-to-a-git-repository
+Suppose you are in your repository.
+Create your empty directory:
+
+$ mkdir path/to/empty-folder
+Add it to the index using a plumbing command and the empty tree SHA1:
+
+$ git update-index --index-info
+040000 tree 4b825dc642cb6eb9a060e54bf8d69288fbee4904    path/to/empty-folder
+Type the command then enter the second line, press enter then Ctrl+D 
+to terminate your input. 
+Note: the format is mode [SPACE] type [SPACE] sha1hash [TAB] path 
+(the tab is important, the answer formatting does not preserve it).
+That's it! Your empty folder is in your index. All you have to do is commit.
+
+The empty tree sha1 can be found by creating a new empty git repository,
+cd into it and issue git write-tree, which outputs the empty tree sha1.
+= WARNING =
+This solution appears to work exactly the same way as creating a submodule,
+except that no module is defined anywhere.
+This leads to errors when issuing git submodule init|update. 
+The problem is that git update-index rewrites the 040000 tree part into 160000 commit.
+Moreover, any file placed under that path won't ever be noticed by git,
+as it thinks they belong to some other repository.
+This is nasty as it can easily be overlooked!
+However, if you don't already (and won't) use any git submodules in your repository,
+and the "empty" folder will remain empty or if you want git to know of its existence
+and ignore its content, you can go with this tweak.
+Going the usual way with submodules takes more steps that this tweak.

@@ -1,0 +1,155 @@
+## Declaration
+# Parameters: parameter <real|integer> name=expr <rangeLimit>;
+# Real variables are always initialized to zero.
+parameter integer bits = 8 from [1:24];
+parameter real phi=0.7 exclude 0;
+parameter real r=0;
+parameter bits=8, vdd=3.0;
+parameter real Vmax=Vmin+1 from (Vmin:inf);
+parameter real poles[0:3] = {1.0, 3.198, 4.554, 12.0};  #vector parameter
+#Analog modelling:
+# conductor: I(p,n) <+ g * V(p,n);
+# capacitor: I(p,n) <+ c * ddt(V(p,n));
+# inductor: V(p,n) <+ Ind * ddt(l(p,n));
+# ground could be explicitely specified:
+# ground gnd;
+# vsrc #(.dc(1)) V1(n, gnd);
+
+
+#Nature and discipline:
+// Voltage in volts
+nature Voltage
+units = "V";
+access = V;
+abstol = 1u;
+endnature
+// Current in amperes
+nature Current
+units = "A";
+access = I;
+abstol = 1p;
+endnature
+// Electrical
+discipline electrical
+potential Voltage;
+flow Current;
+enddiscipline
+# derived nature:
+nature HighVoltage: Voltage
+abstol = 1;
+endnature
+# connection in parallel:
+branch (a, c) res, cap; analog begin I(res) <+ ...; I(cap) <+ ....;
+# probes - any branch without contribution, be it explicit or implicit (named or unnamed).
+# potential probe   .print V(hier0.hier1.hier2%port0) 
+# flow probe    its flow is observed somewhere in the module (potential accross it iz zero)
+# source branch - a branch with contribution. Could be potential, flow or switch.
+#################### system functions ##
+$vt system function returns the thermal voltage kT/q, wo parameters equivalent to $vt($temperature)
+$temperature    returns ambient temperature
+$bound_step     bound timestep for cont. time kernel. Like bound_step(0.1/freq) says to take timesteps no larger that 0.1/freq to insure enough samples are made
+                needed in those cases where changes happen without defined events (like oscilator that changes outputs on its own see p.77 of AMS book).
+$finish(n)      terminates the simulation. Takes 0,1, 2 as arguments.
+$stop(n)        like $finish only it just suspends the sim
+$abstime()      returns a real value - the current time in seconds
+$realtime()     returns a real value - time in specified in timescale time units. Probably not supported by mynx
+$display    $display("A= %b B= %b", A, B ); %b binary, %d decimal, %h hex, %f real, %s string, %% display %, aol
+$strobe     same as $display
+$write      same as $strobe only newlines are not added
+$monitor    outputs when the value changes
+multichannelDescriptor = $fopen(filename); $fclose(multichannelDescriptor)
+$fdisplay( multichannelDescriptor, formatString, <...>), $fstrobe ()..
+$table_model 
+limexp()    limited exponent.
+ddt(x)
+idt(x)      time integral.
+idtmod(x)   periodic integral. freq = k*V(in); phase = idtmod(freq,0,1);$bound_step(1/(10*freq));
+absdelay(operand, x, <maxDelay>) returns wave delay by x: absdelay(dnReal,delayToOutput,400p) 
+
+initial_step
+final_step
+last_crossing(x)    Time of the last crossing
+cross(value, dir)   Ex: @cross(V(clk)-Vdd/2, dir)
+transition(input_signal, time-delay, risetime, falltime)
+slew(input_signal, slew_pos, slew_neg)      Example: V(out) <+ slew(V(in), sr_pos, sr_neg);
+white_noise(4*`P_K*$temperature*r, "thermal"); //`need to include constants.vams to use this one
+ac_stim( analysisName, magnitude, phase )
+$discontinuity (order)  as in switch could be smth like:
+@(cross (V(ps,ns) - thresh, 0 ))
+    $discontinuity(0);
+
+@(final_step) begin
+$strobe("time interval measurements = %d.\n", count);
+
+#discipline resolution algorithm:
+1. `default_discipline directive adds discipline implicitely:
+    `default_discipline logic (in vcs can also specify a flag -ams_discipline in compile command)
+2. Out of model discipline declaration coerces the (having no discipline) node to have a declared value:
+       logic top.a73.x          #node x in instance a73
+3. In case where there are multiple ports from a lower level:
+    Basic mixed signal discipline resolution
+    a) The net takes the discipline of the lower level ports 
+        if all the ports connected to the net share the same discipline.
+    b) The user must provide a resolution rule:
+        connectrules MyRules;
+            connect logic_a, logic_b resolveto logic;
+        endconnectrules
+        When signal flow discipline (voltage) is connected to conservative port resolveto resolution is needed:
+            connect electrical, voltage resolveto electrical;
+    c) If one of the lower level nets is analog (continuous-time domain) the higher level net becomes analog too.
+        This means analog wins over digital and propagates upward (not downwards).
+    Detailed mixed signal discipline resolution:
+    a)  The net takes the discipline of the lower level ports
+    b) Analog net always wins and propagates upwards and then downwards to another connected instances
+    Automatic connect module insertion:
+    1. The insertion of the connect modules is handled after the discipline
+    resolution is finished and before the simulation starts
+    // connect module example:
+connectmodule snps_cm_a2d (ain, dout);
+    output dout;
+    input ain;
+    logic dout;
+    electrical ain;
+    //TODO:: The body of the connect-module goes here
+endmodule
+//connect rule definition example_0:
+connectrules snps_crules;
+  connect snps_cm_a2d input electrical, output logic ;
+  connect snps_cm_d2a input logic, output electrical ;
+endconnectrules
+//connect rule definition example_1:
+	connectrules MyRules; 
+	    connect a2d input electrical, output logic; 
+	    connect d2a input logic, output electrical;
+	endconnectrules
+    2. split and merged insertion modes:
+	connectrules MyRules; 
+	    connect a2d split input electrical, output logic;	//split
+	    connect d2a merged input logic, output electrical;	//merged
+	endconnectrules;
+    3. Parametrized connect module:
+	connect a2d #(.vl(1.2), .vh(2.2), .c(1p));
+	or:
+	connect a2d input electrical, output logic5; 
+	connect a2d #(.vl(0.9), .vh(2.1)) input electrical, output logic3;	
+    4. X-level monitoring a2d:
+
+    always @(above(V(in) - vlx)) inXregion = 1;
+    always @(posedge inXregion) begin : XRegionDelay
+	    #(dt/1.0n) // calculate how many time units are equal to the dt time
+	    out = 1'bx; //'
+	    inXregion = 0;
+    end //XRegionDelay
+    always @(negedge inXregion) disable XRegionDelay;
+
+
+    5. Driver/receiver segregation feature
+      simply we can do smth like that:
+      assign in = in; // connect digital drivers and receivers
+
+
+uesetup -b "analog" -d -hp "skluncore" -keep -m latest -milestone cdr1 -p "sklip" -pr "1272.4" -w "none" -t analog 
+
+vcs xa compile:
+vcs -ad=xa_init.init -ams -ams_discipline logic -f lab1.f -l comp.log -o simv
+

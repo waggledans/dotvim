@@ -1,0 +1,233 @@
+setup
+    $ wget http://kernel.org/pub/software/scm/git/git-1.6.0.tar.gz
+    $ tar xzf git-1.6.0.tar.gz
+    $ cd git-1.6.0
+    $ ./configure
+    $ make all 
+    $ make install
+check the version:
+    $ git --version
+Configure the public key for the GitHub
+    $ ssh-keygen -t rsa -C "your_email@youremail.com"
+Add your SSH key to GitHub (need to login to web site).
+Make sure it works:
+    ssh -T git@github.com
+I did that and received a message that all is fine but the site doesnt support command line
+Add git updates to your git path    
+    /usr/local/git/bin/git clone git://git.kernel.org/pub/scm/git/git.git
+Define diff:
+    /usr/local/git/bin/git config --global merge.tool vimdiff
+    
+/etc/gitconfig 
+    Contains values for every user on the system and all their repositories. If you pass the option --system to git config, it reads and writes from this file specifically.
+~/.gitconfig
+    Specific to your user. You can make Git read and write to this file specifically by passing the --global option.
+    config file in the git directory (that is, .git/config) of whatever repository you’re currently using: Specific to that single repository. Each level overrides values in the previous level, so values in .git/config trump those in /etc/gitconfig.
+Config use.name and user.email globally
+    git config --global user.name "John Doe"
+    git config --global user.email johndoe@example.com
+If you want to use a different username for a different repo just cd into repo dir and:
+    cd my_other_repo
+    git config user.name "Different Name"
+    git config user.email "differentemail@email.com"
+GitHub user name and token:
+    git config --global github.user username
+    git config --global github.token some_token
+
+create a local repo:
+    $ mkdir ~/Hello-World
+    $ cd ~/Hello-World
+    $ git init
+    $ touch README
+Add all the files and directories in the current dir (where repo is)
+commit for the first time:
+    $ git add .
+Or alternatively in this case where there is just one file:
+    $ git add README
+If you changed your mind and want to unstage the file
+    $ git rm --cached README
+or after the commit you may just remove the file from both the index and workdir
+    $ git rm README
+To recover old versions of files
+    $ git checkout HEAD -- file_name
+To move files. The following to things are equivalent:
+    $ mv stuff newstuff 
+    $ git rm stuff 
+    $ git add newstuff
+or
+    $ git mv stuff newstuff
+
+###############################
+
+    $ git commit -m 'first commit'
+or with more details
+    git commit -a -m "swp removed" --author="Dan Slov <dan.slov@gmail.com>"
+# to edit the commit message: git commit --amend -m "new commit message"
+to see more detail about some config copy the hash from git log. example:
+    $ git log
+copy the hash line and then:
+    $git show 7f43a89c39928edba461a0be72aa7f2e51e2d93e
+To see development branch:
+    git show-branch --more=10
+Create tag:
+    $ git tag -m"Tag version 1.0" V1.0 3ede462
+Checkout files:
+
+
+$ git remote add origin git@github.com:username/Hello-World.git
+$ git push origin master
+
+to remove file:
+    # Create a file and put it under version control
+    touch nonsense.txt
+    git add . && git commit -m "a new file has been created"
+    # Remove the file
+    rm nonsense.txt
+    # Try standard way of committing -> will not work 
+    git add . && git commit -m "a new file has been created"
+    # Now commit with the -a flag
+    git commit -a -m "File nonsense.txt is now removed"
+    # Alternatively you could add deleted files to the staging index via
+    git add -A . 
+    git commit -m "File nonsense.txt is now removed"
+git alias:
+$ git config --global alias.show-graph 'log --graph --abbrev-commit --pretty=oneline'
+
+
+########### COMMIT ##############
+# refs and symrefs are in refs dir.
+# There could be 3 dirs in refs : tags (to hold tags), heads (to hold branches) and remotes.
+    .git/ref
+    .git/refs/ref
+    .git/refs/tags/ref
+    .git/refs/heads/ref
+    .git/refs/remotes/ref
+    .git/refs/remotes/ref/HEAD
+# example of getting rev-parse of some parent of the 2nd parent of the 2nd parent of grandgrandparent
+    $ git rev-parse master
+    $ git show-branch --more=35 | tail -15
+    $ git rev-parse master 
+# show to commits between -10 to -12:
+    $ git log --pretty=short --abbrev-commit master~12..master~10
+-p prints the patch, or changes, introduced by the commit: 
+    $ git log -1 -p 4fe86488
+show graph:
+    $ gitk$ git checkout -b bug/pr-3
+
+############# branch ################
+
+# create branch
+    $ git branch prs/pr-1138
+# list all branches
+    $ git branch
+# list all branches in bugs dir along with some details:
+    $ git show-branch 'bug/*'
+# list all changes from master to bug/pr-1:
+    $ git log -p master..bug/pr-1
+# checkout some particular branch
+    $ git checkout bug/pr-1
+# if there are some mdoified files in the workarea git will attempt
+# to merge with the checked out files if -m flag is specified:
+    $ git checkout -m dev 
+        M NewStuff 
+        Switched to branch "dev"
+# another case is that after checkout a developper realized that he wants to ci files to the new branch:
+# -b flag would allow to create anew branch that would have all the modified files indexed
+    $ git checkout -b bug/pr-3
+# To delete a branch:
+    $ git branch -d bug/pr-3
+# you can recover an accidentally deleted branch by using the 
+    $ git reflog
+# Other commands: such as git fsck, and configuration options, such as gc.reflogExpire and gc.pruneExpire, can also help
+ 
+
+############# diff ################
+# using unix diff (diff -r will traverse two tree objects):
+    $ diff -u initial rewrite
+# "git diff" shows the difference between your working directory and the index.
+# "git diff commit" - the differences between your working directory and the given commit.
+#       Common variants of this command name HEAD or a particular branch name as the commit.
+# "git diff --cached commit" - the differences between the staged changes in the index and the given commit.
+#   A common commit for the comparison—and the default if no commit is specified—is HEAD. 
+#   With HEAD, this command shows you how your next commit will alter the current branch.
+#   If the option --cached doesn’t make sense to you, perhaps the synonym --staged will. in Git version 1.6.1 and later.
+# "git diff commit1 commit2" -  the differences between the two arbitrary commits.
+
+
+
+
+
+
+
+
+#### Merging:
+$ git init 
+#Initialized empty Git repository in /tmp/conflict/.git/ 
+$ git config user.email "jdl@example.com" 
+$ git config user.name "Jon Loeliger"
+    $ cat > file 
+    Line 1 stuff 
+    Line 2 stuff 
+    Line 3 stuff ^D
+
+$ git add file $ git commit -m"Initial 3 line file" Created initial commit 8f4d2d5: Initial 3 line file 1 files changed, 3 insertions(+), 0 deletions(-) create mode 100644 file
+#Let’s create another commit on the master branch:
+$ cat > other_file 
+Here is stuff on another file! ^D 
+# git add other_file 
+$ git commit -m"Another file"
+Created commit 761d917: Another file 
+1 files changed, 1 insertions(+), 0 deletions(-) 
+create mode 100644 other_file
+# So far, the repository has one branch with two commits, where each commit introduced a new file.
+# Next, let’s change to a different branch and modify the first file:
+git checkout -b alternate master^ 
+# Switched to a new branch "alternate"
+git show-branch 
+* [alternate] Initial 3 line file
+! [master] Another file 
+--
++ [master] Another file 
+*+ [alternate] Initial 3 line file
+# make some trivial changes to the file:
+$ cat >> file 
+Line 4 alternate stuff ^D 
+$ git commit -a -m"Add alternate's line 4" 
+Created commit b384721: Add alternates line 4
+1 files changed, 1 insertions(+), 0 deletions(-)
+# Now the merge itself:
+$ git checkout master 
+Switched to branch "master"
+$ git status 
+# On branch master nothing to commit (working directory clean)
+
+o# Yep, ready for a merge!
+$ git merge alternate
+Merge made by recursive.
+file |  1 + 1 files changed, 1 insertions(+), 0 deletions(-)
+
+
+#################### REMOTE #################
+
+git fetch  - Retrieves objects and their related metadata from a remote repository
+git pull   - Like git fetch, but also merges changes into a corresponding branch
+git push   - Transfers objects and their related metadata to a remote repository
+git ls-remote   Shows references within a remote
+
+$ git clone --bare /Users/dans/myproj .
+git remote add origin /Users/dans/repos/myproj
+$ git branch -a
+git remote updates
+
+
+
+
+####### git plumbing commands ###############
+# see the index content:
+    $ git ls-files -s
+#capture index state (SHA1 of the tree)
+    $ git write-tree
+# cat file
+    $ git ls-files -s
+# commit using low level hash:
+    $ echo -n "Commit a file that says hello\n"  | git commit-tree 492413269336d21fac079d4a4672e55d5d2147ac

@@ -1,0 +1,11 @@
+# licenses:
+'sx_apx'  'spice_explorer' and 'cx_ultra'
+$CUSTOM_EXPLORER/bin/wv -ace_no_gui ace0.txt
+
+>cat $s101/tdd/ace0.txt
+sx_open_sim_file_read "my_wave.fsdb"
+foreach signal [ sx_signal * ] {
+sx_display $signal
+set avg [ sx_equation mean($signal) ]
+puts "average value is $avg"
+}

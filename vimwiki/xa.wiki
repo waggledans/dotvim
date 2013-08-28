@@ -1,0 +1,30 @@
+= xa cfg file =
+set_sim_level 4 
+#set_sim_level 6 -subckt dispdfgana
+set_sim_level -level 6  -inst pll_model.plltop_te.plltop.plldig
+#set_sim_level 6 -subckt pllvco
+#Set this for LC type blocks - change integration method to trapezoidal instead of gear
+#set_oscillator  -subckt pllvco -report 1 
+#set_oscillator  -subckt inductor -report 1 
+set_oscillator  -inst pll_model.plltop_te.plltop.plldig.xvco.xinst  -disable 1 -report 1 
+#set_multi_core -core max   -check_netlist 2
+set_multi_core -check_netlist 1
+#synchronize better between blocks integer and analog
+set_synchronization_level -level 6
+set_message_option -limit 50
+# connect undriven gatets to 0 - to gain performance 
+set_floating_node -val 0 -type all
+set_waveform_option -flush 1u -size 1g
+set_multi_rate_option -mode 2
+# split FSDB to 3G files 
+set_waveform_option -format fsdb -size 3000
+#set_waveform_option -format vpd -file merge
+probe_waveform_voltage pll_model.plltop_te.plltop.xdpll.plldig.* -level 1
+probe_waveform_voltage *
+set_duplicate_rule -select_subckt last
+# remove sample noise 
+#set_sample_point -period 100p
+
+
+
+

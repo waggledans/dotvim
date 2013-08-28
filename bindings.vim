@@ -1,3 +1,6 @@
+" use jk instead of <esc> and unmap esc
+" inoremap jk <esc>
+" inoremap <esc> <nop>
 " Don't use Ex mode, use Q for formatting
 map Q gq
 
@@ -33,9 +36,9 @@ nmap <leader>N :cp<CR>
 set completeopt=menuone,preview
 
 " driving me insane this thing
-nmap :W :w
-nmap :Q :q
-nmap :E :e
+cnoremap W w
+cnoremap Q q
+cnoremap E e
 "diffs:
 nmap du :diffupdate<CR>
 " One line get/put for gvimdiff
@@ -80,7 +83,8 @@ nmap % v%
 " Right click marks visual block
 nmap <RightMouse> <4-LeftMouse> 
 " source dot vimrc file by pressing ,s together
-nmap <leader>s :source ~/.vimrc<CR>
+nnoremap <leader>s :source $MYVIMRC<CR>
+nnoremap <leader>v :split $MYVIMRC<CR>
 " move easily between splits
 map <C-J> <C-W>j
 "map <C-J> <C-W>j<C-W>

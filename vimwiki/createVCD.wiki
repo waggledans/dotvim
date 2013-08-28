@@ -1,0 +1,11 @@
+1. Save your signal as a timeseries:
+Could be done from Simulink using sink module with timeseries property chosen
+# adding a sample to timeseries
+ts = timeseries(data,time)  % where data is array of data and time is array of time - should be the same dimension
+ts = timeseries(date,time,'Name','MySignalName')
+signal = ts.Name    % then the class will contain name
+ts = ts.addsample('Time',3,'Data',420);
+ts.length       % returns length obviously
+getdatasamplesize(ts) % should return 1x1 if only one value is saved
+# adding a field to struct:
+a = struct('f',[0,10])

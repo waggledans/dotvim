@@ -1,0 +1,84 @@
+= File search order =
+* search order is defined in setup.loc 
+** The search order is defined in $CDS_INST_DIR/share/cdsdoc/setup.loc
+** Example of the search order:
+***    @LIBRARY $CDS_WORKAREA $CDS_SEARCHDIR $HOME $CDS_PROJECT $CDS_SITE (if not defined, defaults to your_install_dir/share/local)
+***	$CDS_WORKAREA (user work area, if defined)
+***	$CDS_SEARCHDIR (if defined)
+***	Your home directory
+***	$CDS_PROJECT (project area, if defined)
+***	$CDS_SITE (site setup, if defined)
+
+= cfg files =
+* hdl.var #Configuration variables, which determine how your design environment is configured
+* .cdsinit or .cdsenv
+* csfLookupConfig
+Use: 
+cdswhich    # to find occurences of config files (such as setup.loc)
+
+= Cadence 5.X library format =
+library ->  techfile.cds
+            cdsinfo.tag
+            prop.xx
+            cell1   ->  view1 ->    verilog.v
+                                    master.tag
+                                    pc.db
+                                    prop.xx
+# each view directory contains the following files:
+master.tag  -- Master.tag File, Rev:1.0\n sch.cdb
+pc.db text file (apparently contains netlist)
+prop.xx binary file (not in symbol view)
+sch.cdb binary file (not in symbol view, symbol.cdb is there)
+##
+cds.lib #contains paths to library and includes other cds.lib files:
+#example:
+INCLUDE /users/$USER/cds.lib
+DEFINE iclib ./ic_lib
+= basic dssc commands = 
+* to get vault cd to the library and:
+dssc url vault .
+* to get selector cd to the library and:
+dssc url selector .
+* to set vault cd to the library and:
+dssc setvault sync://privatelibraries:30000/Projects/cnlpf/dslov//testlib -rec .
+* to set selector cd to the library and:
+dssc setselector Trunk -rec .
+* update cdsinfo.tag to be:
+CDSLIBRARY
+CDSLIBCHECK ON
+DMTYPE sync
+NAMESPACE LibraryUnix
+
+= CIW prompts = 
+\p The prompt displayed in the CIW. This identifies the boundary between two user-level commands.
+\i A SKILL expression that the user typed into the CIW.
+\o The output, if any, that the SKILL expression generates.
+\w The warnings, if any, that the SKILL expression generates.
+\e The error, if any, that the SKILL expression caused.
+\t The return value for a SKILL expression that the user typed into the CIW.
+\a The SKILL expression activated by a bindkey or menu item.
+\r The return value for a SKILL expression activated by a bindkey or menu item.
+#
+
+= icde Michel manipulations =
+deOpenCellView("c9prim" "c9un" "symbol" "" nil "r")
+cv = geGetEditCellView()
+cv~>shapes~>layerName
+("pin" "annotate" "annotate" "annotate" "annotate"
+     "device" "instance" "symbol2" "symbol2" "pin"
+     "pin" "pin" "pin" "pin" "pin"
+     "symbol4" "symbol4" "symbol4" "instance" "text"
+     "text" "text" "text" "text" "text"
+     "text" "text" "text" "text" "text"
+ )
+schHiSelectByProperty( "select" "instName" "==" "M0" )
+schHiSelectByProperty( "deselect" "instName" "==" "M0" )
+car(selectedSet())~>??
+ techManagerOpenTechToolBox()
+ tcDisplayDumpTechForm()
+ hiiSetCurrentForm('tcDumpTechForm)
+ tcDumpTechForm->tcBinaryTFLibCyclic->value = "cdsDefTechLib"
+ tcDumpTechForm->tcBinaryTFLibCyclic->value = "cdsDefTechLib"
+ tcDumpTechForm->tcAsciiTFStr->value = "/tmp/aa"
+ tcDumpTechForm->tcSelAllClassToggle->selAll->value =  t
+
