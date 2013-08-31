@@ -1,5 +1,8 @@
+= how to see all headers =
+grep ^= %                   : grep all lines
+:copen                      : open grepped lines in Quickfix list
 = data types =
-boolean
+boolean True, False
 integer
 long
 float
@@ -57,35 +60,35 @@ Execution: os.system('ls -l')
 #Requires import os
 #
 = = strings = 
-String Functions:
+* strings are immutable 
+* String Slicing
   s = "Go Gators! Come on Gators!"
-Extracting substrings: Strings in Python can be subscripted just like an array: s[4] = 'a'. Like in IDL, indices can be specified with slice notation i.e., two indices separated by a colon. This will return a substring containing characters index1 through index2-1. Indices can also be negative, in which case they count from the right, i.e. -1 is the last character. Thus substrings can be extracted like
+  x = s[0]  # x = "G"
   x = s[3:9] #x = "Gators"
   x = s[:2] #x = "Go"
   x = s[19:] #x = "Gators!"
   x = s[-7:-2] #x = "Gator"
-However, strings are immutable so s[2] = 'a' would cause an error.
-int count(sub [,start[,end]]): returns the number of occurances of the substring sub in the string
+* count substring occurances
   x = s.count("Gator") #x = 2
-boolean endswidth(sub [,start[,end]]): returns true if the string ends with the specified substring and false otherwise:
+* endswidth(sub [,start[,end]]): returns true if the string ends with the substr:
   x = s.endswith("Gators") #x = False
 int find(sub [,start[,end]]): returns the numeric position of the first occurance of sub in the string. Returns -1 if sub is not found.
   x = s.find("Gator") #x = 3
   x = s.find("gator") #x = -1
+* join / split
 string join(array): combines elements of the string array into a single string and returns it. The separator between elements is the string providing this method.
   a = ['abc','def','ghi']
   t = "--"
   x = t.join(a) #x = abc--def--ghi
-int len(string): returns the length of the string
+array split([sep [,maxsplit]]): splits a single string into a string array using the separator defined. If no separator is defined, whitespace is used. Consecutive whitespace delimiters are then treated as one delimiter. Optionally you can specify the maximum number of splits so that the max size of the array would be maxsplit+1.
+  a = s.split() #a=['Go', 'Gators!', 'Come', 'on', 'Gators!']
+* other string functions 
   x = len(s) #x = 26
-string lower(): returns a version of a string with all lower case lettters.
   print s.lower() #go gators! come on gators!
 string replace(old, new [,count]): returns a copy of the string with all occurances of old replaced by new. If the optional count argument is given, only the first count occurances are replaced.
   x = s.replace("Gators","Tigers",1) #x = Go Tigers! Come on Gators!
 int rfind(sub [,start[,end]]): same as find but returns the numeric position of the last occurance of sub in the string.
   x = s.rfind("Gator") #x = 19
-array split([sep [,maxsplit]]): splits a single string into a string array using the separator defined. If no separator is defined, whitespace is used. Consecutive whitespace delimiters are then treated as one delimiter. Optionally you can specify the maximum number of splits so that the max size of the array would be maxsplit+1.
-  a = s.split() #a=['Go', 'Gators!', 'Come', 'on', 'Gators!']
 boolean startswidth(sub [,start[,end]]): returns true if the string starts with the specified substring and false otherwise:
   x = s.startswith("Go") #x = True
 string strip([chars]): returns a copy of the string with leading and trailing characters removed. If chars (a string) is not specified, leading and trailing whitespace is removed.
