@@ -85,6 +85,7 @@ array split([sep [,maxsplit]]): splits a single string into a string array using
 * other string functions 
   x = len(s) #x = 26
   print s.lower() #go gators! come on gators!
+  print s.upper() #GO GATORS! COME ON GATORS!
 string replace(old, new [,count]): returns a copy of the string with all occurances of old replaced by new. If the optional count argument is given, only the first count occurances are replaced.
   x = s.replace("Gators","Tigers",1) #x = Go Tigers! Come on Gators!
 int rfind(sub [,start[,end]]): same as find but returns the numeric position of the last occurance of sub in the string.
@@ -92,7 +93,7 @@ int rfind(sub [,start[,end]]): same as find but returns the numeric position of 
 boolean startswidth(sub [,start[,end]]): returns true if the string starts with the specified substring and false otherwise:
   x = s.startswith("Go") #x = True
 string strip([chars]): returns a copy of the string with leading and trailing characters removed. If chars (a string) is not specified, leading and trailing whitespace is removed.
-string upper(): returns a version of a string with all upper case lettters.
+= HASH DICTIONARY = 
 ############## DICTIONARY  ############## HASH  #############################
 adict = {‘one’:’uno’, ‘two’:’dos’}
 print (adict[‘one’])
@@ -101,7 +102,7 @@ adict.keys()
 adict.values()
 len (adict)	#will return the number of pairs, 2 in this case
 adict.pop(‘two’)		#will pop the pair with the key ‘two’
-
+= LIST ARRAY =
 ############## LISTS ############## ARRAYS #################################
 #append,count,extend,index,insert,pop,remove,reverse,sort
 some_list.remove (element_name)
@@ -317,5 +318,70 @@ where(expr, 1, 0): Similar to the IDL where function. Returns an array of the sa
   	[1 1 1]]
    print compress(c,a)
   -> [6 9 4 7 4 8]
+ 
+
+= CONDITION =
+== if/else/elif ==
+if choice==1: 
+    print(x + y)
+elif choice==2: 
+  print(x - y)
+else:
+  print(x * y)
+  
+= LOOPS =
+s = input("Please type some characters and press enter:")
+for c in s:
+    print(c)
+print("Done")
+for word in s.split():
+    print(word) 
+print("Done")
+
+= IO operations =
+catfile = open(filename,"r")
+for line in catfile: 
+    print(line)
+catfile.close()
+outfile = open(filename,"w")
+outfile.write("Hello " + yourName + ". How are you?\n") 
+outfile.write("Next year you will be "+str(age+1) +" years old\n") 
+outfile.close()
+= FUNCTIONS =
+def g(x):
+    return x**4/4.0 - x**3/3.0 - 3 * x * x
+print(g(6))
+
+
+= EXCEPTIONS =
+try:
+    top = int(input("Please enter the denominator:"))
+except ValueError: # This try-except catches only ValueErrors 
+    print ("You didn't enter an integer.")
+    exit(0)
+except ZeroDivisionError: # This try-except catches only zero division 
+except:                   # This try-except catches everything
+= MODULE =
+import turtle
+== path manipulations ==
+http://docs.python.org/2/library/os.path.html
+os.path.expanduser("~dans")     #/home/dans
+os.path.split(path)             # splits path to head and tail => (head, tail)
+os.path.isfile(path)
+os.path.isdir(path)
+os.path.islink(path)
+os.path.join(path1[, path2[, ...]])
+os.path.realpath(path)
+os.path.split(os.path.abspath("."))[0]      # the current path "." is expanded to /Users/derek/work, so head is '/Users/derek' and tail is 'work'
+
+=== FindBin equivalent ===
+import os
+import sys
+bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
+
+=== adding dirs to the search path ===
+import sys
+sys.path.append("/home/me/mypy")
+
 
 
