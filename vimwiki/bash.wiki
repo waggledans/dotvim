@@ -1,0 +1,134 @@
+##############  BASH #########
+#### bash scripting #######################
+###  arguments parsing:
+# 
+$@  array of arguments
+$# -  the index of the last argument
+$1, $2 are arguments
+if [ "$#" -eq 0 ]; then
+ 	myArray=( arg1 arg2 arg3 )
+else
+  	myArray=( "$@" )
+fi
+
+## substitute arguments
+echo ====== original args =====
+echo $@	# original args will be echo’ed
+set -- apple banana "kiwi fruit"
+
+echo ====== new args =====
+echo $@	# apple banana kiwi fruit will be echo’ed
+
+
+
+# bash regex:
+The matches are assigned to an array variable BASH_REMATCH. The entire match is assigned to BASH_REMATCH[0], the first sub-pattern is assigned to BASH_REMATCH[1], etc..
+#!/bin/bash
+
+if [[ $# -lt 2 ]]; then
+    echo "Usage: $0 PATTERN STRINGS..."
+    exit 1
+fi
+regex=$1
+shift
+echo "regex: $regex"
+echo
+while [[ $1 ]]
+do
+    if [[ $1 =~ $regex ]]; then
+        echo "$1 matches"
+        i=1
+        n=${#BASH_REMATCH[*]}
+        while [[ $i -lt $n ]]
+        do
+            echo "  capture[$i]: ${BASH_REMATCH[$i]}"
+            let i++
+        done
+    else
+        echo "$1 does not match"
+    fi
+    shift
+done
+
+####### get opts #################
+http://wiki.bash-hackers.org/howto/getopts_tutorial
+
+while test $# -gt 0; do
+        case "$1" in
+                -h|--help)
+                        echo "$package - attempt to capture frames"
+                        echo " "
+                        echo "$package [options] application [arguments]"
+                        echo " "
+                        echo "options:"
+                        echo "-h, --help                show brief help"
+                        echo "-a, --action=ACTION       specify an action to use"
+                        echo "-o, --output-dir=DIR      specify a directory to store output in"
+                        exit 0
+                        ;;
+                -a)
+                        shift
+                        if test $# -gt 0; then
+                                export PROCESS=$1
+                        else
+                                echo "no process specified"
+                                exit 1
+                        fi
+                        shift
+                        ;;
+                --action*)
+                        export PROCESS=`echo $1 | sed -e 's/^[^=]*=//g'`
+                        shift
+                        ;;
+                -o)
+                        shift
+                        if test $# -gt 0; then
+                                export OUTPUT=$1
+                        else
+                                echo "no output dir specified"
+                                exit 1
+                        fi
+                        shift
+                        ;;
+                --output-dir*)
+                        export OUTPUT=`echo $1 | sed -e 's/^[^=]*=//g'`
+                        shift
+                        ;;
+                *)
+                        break
+                        ;;
+        esac
+done
+
+
+### echo to stderr
+echo "Invalid option: -$OPTARG" >&2
+
+
+
+
+
+################## general bash coding #####################33
+
+##### ARRAYS #########
+http://www.thegeekstuff.com/2010/06/bash-array-tutorial/
+# declaring can be done element after element or using declare -a statement
+Unix[0]='Debian'  ## and so on
+declare -a arrayname=(element1 element2 element3)
+# print array
+echo ${Unix[@]}
+
+# length of the array
+
+declare -a Unix=('Debian' 'Red hat' 'Suse' 'Fedora' 'Ubuntu');
+echo ${#Unix[@]} 	# Number of elements in the array
+echo ${#Unix}  	# Number of characters in the first element of the array.i.e Debian
+echo ${#Unix[3]}         # length of the element located at index 3 i.e 'Fedora'
+echo ${Unix[@]:3:2}	# echo 2 elements starting from the 3d one i.e Fedora Ubuntu
+
+
+rename files 
+
+for f in *.csv; do [[ $f =~ $regex ]] && mv $f "${BASH_REMATCH[1]}.post.csv"; done
+
+

@@ -1,0 +1,6 @@
+= aliases =
+!! is the whole command line
+!* is all the arguments of the command
+!:1 is the first argument of the command
+!:2 is the second argument of the command
+!$ is the last argument of the command

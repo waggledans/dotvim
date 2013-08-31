@@ -1,0 +1,11 @@
+= xargs =
+# instead of cp -r -v -p /share/media/mp3/ /backup/iscsi/mp3
+find -L /share/media/mp3/ -type f -name "*.mp3" -print0 | xargs -0 -r -I file cp -v -p file --target-directory=/backup/iscsi/mp3
+# explanation
+-0    (or -null) is useful when the name may contain white spaces
+-I  replace_str  (used to be -r)   - 
+    replace occurrences of replace-str in the initial-arguments 
+    with names read from standard input.
+ -print0   -  print the full file name on the standard output, followed by a null character  (instead  of the  newline  character  that  `-print' uses)
+-L  - follow symbolic links
+

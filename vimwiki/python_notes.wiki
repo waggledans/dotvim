@@ -1,0 +1,318 @@
+= data types =
+boolean
+integer
+long
+float
+string
+list
+tuple
+dictionary
+object
+None
+array
+== very basic script ==
+ui = input(“Enter a number: “)
+print (“The data type is originally”, (type(ui)))
+uconv = int (ui)
+print (“Now the d.t. is”, (type (uconv)))
+power = uconv ** 8
+print (ui, “raised to the 8th power is: “, power)#note the comma to separate literals from vars
+##
+def wiper ():
+= tuples =
+# tuples are immutable, ordered.
+# len (some_tuple) 
+# index (tuple’s element) will return index of the element
+# tuples can be indexed from the right some_tuple[-4]  would return the 4th from the right
+# some_tuple.count(some_element) will return the number of the elements in the tuple
+# search
+# in		#’something’ in tuple_name  will return True or False
+
+#!/usr/bin/python
+if (x > y):
+   print("x is greater than y")
+   x = x -1
+else:
+   print("x is less than or equal to y")
+##
+bool = True
+name = "Craig"
+age = 26
+pi = 3.14159
+print(name + ' is ' + str(age) + ' years old.')
+#
+a = 1
+b = 2
+def Sum():
+   global a, b
+   b = a + b
+Sum()
+print(b)
+#
+Arithmatic: +, -, *, /, and % (modulus)
+Comparison: ==, !=, <, >, <=, >=
+Logical: and, or, not
+Exponentiation: **
+Execution: os.system('ls -l')
+#Requires import os
+#
+= = strings = 
+String Functions:
+  s = "Go Gators! Come on Gators!"
+Extracting substrings: Strings in Python can be subscripted just like an array: s[4] = 'a'. Like in IDL, indices can be specified with slice notation i.e., two indices separated by a colon. This will return a substring containing characters index1 through index2-1. Indices can also be negative, in which case they count from the right, i.e. -1 is the last character. Thus substrings can be extracted like
+  x = s[3:9] #x = "Gators"
+  x = s[:2] #x = "Go"
+  x = s[19:] #x = "Gators!"
+  x = s[-7:-2] #x = "Gator"
+However, strings are immutable so s[2] = 'a' would cause an error.
+int count(sub [,start[,end]]): returns the number of occurances of the substring sub in the string
+  x = s.count("Gator") #x = 2
+boolean endswidth(sub [,start[,end]]): returns true if the string ends with the specified substring and false otherwise:
+  x = s.endswith("Gators") #x = False
+int find(sub [,start[,end]]): returns the numeric position of the first occurance of sub in the string. Returns -1 if sub is not found.
+  x = s.find("Gator") #x = 3
+  x = s.find("gator") #x = -1
+string join(array): combines elements of the string array into a single string and returns it. The separator between elements is the string providing this method.
+  a = ['abc','def','ghi']
+  t = "--"
+  x = t.join(a) #x = abc--def--ghi
+int len(string): returns the length of the string
+  x = len(s) #x = 26
+string lower(): returns a version of a string with all lower case lettters.
+  print s.lower() #go gators! come on gators!
+string replace(old, new [,count]): returns a copy of the string with all occurances of old replaced by new. If the optional count argument is given, only the first count occurances are replaced.
+  x = s.replace("Gators","Tigers",1) #x = Go Tigers! Come on Gators!
+int rfind(sub [,start[,end]]): same as find but returns the numeric position of the last occurance of sub in the string.
+  x = s.rfind("Gator") #x = 19
+array split([sep [,maxsplit]]): splits a single string into a string array using the separator defined. If no separator is defined, whitespace is used. Consecutive whitespace delimiters are then treated as one delimiter. Optionally you can specify the maximum number of splits so that the max size of the array would be maxsplit+1.
+  a = s.split() #a=['Go', 'Gators!', 'Come', 'on', 'Gators!']
+boolean startswidth(sub [,start[,end]]): returns true if the string starts with the specified substring and false otherwise:
+  x = s.startswith("Go") #x = True
+string strip([chars]): returns a copy of the string with leading and trailing characters removed. If chars (a string) is not specified, leading and trailing whitespace is removed.
+string upper(): returns a version of a string with all upper case lettters.
+############## DICTIONARY  ############## HASH  #############################
+adict = {‘one’:’uno’, ‘two’:’dos’}
+print (adict[‘one’])
+	-> uno
+adict.keys()
+adict.values()
+len (adict)	#will return the number of pairs, 2 in this case
+adict.pop(‘two’)		#will pop the pair with the key ‘two’
+
+############## LISTS ############## ARRAYS #################################
+#append,count,extend,index,insert,pop,remove,reverse,sort
+some_list.remove (element_name)
+some_list.insert (2, element_name)		# insert some_element to position indexed 2
+some_list.sort ()
+some_list.reverse ()
+
+list = [2, 4, 7, 9]
+list2 = [3, "test", True, 7.4]
+a = range(5) #a = [0,1,2,3,4]
+a = range(10,0,-2) #a = [10,8,6,4,2]
+#An empty list can be init with [] and then the append command can be used to append data :
+a=[]
+a.append("test")
+a.append(5)
+print a
+-> ['test', 5]
+Finally, if you want a list to have a predetermined size- create a list and fill it with None's:
+a=[None]*length
+a[5] = "Fifth"
+a[3] = 6
+print len(a)
+-> 10
+print a
+-> [None, None, None, 6, None, 'Fifth', None, None, None, None]
+# Removing from lists: The pop method can be used to remove any item from the list:
+a.pop(5)
+print a
+-> [None, None, None, 6, None, None, None, None, None]
+Creating arrays: using one of four procedures: zeros, ones, arange, or array.:
+a = zeros(5) #a=[0 0 0 0 0]	# zeros creates an array of a specified size containing all zeros
+a = ones(5) #a=[1 1 1 1 1] #ones similarly creates an array of a certain size containing all ones:
+arange works exactly the same as range, but produces an array instead of a list:
+a = arange(10,0,-2) #a = [10 8 6 4 2] 
+array = lists it appears but one can convert list to array using array command
+a = [1, 3, 9] #create a list and append it
+a.append(3)
+a.append(5)
+print a
+-> [1, 3, 9, 3, 5]
+a = array(a)	#converts a list to an array
+print a
+-> [1 3 9 3 5]
+Multi-dimensional lists: Because Python arrays are actually lists, you are allowed to have jagged arrays. Multi-dimensional lists are just lists of lists:
+a=[[0,1,2],[3,4,5]]
+print a[1]
+-> [3, 4, 5]
+s = ["Lee", "Walsh", "Roberson"]
+s2 = ["Williams", "Redick", "Ewing", "Dockery"]
+s3 = [s, s2]
+print s3[1][2]
+-> Ewing
+Multi-dimensional arrays: However, numarray does support true multi-dimensinoal arrays. These can be created through one of five methods: zeros, ones, array, arange, and reshape. zeros and ones work the same way as single dimensions except that they take a tuple of dimensions (a comma separated list enclosed in parentheses) instead of a single argument:
+a = zeros((3,5))
+a[1,2] = 8
+print a
+-> [[0 0 0 0 0]
+	[0 0 8 0 0]
+	[0 0 0 0 0]]
+b = ones((2,3,4)) #create a 2x3x4 array containing all ones.
+array works the same way as for 1-d arrays: you can create a list and then convert it to an array. Note with multi-dimensional arrays though, trying to use array to convered a jagged list into an array will cause an error. Lists must be rectangular to be able to be converted to arrays.
+s = ["Lee", "Walsh", "Roberson", "Brewer"]
+s2 = ["Williams", "Redick", "Ewing", "Dockery"]
+s3 = [s, s2]
+s4 = array(s3)
+print s4 + "test"
+-> [['Leetest', 'Walshtest', 'Robersontest', 'Brewertest'],
+	['Williamstest', 'Redicktest', 'Ewingtest', 'Dockerytest']]
+print s4[:,1:3]
+-> [['Walsh', 'Roberson'],
+	['Redick', 'Ewing']]
+arange also works the same as with 1-d arrays except you need to pass the shape parameter:
+a = arange(25, shape=(5,5)),br> And finally, reshape can be used to convert a 1-d array into a multi-dimensional array. To create a 5x5 array with the elements numbered from 0 to 24, you could use:
+b = arange(25)
+b = reshape(b,5,5)
+Array Dimensions and Subscripts: When creating a multi-dimensional array, the format is ([[depth,] height,] width). Therefore, when accessing array elements in a two dimensional array, the row is listed first, then the column. When accessing an element of a two-dimensional list, the following notation must be used: list[i][j]. However, two dimensional arrays can also use the notation: array[i,j]. In fact, this is the preferred notation of the two for arrays because you cannot use wildcards in the first dimension of the array[i][j] notation (i.e., array[1:3][4] would cause an error whereas array[1:3,4] is valid).
+Wildcards can be used in array subscripts using the : , which is known as slicing. This is similar to IDL, with one major difference: if a=[0 1 2 3 4 5], in IDL a[1:4] = [1 2 3 4], but in Python, a[1:4] = [1 2 3]. In Python, when slicing array[i:j], it returns an array containing elements from i to j-1. Just like with strings, indices of arrays can be negative, in which case they count from the right instead of the left, i.e. a[-4:-1] = [2 3 4]. A : can also specify the rest of the elements or up to element, or all elements and arrays or lists can be used to subscript other arrays:
+print a[:3] #[0 1 2]
+print a[4:] #[4 5]
+print a[:] #[0 1 2 3 4 5]
+print a[[1,3,4]] #[1 3 4]
+Note that slicing in python does not create a new array but just a pointer to the original array. b=a[0:10] followed by b[0] = 5 also changes a[0] to 5. To avoid this, use b = copy(a[0:10])
+Array Operators:
+Concatenation:
+Lists: a + b
+For Lists, the + operator appends the list on the right (b) to the list on the left.
+a = ["Roberson", "Walsh"]
+b = ["Lee", "Humphrey"]
+-> a+b = ["Roberson", "Walsh", "Lee", "Humphrey"]
+Arrays: concatenate((a,b)[,axis])
+For arrays, use the numarry function concatenate. It also allows you to specify the axis when concatenating multi-dimensional arrays.
+b = arange(5)
+print concatenate((b, arange(6)))
+-> [0 1 2 3 4 0 1 2 3 4 5]
+b=reshape(b,5,1)
+print concatenate((b,a),axis=1)
+-> [[0 0 0 0]
+	[1 0 0 0]
+	[2 0 8 0]
+	[3 0 0 0]
+	[4 0 0 0]]
+Equality: a == b and Inequality: a != b
+For lists, these work the same as for scalars, meaning they can be used in if statments. For arrays, they return an array containing true or false for each array element.
+Array Functions: All functions but len are for arrays only
+len: returns the length of a list/array.
+   s = ["Lee", "Walsh", "Roberson", "Brewer"]
+   print len(s) #4
+argmax([axis]): returns the index of the largest element in a 1D array or an array of the largest indices along the specified axis for a multi-dimensional array.
+   a = array([[1,6,9], [2,4,0], [7,4,8]])
+   print a.argmax(1)
+  -> [2 1 2]
+argmin([axis]): returns the index of the smallest element in a 1D array or an array of the smallest ndices along the specified axis for a multi-dimensional array.
+   b = array([2,4,7,1,3,-1,5])
+   print b.argmin()
+  -> 5
+argsort([axis]): returns an array of indices that allow access to the elements of the array in ascending order.
+   print b.argsort()
+  -> [5 3 0 4 1 6 2]
+   print b[b.argsort()]
+  -> [-1 1 2 3 4 5 7]
+   print a.argsort(1)
+  -> [[0 1 2]
+  	[2 0 1]
+  	[1 0 2]]
+astype(type): returns a copy of the array converted to the specified type.
+   a = a.astype('Float64')
+   b = b.astype('Int32')
+copy(): returns a copy of the array.
+   c = a[:,2].copy()
+   print c
+  -> [9 0 8]
+diagonal(): for multi-dimensional arrays, returns the diagonal elements of the array, where the row and column indices are equal.
+   print a.diagonal()
+  -> [1 4 8]
+info(): prints informations about the array which may be useful for debugging.
+max(): returns the largest element in the array
+   print a.max()
+  -> 9
+mean(): returns the average of all elements in an array
+   print a.mean()
+  -> 4.55555555556
+min(): returns the smallest element in the array
+   print b.min()
+  -> -1
+nelements(): returns the total number of elements in the array
+   print a.nelements()
+  -> 9
+product(array [,axis]): returns the product of an array or an array of the products along an axis of an array.
+   print product(b)
+  -> -840
+   print product(a,1)
+  -> [ 54 0 224]
+reshape(array, shape): function that changes the shape of an array. But the new shape must have the same size as the old shape, otherwise an error will occur.
+   c = reshape(a, 9)
+   a = reshape(c,(3,3))
+resize(shape): shrinks/grows the array to a new shape. Can be called as a method (replaces old array) or a function. The new shape does not have to be the same size as the old shape. If it is smaller, values will be cut off, and it if is bigger, values will repeat.
+   a.resize(5)
+   print a
+  -> [1 6 9 2 4]
+   a.resize(2,6)
+   print a
+  -> [[1 6 9 2 4 0]
+  	 [7 4 8 1 6 9]]
+   c = resize(a,(2,2))
+   print c
+  -> [[1 6]
+  	 [9 2]]
+shape(array): returns the dimensions of the array in a tuple
+   print shape(a), shape(b), shape(a)[0]*shape(a)[1]
+  -> (3,3)    (7,)    9
+sort(array [,axis]): returns an array containing a copy of the data in the array and the elements sorted in increasing order. In the case of a multi-dimensional array, the data will be sorted along one axis and not across the whole array.
+   print sort(b)
+  -> [-1 1 2 3 4 5 7]
+   print sort(a)
+  -> [[1 6 9]
+  	[0 2 4]
+  	[4 7 8]]
+   print sort(a,0)
+  -> [[1 4 0]
+  	[2 4 8]
+  	[7 6 9]]
+stddev(): returns the std deviation of all elements in the array
+   print a.stddev()
+  -> 3.16666666667
+sum(): Can be called as a method or a function. The behavior is identical for 1-d arrays. But for multi-dimensional arrays, calling as a method returns the sum of the entire array, whereas calling it as a function allows you to specify an axis and returns an array with the sums along that axis.
+   print a.sum()
+  -> 41
+   print sum(a)
+  -> [10 14 17]
+   print sum(a,1)
+  -> [16 6 19]
+trace(): Returns the sum of the diagonal elements of an array
+   print a.trace()
+  -> 13
+type(): returns a string containing the type of the array.
+   print a.type()
+  -> Int32
+tolist(): returns a list containing the same data as the array.
+   c = a.tolist()
+transpose(): Can be called as a method (replaces old array) or a function. Returns the transpose of the array.
+   a.transpose()
+   b = transpose(a)
+where(expr, 1, 0): Similar to the IDL where function. Returns an array of the same size and dimensions containing 1 if the condition is true and 0 if the condition is false. Any value may be substituted for 1 and 0, but they are the recommended values (i.e. true, false) so that compress can be used to extract values from the array: compress(mask_array, data_array).
+   c = where(b > 2, 1, 0)
+   print c
+  -> [0 1 1 0 1 0 1]
+   print compress(c,b)
+  -> [4 7 3 5]
+   c = where(a > 2, 1, 0)
+   print c
+  -> [[0 1 1]
+  	[0 1 0]
+  	[1 1 1]]
+   print compress(c,a)
+  -> [6 9 4 7 4 8]
+
+

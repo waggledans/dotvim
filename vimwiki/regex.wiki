@@ -1,0 +1,23 @@
+= optional match =
+oa?s  both oas and os match
+o(aka)?s  both oakas and os match but oas doesnt match
+= lookaround = 
+http://www.regular-expressions.info/lookaround.html
+== positive lookahead ==
+q(?=a)  will match qa but will not match qc 
+== negative lookahead ==
+q(?!a)  will not match qa but will match qc 
+= positive lookbehind = 
+(?<=a)b will match ab but will not match cb
+= negative lookbehind = 
+(?<!a)b will not match ab but will match cb
+= condition =
+http://www.regular-expressions.info/conditional.html
+(?(?=condition)(then1|then2|then3)|(else1|else2|else3))
+== using positive lookahead ==
+(?(?=regex)then|else)
+== example ==
+(a)?b(?(1)c|d) # matches bd and abc. 
+It does not match bc, but does match bd in abd
+explanation: a is optional. b is mandatory 
+note: if you use a ref to a group in a conditional, use (a)? instead of (a?).

@@ -1,0 +1,17 @@
+= modifiers =
+* a good explanation about them is here: http://www.grymoire.com/Unix/Csh.html#uh-92
+* example
+set a = "/a/b/c/d.e.f.g"
+Then the four modifiers would give the following results:
++-------------------------------------------------------+
+  |Modifier   Meaning		    Example   Results	  |
+  +-------------------------------------------------------+
+  |r	      Root		    $a:r      /a/b/c.d.e.f |
+  |e	      Extension		    $a:e      g		  |
+  |h	      Head (or Directory)   $a:h      /a/b	  |
+  |t	      Tail (or Filename)    $a:t      c.d.e.f.g	  |
+  +-------------------------------------------------------+
+One way to think of this is to realize that Root and Extension are matching pairs. That is, "${a:r}.${a:e}" is the same as "$a." Head and Tail, or rather, Directory and Filename are also matching. "${a:h}/${a:t}" is the same as "$a." 
+
+:u (:l)		#to uppercase (to lowercase)
+:q 		# works like set nonomatch in order to use arguments containing special chars (like ?). Didnt work for me though

@@ -8,9 +8,17 @@
 * [[git_add_empty_dir]]
 == LINUX ==
 * [[ack]]
-* [[tmux]]
-* [[dir_diff]]
+* [[bash]]
 * [[crontab]]
+* [[csh]]
+* [[dir_diff]]
+* [[linux_howtos]]
+* [[patch]]
+* [[regex]]
+* [[tmux]]
+* [[xargs]]
+== Python ==
+* [[python_notes]]
 == VIM ==
 * [[vim_howtos]]
 * [[vimdiff]]
@@ -21,11 +29,11 @@
 * [[vams]]
 == SYNOPSYS ==
 * [[cx]]
+* [[dams]]
+* [[hspice]]
 * [[vcs]]
 * [[verdi]]
-* [[dams]]
 * [[xa]]
-* [[hspice]]
 == MATHWORKS ==
 * [[matlab_programming]]
 * [[createVCD]]
@@ -56,10 +64,10 @@
 * [[connectRules]]
 * [[mdl]]
 *
-=== Verilog ===
-* [[verilog_issues]]
-* [[hdl_var_sample]]
+=== Cadence Verilog ===
 * [[ams_compile]]
+* [[hdl_var_sample]]
+* [[verilog_issues]]
 === SMG ===
 * [[smg_howto]]
 === VIVA ===
