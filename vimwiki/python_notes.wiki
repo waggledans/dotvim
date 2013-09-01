@@ -362,7 +362,13 @@ except ValueError: # This try-except catches only ValueErrors
 except ZeroDivisionError: # This try-except catches only zero division 
 except:                   # This try-except catches everything
 = MODULE =
-import turtle
+* import sys
+  - sys.argv is equivalent to $@ in bash
+  - argv[0] is a script name
+* FindBin equivalent
+import os
+import sys
+bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
 == path manipulations ==
 http://docs.python.org/2/library/os.path.html
 os.path.expanduser("~dans")     #/home/dans
@@ -374,10 +380,7 @@ os.path.join(path1[, path2[, ...]])
 os.path.realpath(path)
 os.path.split(os.path.abspath("."))[0]      # the current path "." is expanded to /Users/derek/work, so head is '/Users/derek' and tail is 'work'
 
-=== FindBin equivalent ===
-import os
-import sys
-bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
+
 
 === adding dirs to the search path ===
 import sys

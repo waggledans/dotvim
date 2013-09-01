@@ -67,3 +67,24 @@
 [submodule "bundle/FavMenu"]
 	path = bundle/FavMenu
 	url = https://github.com/vim-scripts/FavMenu.vim.git
+[submodule "ftbundle/python/pydoc"]
+	path = ftbundle/python/pydoc
+	url = https://github.com/fs111/pydoc.vim.git
+[submodule "ftbundle/python/py.test"]
+	path = ftbundle/python/py.test
+	url = https://github.com/alfredodeza/pytest.vim.git
+[submodule "bundle/gundo"]
+	path = bundle/gundo
+	url = https://github.com/sjl/gundo.vim.git
+[submodule "bundle/pep8"]
+	path = bundle/pep8
+	url = https://github.com/vim-scripts/pep8.git
+[submodule "bundle/command-t"]
+	path = bundle/command-t
+	url = https://github.com/wincent/Command-T.git
+[submodule "ftbundle/python/pyflakes"]
+	path = ftbundle/python/pyflakes
+	url = https://github.com/mitechie/pyflakes-pathogen.git
+[submodule "bundle/ack"]
+	path = bundle/ack
+	url = https://github.com/mileszs/ack.vim.git

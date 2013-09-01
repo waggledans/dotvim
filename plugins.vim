@@ -68,7 +68,7 @@ nmap <leader>y :YRShow<cr>
 :vmap <leader>f y:let @/=escape(@", '\\[]$^*.')<CR>:set hls<CR>:silent Ggrep -F "<C-R>=escape(@", '\\"#')<CR>"<CR>:ccl<CR>:cw<CR><CR>
 " Ack
 " ,a for Ack
-nmap <leader>k :Ack 
+nmap <leader>a :Ack!
 
 " vim-indentobject
 " add Markdown to the list of indentation based languages
@@ -77,4 +77,9 @@ let g:indentobject_meaningful_indentation = ["haml", "sass", "python", "yaml", "
 source ~/.vim/doxygenrc
 " for some reason unbundle doesnt load ildocToolkit
 autocmd FileType skill source ~/.vim/ftbundle/skill/ildocToolkit.vim
-
+"notify about unused imports and invalid syntax in python
+let g:pyflakes_use_quickfix = 0
+"view diff's of every save on a file you've made and allow you to quickly revert back and forth
+map <leader>g :GundoToggle<CR>
+" pep8 can help to make sure the code is consistent across projects
+let g:pep8_map='<leader>8'
