@@ -1,4 +1,4 @@
-############# TAGS ###############
+= TAGS =
 
 TlistAddFiles | TlistAddFilesRecursive |
 TlistOpen | TlistClose| TlistUpdate
@@ -20,7 +20,7 @@ TlistOpen | TlistClose| TlistUpdate
 " q : Close the taglist window
 " <F1> : Remove help text
 
-######## NERDtree  ############
+= NERDtree =
 :NERDTree [<start-directory> | <bookmark>]
 I: shows dot files
 :NERDTreeClose
@@ -58,7 +58,7 @@ nmap <leader>p :NERDTreeFind<CR> " ,p to show current file in the tree
 " middle-click,
 " e: explore selected dir
 
-######## Conque  ############
+= Conque =
 
 let g:Conque_ReadTimeout = 50 " timeout for waiting for command output.
 let g:Conque_TERM = 'xterm'
@@ -66,3 +66,11 @@ let g:Conque_TERM = 'xterm'
 nmap <Leader>sh :ConqueSplit bash<cr>
 " ,r run command
 nmap <Leader>R :ConqueSplit
+= autocomplepopup =
+http://vim.wikia.com/wiki/Make_Vim_completion_popup_menu_work_just_like_in_an_IDE
+= vimux =
+call RunVimTmuxCommand("ls")
+* issue of running vimux without ruby support:
+sudo apt-get install vim-nox
+ :call RunVimTmuxCommand("ls")
+ 

@@ -1,0 +1,27 @@
+## how to add new repository
+sudo add-apt-repository ppa:nilarimogard/webupd8
+sudo apt-get update
+(sudo gedit /etc/apt/sources.list)
+
+= dpkg =
+sudo dpkg -i flashget-1.0.2-0_en.noarch.deb
+
+If you want to make both source and binary packages use:
+dpkg-buildpackage -F -tc
+
+If you want to make only binary packages use:
+dpkg-buildpackage -b -tc
+
+If you want to make only source packages use:
+dpkg-buildpackage -S -tc
+
+lxsplit -s hugefile.bin 15M
+lxsplit -j smallfiles.bin.001
+
+cowsay -l | grep -v ^Cow | sed -e s% %n%g | sed -e s%(.*)%cowsay -f 1 Now I am a 1% | sh | less
+curl -O http://github.com/tpope/vim-vividchalk/raw/master/colors/vividchalk.vim
+curl 'www.vim.org/scripts/download_script.php?src_id=19375' \ 
+  > ~/.vim/autoload/pathogen.vim
+= update-alternatives =
+update-alternatives --config pager
+update-alternatives --display pager

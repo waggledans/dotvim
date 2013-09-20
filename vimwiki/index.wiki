@@ -8,7 +8,9 @@
 * [[git_add_empty_dir]]
 == LINUX ==
 * [[ack]]
+* [[apt-get]]
 * [[bash]]
+* [[gpg]]
 * [[crontab]]
 * [[csh]]
 * [[dir_diff]]
@@ -16,6 +18,7 @@
 * [[patch]]
 * [[regex]]
 * [[tmux]]
+* [[ubuntu]]
 * [[xargs]]
 == Python ==
 * [[python_notes]]

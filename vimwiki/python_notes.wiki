@@ -81,10 +81,12 @@ int find(sub [,start[,end]]): returns the numeric position of the first occuranc
   x = s.find("Gator") #x = 3
   x = s.find("gator") #x = -1
 * join / split
-string join(array): combines elements of the string array into a single string and returns it. The separator between elements is the string providing this method.
+string join(array): combines elements of the string array into a single string and returns it. 
+The separator between elements is the string providing this method.
   a = ['abc','def','ghi']
   t = "--"
-  x = t.join(a) #x = abc--def--ghi
+  x = t.join(a) #x = abc--def--ghi 
+  '\n'.join(a)	# 'abc\ndef\nghi\n'
 array split([sep [,maxsplit]]): splits a single string into a string array using the separator defined. If no separator is defined, whitespace is used. Consecutive whitespace delimiters are then treated as one delimiter. Optionally you can specify the maximum number of splits so that the max size of the array would be maxsplit+1.
   a = s.split() #a=['Go', 'Gators!', 'Come', 'on', 'Gators!']
 * other string functions 
@@ -99,22 +101,33 @@ boolean startswidth(sub [,start[,end]]): returns true if the string starts with 
   x = s.startswith("Go") #x = True
 string strip([chars]): returns a copy of the string with leading and trailing characters removed. If chars (a string) is not specified, leading and trailing whitespace is removed.
 = HASH DICTIONARY = 
-############## DICTIONARY  ############## HASH  #############################
 adict = {‘one’:’uno’, ‘two’:’dos’}
-print (adict[‘one’])
-	-> uno
+print (adict[‘one’])	  # -> uno
+* the problem with adict[‘one’] is that it will return error if not defined
+* adict.get('one') will return None if not defined
 adict.keys()
 adict.values()
+adict.items()		      # returns tuples (key, value)
+if 'key' in adict:     # check that the key is in the hash  
 len (adict)	#will return the number of pairs, 2 in this case
 adict.pop(‘two’)		#will pop the pair with the key ‘two’
 = LIST ARRAY =
-############## LISTS ############## ARRAYS #################################
-#append,count,extend,index,insert,pop,remove,reverse,sort
+== shallow copy vs deep copy ==
+* shallow copy:
+a = [1, 2, 3]
+b = a
+b[0] = 4  #a[0] also becomes 4
+* deep copy:
+b = a[:]
+== append,count,extend,index,insert,pop,remove,reverse,sort,del,sorted ==
 some_list.remove (element_name)
 some_list.insert (2, element_name)		# insert some_element to position indexed 2
+some_list.del(2)      # delete element with index 2
 some_list.sort ()
+sorted(some_list)
+sorted(some_list, reverse=True)
+sorted(some_list,key=len) # using key function
 some_list.reverse ()
-
 list = [2, 4, 7, 9]
 list2 = [3, "test", True, 7.4]
 a = range(5) #a = [0,1,2,3,4]
@@ -183,8 +196,15 @@ arange also works the same as with 1-d arrays except you need to pass the shape 
 a = arange(25, shape=(5,5)),br> And finally, reshape can be used to convert a 1-d array into a multi-dimensional array. To create a 5x5 array with the elements numbered from 0 to 24, you could use:
 b = arange(25)
 b = reshape(b,5,5)
-Array Dimensions and Subscripts: When creating a multi-dimensional array, the format is ([[depth,] height,] width). Therefore, when accessing array elements in a two dimensional array, the row is listed first, then the column. When accessing an element of a two-dimensional list, the following notation must be used: list[i][j]. However, two dimensional arrays can also use the notation: array[i,j]. In fact, this is the preferred notation of the two for arrays because you cannot use wildcards in the first dimension of the array[i][j] notation (i.e., array[1:3][4] would cause an error whereas array[1:3,4] is valid).
-Wildcards can be used in array subscripts using the : , which is known as slicing. This is similar to IDL, with one major difference: if a=[0 1 2 3 4 5], in IDL a[1:4] = [1 2 3 4], but in Python, a[1:4] = [1 2 3]. In Python, when slicing array[i:j], it returns an array containing elements from i to j-1. Just like with strings, indices of arrays can be negative, in which case they count from the right instead of the left, i.e. a[-4:-1] = [2 3 4]. A : can also specify the rest of the elements or up to element, or all elements and arrays or lists can be used to subscript other arrays:
+* multidimensional arrays
+the format is ([[depth,] height,] width). 
+the row is listed first, then the column. 
+* array slicing
+ - slicing array[i:j], it returns an array containing elements from i to j-1
+a=[0 1 2 3 4 5]
+ - indices of arrays can be negative, in which case they count from the right instead of the left,
+a[-4:-1] = [2 3 4]
+ - : can specify the rest of the elements or up to element
 print a[:3] #[0 1 2]
 print a[4:] #[4 5]
 print a[:] #[0 1 2 3 4 5]
@@ -343,20 +363,16 @@ for word in s.split():
     print(word) 
 print("Done")
 
-= IO operations =
-catfile = open(filename,"r")
-for line in catfile: 
-    print(line)
-catfile.close()
-outfile = open(filename,"w")
-outfile.write("Hello " + yourName + ". How are you?\n") 
-outfile.write("Next year you will be "+str(age+1) +" years old\n") 
-outfile.close()
+
 = FUNCTIONS =
 def g(x):
     return x**4/4.0 - x**3/3.0 - 3 * x * x
 print(g(6))
+== keyed functions can passed as an argument ==
+def Last(x):
+  returnx[-1]
 
+sorted(some_list,key=Last)
 
 = EXCEPTIONS =
 try:
@@ -374,6 +390,17 @@ except:                   # This try-except catches everything
 import os
 import sys
 bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
+= IO operations =
+catfile = open(filename,"r")
+for line in catfile: 
+    print(line)
+lines = catfile.readlines()	# like perl @lines = <catfile>
+line = catfile.read()		# like perl $lines = <catfile>
+catfile.close()
+outfile = open(filename,"w")
+outfile.write("Hello " + yourName + ". How are you?\n") 
+outfile.write("Next year you will be "+str(age+1) +" years old\n") 
+outfile.close()
 == path manipulations ==
 http://docs.python.org/2/library/os.path.html
 os.path.expanduser("~dans")     #/home/dans

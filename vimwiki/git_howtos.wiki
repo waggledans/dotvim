@@ -1,4 +1,21 @@
-setup
+= my old howtos =
+# configuring git:
+git config --global user.name "Dan Slov"
+git config --global user.email "dan.slov@gmail.com"
+git config --global credential.helper cache
+git config --global credential.helper 'cache --timeout=3600'
+
+# SSH keys
+cd ~/.ssh
+ssh-keygen -t rsa -C "your_email@example.com"
+# Downloads and installs xclip
+sudo apt-get install xclip
+xclip -sel clip < ~/.ssh/id_rsa.pub
+# Copies the contents of the id_rsa.pub file to your clipboard
+# Attempts to ssh to github
+ssh -T git@github.com
+
+= setup =
     $ wget http://kernel.org/pub/software/scm/git/git-1.6.0.tar.gz
     $ tar xzf git-1.6.0.tar.gz
     $ cd git-1.6.0

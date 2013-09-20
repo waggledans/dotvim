@@ -1,0 +1,9 @@
+#######################
+# Clear history:
+ rm $HOME/.local/share/zeitgeist/activity.sqlite
+ zeitgeist-daemon --replace
+# Prevent new history items to be created:
+ echo -n > ~/.recently-used.xbelsudo chattr +i .recently-used.xbel
+# Disable history
+sudo chattr -i .recently-used.xbel
+#######################

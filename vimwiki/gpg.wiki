@@ -1,0 +1,514 @@
+= History of PGP =
+ 1. Created by Phillip Zimmerman in 1991
+ 2. Created as: Pretty Good Privacy (PGP)
+ 3. PGP was acquired by NAI (McAfee) in the late 1990s
+ 4. Eventually released and reincarnated as the current: PGP Corporation
+
+= History of Gnu Privacy Guard (GPG): =
+
+ 1. Derives from Pretty Good Privacy
+ 2. GPG is also based on the OpenPGP proposed standard: RFC 2440 -> 4880
+
+
+= Features: =
+
+ 1. Implements Public Key Infrastructure (PKI) framework:
+  a. Uses asymmetric and symmetric encryption algorithms
+
+ 2. Provides digital signatures and encryption keys
+
+ 3. Used to sign and encrypt data
+ 4. Provides key management via pubring.gpg (public keys), and secring.gpg (private keys)
+ 5. Compatible with commercial PGP
+ 6. Supports DSA(signature) - Default, ElGamal(Encryption) - Default, and various algorithms
+ 7. Optional support for patent-protected IDEA algorithm
+ 8. Can be integrated with e-mail: GPG4WIN
+ 9. Stores: algorithms for encryption and compression in per-user public keys
+  a. This is used to determine how to encrypt data to the recipient
+10. Supports sub-keys (keys linked to a primary key) for additional identities
+11. Supports various cryptographic ciphers:
+  a. Public Key (Asymmetric)
+  b. Symmetric - shared password (key) and is used to encrypt/decrypted data - 3DES, IDEA
+  c. One-way hashing functions (MD5, SHA) - Used to generate digital signatures
+
+12. GPG uses hybrid ciphers to secure data exchange:
+  a. Uses public key ciphers to securely exchange session keys
+  b. symmetric ciphers (3DES, IDEA) to encrypt/decrypt the data
+
+Note: Hybrid approach significantly increases the performance of GPG/PGP
+
+
+= Explore GPG Configuration on various Systems =
+
+1. SUSE Enterprise 10
+ a. rpm -qa | grep gpg - returns the versions installed: 1.4x and 2x
+
+2. RedHat Enterprise 5
+ a. rpm -qa | grep -i gnupg
+
+3. Debian 4x
+ a. dpkg -l | grep -i gnupg
+ b. dpkg -L gnupg - dumps package content to the screen
+
+Note: primary utility is '/usr/bin/gpg'
+ a. 'gpg' provides: key signing, key import/export, encryption, decryption, etc.
+ b. 'gpg' provides interface to define and maintain web-of-trust (trustdb.gpg)
+
+4. Solaris 10
+ a. pkginfo -l | grep -i gnupg
+ b. pkgchk -v SMCgnupg - enumerates the contents of SMCgnupg
+
+Note: Solaris 'SMCgnupg' package places key GPG binaries beneath: /usr/local/bin
+
+
+
+= Key GPG files =
+Note: GPG maintains a hierarchy beneath each user's home directory named: '~/.gnupg'
+ 1. secring.gpg - contains secret key(s)
+  Note: OpenPGP-compliant secret keys contain embedded public keys for recovery purposes
+  Note: However, you cannot recover secret keys from the public keyring
+ 2. pubring.gpg - public key ring - contains public key(s)
+ 3. gpg.conf - per-user configuration file
+ 4. trustdb.gpg - maintains trust-levels (web of trust) of keys on your public key ring
+Note: trust levels defined via 'gpg', stored in ~/.gnupg/trustdb.gpg are NOT published with each signed key. This means, the trust levels are private to you, and only you.
+
+= Explore existing Keys =
+1. gpg --list-keys
+Note: Default is to create ~/.gnupg with 'trustdb.gpg', 'pubring.gpg', 'gpg.conf'
+Note: 'secring.gpg' is NOT created until we generate a public/private key pair
+
+linuxcbtdeb2:~/.gnupg# gpg --list-keys
+/root/.gnupg/pubring.gpg
+------------------------
+pub   1024D/49621360 2007-10-09
+uid                  Dean Davis (Testing GPG - root) <root@linuxcbtdeb2.linuxcbt.internal>
+sub   2048g/A2174456 2007-10-09
+
+linuxcbtdeb2:~/.gnupg#
+
+
+pub - master public signing key (ONLY)
+1024 - represents the number of bits in the key
+D - Digital Signature Algorithm (DSA) OR Digital Signature Standard (DSS)
+49621360 - Unique KeyID
+2007-10-09 - Date signing master key was created
+
+uid - represents an identity tied to the master public and sub-keys
+Note: There will be at least 1 'uid' and more, if necessary
+
+sub - indicates that the key is a subordinate public key. It's used for encryption, exclusively
+2048 - represents the number of bits in the encryption key
+g - ElGamal encryption-ONLY key
+A2174456 - Unique KeyID
+2007-10-09 - Date encryption key was created
+
+
+= Generating, Importing and Exporting Keys =
+Features:
+ 1. Ability to encrypt/decrypt data
+ 2. Ability to create/verify digital signatures
+
+
+Generate PGP Usage Keys:
+1. gpg --gen-key - generates the prompts necessary to create usage keys
+
+Note: Don't issue a pass-phrase to use the secret/private key, if you don't want to be prompted every time you'd like to use the key. This is less-secure, but more convenient.
+
+Note: Sufficient randomness is required to generate the public/private key-pair
+Scribble on the keyboard, and move the mouse to improve entropy
+
+linuxcbt@linuxcbtsuse1:~> gpg --list-secret-keys
+/home/linuxcbt/.gnupg/secring.gpg
+---------------------------------
+sec   1024D/12D9A829 2007-11-19
+uid                  LinuxCBT-SUSE1 (Used by linuxcbt ON linuxcbtsuse1.linuxcbt.internal for signing and encryption/decryption) <linuxcbt@linuxcbtsuse1.linuxcbt.internal>
+ssb   2048g/056560AA 2007-11-19
+
+linuxcbt@linuxcbtsuse1:~>
+
+
+= Import/Export Keys =
+1. gpg --export - dumps binary public key to the screen
+2. gpg -a --export - creates armored-ASCII output of public key to STDOUT
+3. gpg --export -o filename - dumps binary public key to 'filename'
+4. gpg -o filename -a --export - creates armored-ASCII output of public key to 'filename'
+
+5. gpg --import - waits for key information on STDIN
+
+
+Note: After import/export have been performed, encrypts/decrypts/signings/verifications can take place
+
+Note: It's a good idea to confirm the fingerprints of the exchanged keys
+1. gpg --fingerprint keyID - perform this on both systems to ensure that the exchanged keys have NOT been altered during transit
+
+
+= Digital Signatures =
+Features:
+ 1. Proof (non-repudiation) that sender indeed crafted the correspondence (message)
+ 2. It applies the secret (private) key to the hash of the item signed
+ 3. Provides the web-of-trust framework
+ 4. Recipients verify signatures using the sender's public key
+
+Note: In stark contrast to encrypting correspondence (files/e-mail/etc.) to recipients, which relies upon using the recipient's public key for encryption, digital signatures use the sender's private key, which can only be confirmed by the sender's public key
+
+
+General Usage (Creating Digital Signatures):
+
+ 1. seq 1000000 > 1million.txt - this creates a file with the numbers 1-1million
+ 2. gpg -s filename_OR_STDIN
+ a. gpg -s 1million.txt - this will create 1million.txt.gpg - with inline signature
+
+Note: Signing inline, using '-s', creates a compressed version of the file with the '.gpg' suffix
+
+ b. gpg -o 1million.txt.pgp -s 1milion.txt - this creates '1million.txt.pgp' with inline signatures
+
+Note: inline signatures include the signature in the document (txt, binary, e-mail)
+Note: inline signatures also offer compression
+
+
+ 3. gpg --detach-sign -o 1million.txt.sig 1million.txt - this creates a detached signature, which can also be confirmed by the recipient
+
+Note: Detached signatures do not impose compression on the source file
+
+ 4. Verify signatures on remote system with user account that has our public key on keyring
+  a. scp 1mill* linuxcbt@192.168.75.10:/home/linuxcbt
+  b. gpg --verify 1million.txt.sig
+
+Note: The verification process is concerned with the content of the data, NOT the filename
+Note: Rely upon multiple methods to confirm the integrity of the correspondence:
+ a. gpg --verify *.sig
+ b. md5sum
+ c. sha1sum
+ d. sha256sum
+
+ 5. gpg -d 1million.txt.gpg - this decrypts the file to STDOUT
+ 6. gpg -o 1million.txt -d 1million.txt.gpg - this decrypts the file to STDOUT
+
+Note: Signing inline, compresses, and, also encrypts
+Note: Detaching the signature ensures that only the signature is encrypted
+
+
+ 7. gpg -a --detach-sign -o 1million.txt.asc 1million.txt - this creates an ASCII-armoured signature
+
+ 8. gpg --sign-key keyID - use to sign a public key
+
+Note: Proper usage of GPG/PGP public keys is to:
+ 1. Import business partner's public key
+ 2. Confirm the fingerprint of the public key with the business partner
+ 3. Sign the public key using your private key - gpg --sign-key keyID(ID of public key to sign)
+
+Note: By default, GPG signs our public/private key pair
+
+
+
+= Encryption =
+Features:
+ 1. Provides encryption of content, resulting in privacy and confidentiality
+ 2. Encrypts data files and e-mail
+ 3. Does NOT provide integrity
+ 4. Supports 2 modes of encryption:
+   a. Symmetrical encryption: uses a shared secret to encrypt/decrypt
+   b. Asymmetrical PKI-based encryption: uses PKI, unique session keys to encrypt/decrypt
+
+ 5. Supports data input from:
+   a. File(s)
+   b. STDIN
+   c. Pipe
+
+General Usage:
+ 1. gpg -c filename - encrypts filename using a shared secret (passphrase) - symmetrical
+  a. gpg -c 1million.txt
+
+Note: Anyone who knows or brute-forces the passphrase associated with they symmetrically encrypted document, will be able to decrypt the document. However, with PKI, only the holder of the secret(private) key will be able to decrypt the document.
+
+
+ 2. PKI-based encryption - Encrypts to a specific recipient
+Note: PKI-based encryption is premised on having the recipient's public key
+  a. gpg -r recipient_name_OR_KEYID -e -o 1million.txt.gpg 1million.txt
+
+
+Note:
+ 1. Public keys are used primarily for 2 purposes:
+  a. To encrypt data to a given recipient (-r keyID) - gpg --list-keys
+  b. To verify a digital signature of a sender. Senders create digital signatures using their private (secret) key.
+
+ 2. Private (Secret) keys are used primarily for 1 purpose:
+  a. To sign data to recipient
+  b. To decrypt data encrypted to us
+
+
+= Decryption Process =
+Features:
+ 1. Exposes the true (source) document
+ 2. Unlocks your data from its confidential state
+
+
+General Usage:
+ 1. gpg -d filename - This supports symmetrical and PKI-based enrypted documents
+
+Note: Default output when decrypting is: STDOUT
+  a. gpg -d 1million.txt.gpg
+
+Note: use 'gpg -K (--list-secret-keys)' to expose your 'secring.gpg' OR secret keyring
+
+  b. gpg -o 1million.txt 1million.txt.gpg - this sends output to '1million.txt', providing we have the appropriate private (secret) key on our 'secring.gpg'
+
+ c. gpg -d 1million.txt.gpg - dumps the contents of the file to STDOUT
+ d. gpg -d 1million.txt.gpg > 1million.txt.redirect - dumps the contents of the file to file using redirection
+
+linuxcbtdeb2:~# gpg -d 1million.txt.gpg
+gpg: encrypted with ELG-E key, ID CCACBE96
+gpg: decryption failed: secret key not available
+linuxcbtdeb2:~#
+
+
+Note: If you attempt to decrypt a PKI-encrypted document, as a user who does NOT have the secret key on file, GPG will return an error
+
+Note: To export secret key(s), execute the following:
+ 1. gpg -a --export-secret-keys [keyID]
+
+Note: exported secret key will include the corresponding public key
+
+ 2. gpg --import
+  a. paste the secret(private)/public key into the console window of the destination user
+
+ 3. gpg --list-keys && gpg -K - confirm the presence of both keys
+
+
+Now we are able to decrypt data intended for the given KeyID on both systems.
+
+Note: In the header of an OpenPGP-protected document, is information regarding the keyID, that was used to sign and/or encrypt the document. GPG uses this information to find a matching private key for decryption.
+
+Note: Only 'root' has file-system access to the keyrings of other users on the Linux|Unix system.
+
+
+= Sign & Encrypt Documents =
+Features:
+ 1. Integrity - Signing (applied with your private key)
+ 2. Confidentiality - Encryption (applied with the receipient's public key)
+ 3. Both public and private keys are used when signing and encrypting data
+   a. DSA secret key of the sender is used to sign the data
+    a1. DSA public key of the sender is used to confirm the signature
+   b. ElGamal public key of receipient is used to encrypt the data to the recipient
+    b1. The recipient's ElGamal secret key is used to decrypt the data
+
+General Usage:
+ 1. gpg -s -e -r keyID input_filename - does NOT overwrite source file
+  a. gpg -s -e -r B075091D 1million.txt - signs and encrypts inline
+
+Note: After a document (ASCII or binary) has been signed and encrypted, tranfer it to your recipient using any of the following means:
+ 1. Intranet - FTP, SSH(SFTP,SCP), NETBIOS, NFS, etc.
+ 2. Internet - FTP, SSH(SFTP,SCP), NETBIOS, NFS, etc.
+ 3. USB key
+ 4. Floppy
+ 5. Optical media
+ 6. Etc.
+
+ 2. gpg -d 1million.txt.gpg - confirms signature (if sender's public key is on the recipient's keyring) and decrypts data (if secret key is available)
+
+Note: Typically, members of e-mail lists sign, but elect NOT to encrypt messages to the list, so that members without the DSA/ELGamal public keys are able to read the messages. However, if the recipient (list member) has the DSA key of the sender on file (public key ring), the recipient will be able to confirm the signature (authenticity of the sender).
+
+ 3. Create a detached signature, and encrypt and transport both documents to recipient:
+  a. gpg --detach-sign -e -r B075091D 1million.txt - creates 1million.txt.sig
+  b. gpg -e -r B075091D -o 1million.txt.pgp 1million.txt - encrypts 1million.txt
+
+Note: The order in which you create the: detached signature, and, the encrypted file, does NOT matter, however, if the signature is based on the encrypted document, and NOT the source file, then the order is important.
+
+ 4. Confirm DSA signature
+  a. gpg --verify 1million.txt.pgp.sig - performs confirmation against '1million.txt.pgp'
+
+Note: Signature file name can differ entirely from the source file name. i.e.
+ gpg --verify test.sig 1million.txt.gpg - still confirms
+
+
+ 5. Generate an ASCII-armoured signature for a GPG-encrypted file
+ a. gpg -a --detach-sign 1million.txt.pgp
+
+
+
+= Key Management =
+
+Features:
+ 1. Ability to manage your public/private key pairs
+ 2. Sign public keys, including your own (default)
+ 3. Check properties of keys (public/private)
+ 4. Add/Delete UIDs to/from existing key pairs
+ 5. Key revocation
+
+
+Sign Keys:
+Note: Confirm public key's fingerprint out-of-band, prior to signing it. Either DSA or ELGamal keyID will work. Both yield the same fingerprint, as they're linked.
+gpg --fingerprint keyID
+ 1. gpg --edit-key CCACBE96
+  a. sign
+  b. save
+
+Note: Test that the key has been signed by signing and encrypting data to the recipient
+
+
+Check Keys - returns key signature information:
+ 1. gpg --edit-key CCACBE96
+
+Note: Returns:
+ a. Associated UID(s)
+ b. Associated Signature(s)
+ c. Additional key info
+
+Note: The check option reveals signature information, which improves the integrity of the public key. Signatures, bound to public keys, constitute certificates. This is a way to thwart tampering.
+
+
+Add/Delete UIDs to/from public/private key pairs
+
+Note: This is a method of updating your identity as it changes, without tampering with your keys
+
+1. gpg --edit-key 12D9A829
+ a. adduid - facilitates additional identities
+ b. save
+ c. quit
+
+
+2. gpg --edit-key keyID
+ a. uid # - first, select the number of the UID
+ b. deluid
+
+
+Sub-key management (Addkey, Delkey)
+Note: Adding/Deleting keys are ideal for temporary encryption/signature needs
+1. addkey - adds a new DSA/RSA/ElGamal key
+2. delkey - removes an existing key
+ a. use 'key' to select the key, then use 'delkey' to delete the key
+
+Note: Subkeys have non-visible indices begining with '1'
+i.e. 'key 1' to select the first sub-key
+
+
+= Web of Trust =
+Features:
+ 1. Allows to assign levels of trust to owners of public keys on our keyring
+ 2. Multiple (4) levels are supported:
+  a. Unknown (q)
+  b. None (n)
+  c. Marginal (m)
+  d. Full (f)
+ 3. Trust information is stored in: ~/.gnupg/trustdb.gpg
+
+Further code explanation:
+e (expired)
+o OR '-' (unknown, new key)
+n (Don't trust)
+f (full trust)
+u (ultimate trust) - used for keys where secret keys are available
+m (marginal)
+r (revoked)
+d (disabled)
+q (undefined)
+
+
+Usage:
+ 1. gpg --list-keys --with-colons - returns keys and trust levels
+Note: The field prior to the user's full name denotes the trust information
+
+Task:
+1. Create a trust relationship between a local user and the 'linuxcbt' user on LINUXCBTSERV1
+ a. Assign a trust level to our local instance of the user's public key
+ gpg --edit-key keyID
+ trust
+
+Note: Signing keys is independent of trusting the same user to sign others' keys
+
+linuxcbt@linuxcbtsuse1 -> Trusts Fully -> linuxcbt@linuxcbtserv1
+                                           pubkey1
+     					   pubkey2
+					   pubkey3
+					   pubkey[n]
+
+Note: Assigning trust does not exempt communicating parties from exchanging public keys
+
+ b. Import and sign a key on LINUXCBTSERV1
+  gpg --import
+  gpg --edit-key 54C816F3
+  sign
+  save
+  quit
+
+ c. Exchange public keys with the user 'linuxcbt' on LINUXCBTDEB2
+
+ d. Prove web of trust
+ Encrypt & Sign data to the user 'linuxcbt' on LINUXCBTSUSE1 box
+
+Note: After a trusted party has signed a key, you need to re-import the signed copy of the other user's public key:
+
+linuxcbt@linuxcbtsuse1 -> Trusts Fully -> linuxcbt@linuxcbtserv1 -> (Signed) linuxcbt@linuxcbtdeb2
+
+Default trust configuration for GnuPG 1.4.x
+Keys can be validated if:
+ 1. They're locally signed
+ 2. Someone (delegate), with whom we fully trust, has signed them
+ 3. 3 people we marginally trust have signed them
+
+Locally signed or fully-trusted delegates create shorter paths, however, shorter paths require more administration.
+
+Longer paths are less secure, but requires less overhead
+Shorter paths are more secure, but requires more overhead
+
+
+= Key Servers =
+Features:
+ 1. Permits large-scale, easy distribution of OpenPGP-compliant keys
+ 2. Freely available, worldwide
+ 3. Keys are added or merged to existing public keys held by the servers
+ 4. Udated keys (signed, etc.) can be uploaded to the key server(s) easily
+ 5. The major public pgp key servers synch keys frequently
+ 6. OpenPGP key servers listen on TCP:11371
+ 7. http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x96E7F99C
+ 8. Uploaded keys are available indefinitely and usually cannot be deleted
+
+Note: The uploaded keys are the public portion of your keypair
+
+Task:
+ 1. Upload keys to public key server
+  a. gpg --send-keys --keyserver pgp.mit.edu B075091D
+  b. Confirm that key has been uploaded by searching at: pgp.mit.edu
+  c. Copy URL that is to be shared with the world:
+   http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xB075091D
+
+ 2. Import (Download) the uploaded (exported) key to one or more systems
+  a. gpg --keyserver pgp.mit.edu --recv-keys B075091D
+
+ 3. Update public key on LINUXCBTSERV1 and update the pgp.mit.edu key server
+  a. gpg --send-keys --keyserver pgp.mit.edu B075091D - this sends the latest info. to the key server
+ b. Confirm that the pgp.mit.edu key server has been updated
+ 
+ 4. Add a new userid and update the pgp.mit.edu server
+  a. follow steps listed above
+
+ 5. Remove superfluous identities from the keypair
+Note: You can remove identities locally, however, not on the key server
+
+
+= Scripting with GPG =
+Features:
+ 1. The ability to automate encrypts/decrypts/etc.
+
+Task: Create a backup Perl process, that encrypts the contents of the backup
+
+
+= Install and Use GPG 1.4.x on Windows =
+
+
+= Install and Use GPG4WIN (GUI) =
+
+
+= Interoperability with PGP Desktop/Commercial PGP =
+Features:
+ 1. Commercial support
+ 2. Disk encryption
+ 3. E-mail encryption
+ 4. File encryption
+ 5. Enterprise features: Key management
+ 6. Evaluation version for 30-days
+
+Download: pgp.com
+
+
+
