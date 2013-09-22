@@ -1,0 +1,12 @@
+# setup the compiler
+mex -setup
+
+# simulink sim stages:
+mdlInitializeSizes  # init stage
+mdlStart  # start stage
+mdlOutputs  # Output stage
+mdlTerminate  # Terminate stage
+
+# building custom Simulink block:
+1. Choose s-function builder block
+2. 

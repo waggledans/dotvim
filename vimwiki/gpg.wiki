@@ -86,7 +86,6 @@ sub   2048g/A2174456 2007-10-09
 
 linuxcbtdeb2:~/.gnupg#
 
-
 pub - master public signing key (ONLY)
 1024 - represents the number of bits in the key
 D - Digital Signature Algorithm (DSA) OR Digital Signature Standard (DSS)
@@ -102,12 +101,10 @@ g - ElGamal encryption-ONLY key
 A2174456 - Unique KeyID
 2007-10-09 - Date encryption key was created
 
-
 = Generating, Importing and Exporting Keys =
 Features:
  1. Ability to encrypt/decrypt data
  2. Ability to create/verify digital signatures
-
 
 Generate PGP Usage Keys:
 1. gpg --gen-key - generates the prompts necessary to create usage keys
@@ -116,7 +113,7 @@ Note: Don't issue a pass-phrase to use the secret/private key, if you don't want
 
 Note: Sufficient randomness is required to generate the public/private key-pair
 Scribble on the keyboard, and move the mouse to improve entropy
-
+* Use --list-secret-keys and --list-keys to see public/private key pair
 linuxcbt@linuxcbtsuse1:~> gpg --list-secret-keys
 /home/linuxcbt/.gnupg/secring.gpg
 ---------------------------------
@@ -124,23 +121,22 @@ sec   1024D/12D9A829 2007-11-19
 uid                  LinuxCBT-SUSE1 (Used by linuxcbt ON linuxcbtsuse1.linuxcbt.internal for signing and encryption/decryption) <linuxcbt@linuxcbtsuse1.linuxcbt.internal>
 ssb   2048g/056560AA 2007-11-19
 
-linuxcbt@linuxcbtsuse1:~>
-
-
 = Import/Export Keys =
-1. gpg --export - dumps binary public key to the screen
-2. gpg -a --export - creates armored-ASCII output of public key to STDOUT
-3. gpg --export -o filename - dumps binary public key to 'filename'
-4. gpg -o filename -a --export - creates armored-ASCII output of public key to 'filename'
-
-5. gpg --import - waits for key information on STDIN
+# gpg --export - dumps binary public key to the screen
+# gpg -a --export - creates armored-ASCII output of public key to STDOUT
+# gpg -a --export --output filename
+# gpg --export-secret-key -a "User Name" > private.key	: export private key to a file
+# gpg --export -o filename - dumps binary public key to 'filename'
+# gpg -o filename -a --export - creates armored-ASCII output of public key to 'filename'
+# gpg --import - waits for key information on STDIN
+# gpg --import filename
+# gpg --allow-secret-key-import --import private.key : to import a private key
 
 
 Note: After import/export have been performed, encrypts/decrypts/signings/verifications can take place
 
 Note: It's a good idea to confirm the fingerprints of the exchanged keys
 1. gpg --fingerprint keyID - perform this on both systems to ensure that the exchanged keys have NOT been altered during transit
-
 
 = Digital Signatures =
 Features:
@@ -225,7 +221,8 @@ Note: Anyone who knows or brute-forces the passphrase associated with they symme
  2. PKI-based encryption - Encrypts to a specific recipient
 Note: PKI-based encryption is premised on having the recipient's public key
   a. gpg -r recipient_name_OR_KEYID -e -o 1million.txt.gpg 1million.txt
-
+  Or specifying -u "User name" will encrypt using the specific user key
+  b. gpg -e -u "Sender User Name" -r "Receiver User Name" somefile
 
 Note:
  1. Public keys are used primarily for 2 purposes:
@@ -371,6 +368,9 @@ Note: This is a method of updating your identity as it changes, without tamperin
  a. uid # - first, select the number of the UID
  b. deluid
 
+3. delete a certain key
+ a. gpg --delete-secret-key keyID
+ a. gpg --delete-key keyID
 
 Sub-key management (Addkey, Delkey)
 Note: Adding/Deleting keys are ideal for temporary encryption/signature needs

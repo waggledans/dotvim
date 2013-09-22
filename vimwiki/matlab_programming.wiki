@@ -31,3 +31,161 @@ p =
             Offset: [1x1 struct]
         SampleTime: [1x1 struct]
     VectorParams1D: [1x1 struct]
+% colon operator
+> 0:2:10; % identical linspace(0,2,10)
+% 
+% pointwise matrix multiplication:
+> a.*b
+%if the line is too long use space with ellipses:
+>> a = [1, ...
+2]
+%
+%matrix: 
+> a = [1 2 3;4 5 6;7 8 9]
+> b = [a 10*a;-a [1 0 0;0 1 0;0 0 1]]
+%
+> a = zeros(2,3); b = ones(2,2)/0.5; eye(3);
+zeros %a matrix filled with zeros
+ones  %a matrix filled with ones
+rand  %a matrix with uniformly distributed random elements
+randn %a matrix with normally distributed random elements
+eye   %identity matrix
+%
+%subscripting (starts from 1 and not 0 as in C):
+> u(3); u([1 2 3]); u(1:3);  %colon operator
+> u(:); %will return a column with all the u-columns strung out
+> u(end);
+> a(:,2) = [] %delete column 2
+%
+% transpose '
+> a = [1,3,4]'
+%
+% matrix operators:
+max/min	  % maximum/minimum
+find	  % find indices of nonzero elements
+mean/median/std	  % average/median/std_deviation
+sort/sortrows  % sort/sort rows in ascending order
+sum/prod  % sum/product of elements
+diff difference between elements
+cumsum/cumprod cumulative sum/prod
+%
+> [v,ind] = max(m)  % to get maximum and maximum's index
+% plot:
+> plot(x,y,’r-.’) % will plot with red dash-dotted line
+> plot(x,y,’bx’) % points are blue crosses not joined with lines
+> plot(x,y,’b:x’) % points are blue crosses joined with dotted line
+> plot(x,y,x,2*y,’--’) % plots two graphs, one of them dashed
+% adding plots
+> plot(x,y)
+> hold on
+> plot(5*x,5*y)
+% or more complicated:
+> figure(1);
+> plot(t,x);
+> hold on;
+> figure(2)
+> subplot(3,1,1);
+> plot(f,abs(X));
+> subplot(3,1,2);
+> plot(f1,abs(Xsamp1));
+> subplot(3,1,3);
+> plot(f2,abs(Xsamp2));
+%
+> plot3(cos(3*t),sin(3*t),t) %will plot 3d graph
+> rotate3d  % will allow to rotate 3d graph
+% axes:
+axis([xmin xmax ymin ymax ]) sets the axes’ minimum and
+maximum values
+axis square makes the axes the same length
+axis equal makes the axes the same scale
+axis tight sets the axes limits to the range of the data
+axis auto allows matlab to choose axes limits
+axis off removes the axes leaving only the plotted data
+axis on puts the axes back again
+grid on draws dotted grid lines
+grid off removes grid lines
+grid toggles the grid
+% labels:
+xlabel(’text ’)
+ylabel(’text ’)
+zlabel(’text ’)
+title(’text ’)
+text(x,y,’text ’) places text at position x,y
+gtext(’text ’)
+legend
+%
+% example of using plot, find
+clf
+ind = find(20<=y & y<=40);
+plot(x,y,x(ind),y(ind),’o’)
+grid
+%
+% 2 var functions:
+> [x,y] = meshgrid(1:4) %will create two matrixes from the vector (1,2,3,4)
+> z = sqrt(x.^2 + y.^2)
+> mesh (x,y,z)
+%
+%%%%%%%%%%%% functions
+% example:
+function x = quadratic(a,b,c)
+delta = 4*a*c; denom = 2*a;
+rootdisc = sqrt(b.^2 - delta); % Root of the discriminant
+x1 = (-b + rootdisc)./denom; x2 = (-b - rootdisc)./denom;
+x = [x1 x2];
+%
+% function may have more than one output:
+> function [xx,yy,zz] = sphere(n)
+%%%%%%%%%%%% flow control
+if, else and elseif 
+switch, case and otherwise % like switch case and default in C 
+while and end 
+for and end % for az = 0:10:350 .... end 
+%
+> input(’Do you want to continue (y or n) ? ’,’s’);
+if strcmp(lower(ans(1)),’y’)
+    go_ahead
+else
+    return
+end
+% 
+save keepfile	% will save workspace data to keepfile.mat file
+load keepfile	% will load the data in keepfile.mat
+%
+% directories
+cd, pwd, dir
+what  %Display matlab-relevant files in cwd
+which %Display directory containing specified function
+type  %Display file in the matlab window
+path  %Display or change the search path
+addpath %Add directory to the search path
+rmpath	%Remove directory from the search path
+% measure runtime:
+> t0 = clock;some_function;etime(clock,t0)
+% if b(i) = a(i) + a(i + 1); then
+> b = a(1:end-1) + a(2:end);
+%
+% debugging
+dbstop Set breakpoint 
+dbstatus List all breakpoints
+dbclear Remove breakpoint 
+dbstep Execute one or more lines
+dbcont Resume execution 
+dbdown Change local workspace context
+dbtype List M-file with line numbers
+dbup Change local workspace context debugging
+dbmex Enable mex file
+dbstack List who called whom 
+dbquit Quit debug mode
+
+
+
+%durer example:
+magic(N) %N*N matrix
+load durer %will load Durer data
+image(X)
+colormap(map)
+
+clear;clc;
+cd ('C:\Webinar\folder1');
+set (0, 'DefaultFigureColormap', gray(256));
+

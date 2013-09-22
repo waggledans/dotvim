@@ -1,0 +1,13 @@
+ADE - save OCEAN script
+from ICW: load "oceanScript.ocn"
+or start ocean shell and run - load "oceanScript.ocn"
+Can find average:
+average((VT("/OUTP") - VT ("/INP")))
+To get a value at particular time:
+value((VT("/OUTP") - VT ("/INP")) 4.3e-09)
+hardCopyOptions (?hcOutputFile "vin_out.png")
+hardCopy()
+summaryFile = outfile ("summary.txt")
+
+
+

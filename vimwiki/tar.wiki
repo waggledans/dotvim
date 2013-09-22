@@ -1,0 +1,11 @@
+= list contents of tar.gz =
+tar -tvzf file.tar.gz
+= list contents of tar.bz2 =
+tar -jtvf file.tar.bz2
+= extract just one file/dir from the tarball =
+tar -zxvf mytar.ball.tar.gz directory-name
+= update file in tarball (not zipped) =
+* add new files and update modified
+tar -uvf my.tar some-directory/
+= delete a directory from tarball =
+tar --delete -f file.tar 'path1/dir1'

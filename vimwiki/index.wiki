@@ -1,4 +1,6 @@
 = Document Base =
+== android ==
+* [[android]]
 == CVS ==
 * [[cvs]]
 == SVN ==
@@ -17,6 +19,7 @@
 * [[linux_howtos]]
 * [[patch]]
 * [[regex]]
+* [[tar]]
 * [[tmux]]
 * [[ubuntu]]
 * [[xargs]]
@@ -39,6 +42,7 @@
 * [[xa]]
 == MATHWORKS ==
 * [[matlab_programming]]
+* [[matlab_c_interface]]
 * [[createVCD]]
 * [[eda_link]]
 == Cadence ==
@@ -58,6 +62,7 @@
 * [[skill.HOWTOs]]
 * [[generate_netlist]]
 * [[cdf]]
+* [[ocean]]
 === DesignSync ===
 * [[gdm]]
 * [[gdm_add_version_to_sheet]]

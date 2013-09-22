@@ -128,3 +128,44 @@ zd deletes the fold at the cursor.
 zE deletes all folds.
 [z move to start of open fold.
 ]z move to end of open fold.
+To switch windows in vimdiff or 
+to navigate windows in vimdiff or 
+to change windows in vimdiff try the following: 
+The ":vertical" command can be inserted before another command that 
+splits a window. 
+MOVING BETWEEN WINDOWS 
+        CTRL-W h        move to the window on the left 
+        CTRL-W j        move to the window below 
+        CTRL-W k        move to the window above 
+        CTRL-W l        move to the window on the right 
+        CTRL-W t        move to the TOP window 
+        CTRL-W b        move to the BOTTOM window 
+  Moving windows 
+===== 
+        CTRL-W K        move window to the upper 
+        CTRL-W H        move window to the far left 
+        CTRL-W J        move window to the bottom 
+        CTRL-W L        move window to the far right 
+===================== 
+trl-w c - Close this window
+ctrl-w o - close all Other windows (mnemonic - Only)
+ctrl-w 5+ - increase this window size by 5 lines
+ctrl-w 5- - decrease this window size by 5 lines
+
+With these window commands, we're ready to use "vimdiff". Start vimdiff from the command line:
+% vimdiff a.txt b.txt
+Vim will open the two files in "vsplit" mode, and will highlight differences between the two. I have attached an example of this. There are just a few more commands that are needed to be proficient with vimdiff:
+do - (diff-obtain) obtain differences from other window into this one
+dp - (diff-put) push differences in current window to the other window
+zo - open a block of folded text
+
+
+.exrc examle:
+
+set showmode
+map #1 :!more ~/.vi_help
+map #2 :set number
+map #3 :set nonumber
+map #4 o<table>  <tr>    <td>    </td>  </tr></table>
+map #5 o<ul>  <li></li></ul>
+map #6 o<ul>  <li><a href=""></a></li></ul>

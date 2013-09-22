@@ -1,0 +1,14 @@
+# install twrp:
+1. download it
+2. reboot the phone to fastboot and connect it to usb
+3. navigate to the folder and fastboot flash recovery path/to/recovery-twrp-shooter-1.0.1.img
+# create a project
+./android create project --target 1 --name MySecondApp --path /home/dans/Desktop/empty/workspace/MySecondApp --activity MainActivity --package com.example.mysecondapp
+#### To run app on real device:
+# 1.Change directories to the root of your Android project and execute:
+ant debug
+# 2.Install the app in the phone
+adb install bin/MyFirstApp-debug.apk
+#### To run app on virtual device:
+# 1.Launch android virtual device
+android avd
