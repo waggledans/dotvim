@@ -1,0 +1,92 @@
+= threads =
+gcc –g –o myprog myprog.c –lpthread
+= kernel =
+== compile kernel ==
+http://www.digitalhermit.com/linux/Kernel­Build­HOWTO.html.
+1.Sources can be found in /usr/src/linux­2.4.18­14custom. 
+2.Make your changes to kernel source file(s).
+3.cd /usr/src/linux­2.4.18­14custom
+4.Invoke  make   bzImage.   
+bzImage   is   the   compressed   kernel   image   created   with 
+command  make bzImage  during kernel compile. 
+The name bzImage stands for "Big Zimage". 
+Both zImage and bzImage are compressed with gzip. The kernel includes a 
+mini­gunzip to uncompress the kernel and boot into it.
+5.Invoke  make modules
+6.Invoke  make  modules_install.
+7.Copy kernel   image   from   source directory to /boot. 
+ cd   arch/i386/boot and invoke:
+ cp   bzImage /boot/vmlinuz­2.4.18­14custom.
+8.Go to /boot (‘cd /boot’). Invoke  
+  mkinitrd 2.4.18­14custom.img   2.4.18­14custom 
+9.Invoke reboot.
+10.After rebooting choose "custom kernel" in Grub menu. 
+11.The system should boot properly with the new kernel.
+== sci (System Call interface) ==
+A system call is an interface between a user­space application and a service that 
+the kernel provides. Because the service is provided in the kernel,
+a direct call cannot be performed; instead, you must use a process of crossing
+the user­space/kernel boundary. 
+The   implementation   of   system   calls   in   Linux   is   varied   based on
+the architecture. The virtual machine we use   in   the   lab   emulates x86  
+arch, which uses an interrupt mechanism to migrate from user­space to kernel­space.
+Example:
+getpid()  is a wrapper function for system call
+The code of this function runs in user mode (called from your main function, for example).
+After some preparations it puts the code of system call to the register eax and runs
+int 80 instruction to pass to kernel mode. 
+To do this it uses syscall macro defined in <sys/syscall.h> header, 
+which creates the wrapper automatically (with compiler’s help).
+As a result of int 80 instruction occurs transition to kernel mode and called the handler function 
+of int 80 – system_call()  function. The function runs in kernel mode and has an access to 
+kernel’s data structures. The main structure, it uses, is system_call_table. The system_call_table 
+is an array of pointers to handler functions. The pointer to the handler function is chosen 
+according to index, passed in eax register by the wrapper function, and this handler function is 
+chosen to run. 
+
+== Adding a system call == 
+1. Create new c file (for example myservice.c) in
+/usr/src/linux­source­2.6.18custom/kernel/ directory
+2. Add to /usr/src/linux­2.4.18­14custom/include/asm-i386/unistd.h file 
+__NR_mycallname definition (without sys_ prefix) with the number of 
+your system call
+3. Update Makefile in /usr/src/linux­2.4.18­14custom/kernel directory to compile
+   your added .c file. (add to obj-y string your_file.o object)
+== system call development tips ==
+=== User space code may be used ===
+Example:
+Use syscall macro to run your system calls:
+#define __NR_myservice 330
+#define mysyscall(x,y) syscall(__NR_myservice,x,y)
+to create mysyscall ­ - the user space wrapper function for your system call.
+The __NR_myservice should be defined to be the same number you defined when 
+added   your   system     call   to   kernel   (330   here   is   just   for   example).   Requires 
+
+include: <sys/syscall.h>
+
+=== Kernel space code, usefull functions , macros ===
+* snprintf, strlen, strcat... – functions for string operations inside kernel. 
+Include: <linux/string.h>
+* task_struct  – struct that holds the processes data. 
+The fields:  comm  – holds the   process   name   (char*),
+pid  –   holds   the   process   id   (int).
+Include: <linux/sched.h>
+* for_each_task  –   macro   for   iteration   over  task_struct*  s.   
+Include: <linux/sched.h>
+* access_ok,   copy_to_user - functions   used   for   interaction   with   user   space. 
+Include: <asm/uaccess.h>
+* kmalloc,kfree  –   functions   for   memory   allocation   inside   kernel.
+Use GFP_KERNEL mode for kmalloc. Include : <linux/slab.h>  
+* printk function to print debbug messages from the kernel.
+http://www.linuxchix.org/content/courses/kernel_hacking/lesson5
+Example:
+printk("*** I am a kernel hacker! ***\n");
+dmesg | less
+Include: <linux/kernel.h>
+== makefile example ==
+KERNELDIR = /usr/src/linux-2.4.18-14custom
+include $(KERNELDIR)/.config
+CFLAGS = -D__KERNEL__ -DMODULE –I$(KERNELDIR)/include –O -Wall
+all: hello.o
+
+

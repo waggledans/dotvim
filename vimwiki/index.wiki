@@ -3,6 +3,9 @@
 * [[android]]
 == CVS ==
 * [[cvs]]
+== C/C++ programming ==
+* [[gcc]]
+* gdb
 == SVN ==
 * [[svn]]
 == GIT ==
