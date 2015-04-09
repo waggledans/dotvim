@@ -1,0 +1,53 @@
+* text edit field
+**  want to hide keyboard when outside of textedit is clicked and when user hits enter btn:
+    // this is called when return btn is pressed
+    func textFieldShouldReturn (textFied: UITextField)->Bool {
+        item.resignFirstResponder()
+        return true
+    }
+    // add this inheritance
+    : ... , UITextFieldDelegate
+    // add this line to viewDidLoad
+    self.textFieldName.delegate = self
+    // this is called when outside of the field is pressed:
+    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+        self.view.endEditing(true)
+    }
+* iOS persistent storage
+        NSUserDefaults.standardUserDefaults().setObject("Dan", forKey: "name")
+        var name = NSUserDefaults.standardUserDefaults().objectForKey("name")! as String
+        println(name)
+* table view
+    first add UITableViewDelegate as a parent class (the class inherited from)
+** add outlet @property (weak, nonatomic) IBOutlet UITableView *tblPeople;
+** Make self the delegate and datasource of the table view.
+    self.tblPeople.delegate = self;
+    self.tblPeople.dataSource = self;
+
+    var cellContent = ["row1", "row2", "row3"]
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return cellContent.count   //varContainingNumberOfRows
+    }
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = UITableViewCell (style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
+        cell.textLabel?.text = cellContent[indexPath.row]
+        return cell
+    }
+}
+* segue is a way to go from one screen to another within the same app
+* URL
+let url = NSURL(string:"http://www.stackoverflow.com")
+let task = NSURLSession.sharedSession().dataTaskWithURL(url!) {
+    (data, response, error) in 
+      if error == nil {   // handle if there is no content (like internet connection is bad)
+        var urlContent = NSString(data:data, encoding: NSUTF8StringEncoding)
+        println(urlContent) 
+        dispatch_async(dispatch_get_main_queue()) {
+            self.webView.loadHTMLString(urlContent!, baseURL: nil) // self indicates that we are not in the closure
+            }
+        self.webView.loadHTMLString(urlContent!, baseURL: nil) // self indicates that we are not in the closure
+      } else {
+       // handle if there is no content (like internet connection is bad)
+      }
+}
+task.resume()

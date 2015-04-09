@@ -3,9 +3,15 @@
 * [[android]]
 == CVS ==
 * [[cvs]]
+== haskell programming ==
+* [[haskell_basics]]
 == C/C++ programming ==
 * [[gcc]]
+* [[cpp_notes]]
 * gdb
+* [[cpp_containers]]
+* [[cpp_templates]]
+* [[cpp_io]]
 == SVN ==
 * [[svn]]
 == GIT ==
@@ -26,6 +32,9 @@
 * [[tmux]]
 * [[ubuntu]]
 * [[xargs]]
+== MacOS ==
+* [[macos_plist]]
+*
 == Python ==
 * [[python_notes]]
 == VIM ==
@@ -75,6 +84,8 @@
 * [[connectRules]]
 * [[mdl]]
 *
+=== SQL ===
+* [[sqlite]]
 === Cadence Verilog ===
 * [[ams_compile]]
 * [[hdl_var_sample]]

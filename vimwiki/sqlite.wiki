@@ -1,0 +1,17 @@
+http://zetcode.com/db/sqlite/tool/
+sqlite3 peopleinfo.sql
+sqlite> CREATE TABLE peopleinfo(pplID integer primary key, firstname text, lastname text, age integer)
+   ...> ;
+sqlite> .tables
+sqlite> .separator ,
+sqlite> .import /Users/dans/geography.csv peopleinfo
+sqlite> SELECT * FROM peopleinfo
+sqlite> SELECT * FROM peopleinfo WHERE firstname="dan";
+sqlite> SELECT * FROM peopleinfo WHERE firstname LIKE "dan%";
+sqlite> SELECT * FROM peopleinfo WHERE firstname IN ('dan', 'bob');
+sqlite> INSERT INTO peopleinfo (pplID, firstname, lastname, age) VALUES (1011, "dan", "slov", 37);
+sqlite> INSERT OR REPLACE INTO peopleinfo VALUES(1011, "dans", "slovs", 38);
+sqlite> INSERT OR IGNORE INTO  peopleinfo VALUES(1011, "dans", "slovs", 38);
+sqlite> DELETE FROM peopleinfo WHERE pplID=1;
+sqlite> UPDATE Cars SET Name='Skoda Octavia' WHERE Id=3;
+sqlite> SELECT * FROM peopleinfo WHERE firstname="dan";
