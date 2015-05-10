@@ -9,7 +9,7 @@ set statusline+=        "                      "
 set statusline+=%h      " help buffer flag
 set statusline+=%m      " modified flag
 set statusline+=%r      " read only flag
-set statusline+=%#warningmsg#%{SyntasticStatuslineFlag()}%* " syntax warnings
+"set statusline+=%#warningmsg#%{SyntasticStatuslineFlag()}%* " syntax warnings
 set statusline+=%=%-14.(%l,%c%V%)\ %P
 
 " highlight status line file name
