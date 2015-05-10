@@ -2,3 +2,6 @@ view
 *.swp
 .DS_Store
 .netrwhist
+tags
+tags-ja
+bundle/ack/doc/tags bundle/command-t/doc/tags bundle/commentary/doc/tags bundle/fugitive/doc/tags bundle/gundo/doc/tags bundle/nerdtree/doc/tags bundle/session/doc/tags bundle/surround/doc/tags bundle/syntastic/doc/tags bundle/vim-misc/doc/tags bundle/vimux/doc/tags

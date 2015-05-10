@@ -114,10 +114,13 @@ $ git push origin master
     git commit -a -m "File nonsense.txt is now removed"
     # Alternatively you could add deleted files to the staging index via
     git add -A . 
-    git commit -m "File nonsense.txt is now removed"
+    git commit -m "File nonsense.t04. Ignoring Files-Ignoring tracked filesxt is now removed"
 === remove untracked files ===
 git clean -n    :shows what file may be cleaned
 git clean -f    :cleans all untracked files. DESTRUCTIVE
+=== Ignoring Files-Ignoring tracked files untracked files ===
+add file to .gitignore
+git rm --cached filename
 == git alias ==
 $ git config --global alias.show-graph 'log --graph --abbrev-commit --pretty=oneline'
 
@@ -125,7 +128,7 @@ $ git config --global alias.show-graph 'log --graph --abbrev-commit --pretty=one
 === undo working dir changes ===
 * simple case: changes in the working dir, rollback to the last commit:
 git checkout -- <file/dir name>     : -- is there only to to confuse with branch name
-git checkout <hash> -- <file/dir name>  : in case want to revert to some of older versions
+git checkout tree-ish -- <file/dir name>  : in case want to revert to some of older versions
 === unstage changes ===
 * let's say you added a file that isnt supposed to be commited
 git reset HEAD <file>     : unstages
@@ -137,33 +140,34 @@ git commit --ammend -m "some new message"
 === revert commit ===
 * basically takes a commit and UNDOs all the changes. ?? I need to be clear on this one
 * to me it seems the same as checkout
-git revert <hash> 
-git revert -in <hash>   # don't commit after revert
+git revert tree-ish 
+git revert -in tree-ish   # don't commit after revert
 === undo commits - reset ===
 * reset changes HEAD pointer
 --soft    :doesnt change staging index or working directory
 # it is pretty safe if we copy log before so we could get reset again to later commit
-git reset --soft <hash>   # all the later commits will just disapear from the log
+git reset --soft tree-ish   # all the later commits will just disapear from the log
 --mixed   :default. changes staging index and repo. Doesnt affect working dir
 --hard    :changes repo and makes working dir and staging index match the repo
-########### COMMIT ##############
-# refs and symrefs are in refs dir.
-# There could be 3 dirs in refs : tags (to hold tags), heads (to hold branches) and remotes.
-    .git/ref
-    .git/refs/ref
-    .git/refs/tags/ref
-    .git/refs/heads/ref
-    .git/refs/remotes/ref
-    .git/refs/remotes/ref/HEAD
-# example of getting rev-parse of some parent of the 2nd parent of the 2nd parent of grandgrandparent
-    $ git rev-parse master
-    $ git show-branch --more=35 | tail -15
-    $ git rev-parse master 
-# show to commits between -10 to -12:
+== navigating commits ==
+=== tree-ish objects ===
+HEAD
+^HEAD     : parent commit (^^HEAD, ^^^HEAD and so on)
+HEAD~1    : another way to point to parent commit
+git ls-tree <tree-ish>  : ls git commited files
+=== git log ===
+* show to commits between -10 to -12:
     $ git log --pretty=short --abbrev-commit master~12..master~10
--p prints the patch, or changes, introduced by the commit: 
+* -p prints the patch, or changes, introduced by the commit: 
     $ git log -1 -p 4fe86488
-show graph:
+* show just 3 commits (one line for each)
+    $ git log --oneline -3
+* use --since( --after), --before (--until)
+    $ git log --since="2 weeks ago" --until="3days ago"
+    $ git log --since=2.weeks --until=3.days
+* use filters (by author for example)
+    $ git log --author=dslov
+* show graph:
     $ gitk$ git checkout -b bug/pr-3
 
 ############# branch ################
@@ -195,10 +199,13 @@ show graph:
  
 
 == diff - show difference==
-* git diff                  :show diffs between work dir and repository
+* git diff treeish          :show diffs between work dir and repository (HEAD by default)
 * git diff --staged         :show diffs between working directory and staged index
 * git diff --cached         :show diffs between working directory and staged index
-git diff --cached <hash>    :the differences between the staged and the given commit.
+git diff --cached tree-ish    :the differences between the staged and the given commit.
+=== file diff ===
+git diff tree-ish filename  :the diff between the file in the working directory in in tree-ish
+git diff -w                 :ignore white spaces
 # using unix diff (diff -r will traverse two tree objects):
     $ diff -u initial rewrite
 # "git diff" shows the difference between your working directory and the index.
@@ -210,22 +217,15 @@ git diff --cached <hash>    :the differences between the staged and the given co
 # "git diff commit1 commit2" -  the differences between the two arbitrary commits.
 
 
-
-
-
-
-
-
-#### Merging:
+= Merge (merging branches) =
 $ git init 
 #Initialized empty Git repository in /tmp/conflict/.git/ 
 $ git config user.email "jdl@example.com" 
 $ git config user.name "Jon Loeliger"
-    $ cat > file 
+$ cat > file 
     Line 1 stuff 
     Line 2 stuff 
     Line 3 stuff ^D
-
 #Let’s create another commit on the master branch:
 $ cat > other_file 
 Here is stuff on another file! ^D 
@@ -262,7 +262,7 @@ Merge made by recursive.
 file |  1 + 1 files changed, 1 insertions(+), 0 deletions(-)
 
 
-#################### REMOTE #################
+= REMOTE =
 
 git fetch  - Retrieves objects and their related metadata from a remote repository
 git pull   - Like git fetch, but also merges changes into a corresponding branch
@@ -275,9 +275,34 @@ $ git branch -a
 git remote updates
 
 
+= submodules =
+https://chrisjean.com/git-submodules-adding-using-removing-and-updating/
+* add submodule
+git submodule add git@mygithost:billboard lib/billboard
+* init submodule
+git submodule init
+* update submodule
+git submodule update
+* remove submodule is AWKWARD
+edit .gitmodules, .git/config and then:
+git rm –cached [plugin path]
+
+= Git internals =
+== refs and symrefs are in refs dir ==
+# There could be 3 dirs in refs : tags (to hold tags), heads (to hold branches) and remotes.
+    .git/ref
+    .git/refs/ref
+    .git/refs/tags/ref
+    .git/refs/heads/ref
+    .git/refs/remotes/ref
+    .git/refs/remotes/ref/HEAD
+# example of getting rev-parse of some parent of the 2nd parent of the 2nd parent of grandgrandparent
+    $ git rev-parse master
+    $ git show-branch --more=35 | tail -15
+    $ git rev-parse master 
 
 
-####### git plumbing commands ###############
+== git plumbing commands ==
 # see the index content:
     $ git ls-files -s
 #capture index state (SHA1 of the tree)
