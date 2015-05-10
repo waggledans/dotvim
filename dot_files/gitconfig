@@ -1,0 +1,5 @@
+[user]
+	email = dan.slov@gmail.com
+	name = Dan Slov
+[core]
+	exludesfile = /Users/dans/.gitignore
