@@ -4,7 +4,7 @@ syntax on
 filetype plugin indent on
 
 "adds folder to the vim search path
-set path=.,/usr/include,/nfs/site/eda/data/disk0058/synopsys/vcsmx/G-2012.09/common/include,,
+set path=.,/usr/local/bin,/usr/include,,
 
 " prevent vim from adding that stupid empty line at the end of every file
 set noeol
@@ -30,7 +30,8 @@ set laststatus=2        " always show the status line
 set nolist
 
 "colorscheme vividchalk
-colorscheme default
+"colorscheme default
+colorscheme pablo
 "set background=dark
 
 " highlight spell errors
@@ -76,10 +77,6 @@ set smartindent
 
 " completion settings
 set cpt=.,k~/docs/dict,b,w,u
-ab ro for
-ab teh the
-ab pritn print
-ab arch architecture
 " omni completion settings
 "set ofu=syntaxcomplete#Complete
 
@@ -106,4 +103,4 @@ nmap d1p :.,.diffput<CR>
 
 "regex off workaround
 command! -nargs=1 S let @/ = escape('<args>', '\')
-nmap <Leader>S :execute(":S " . input('Regex-off: /'))<CR>
+nnoremap <Leader>S :execute(":S " . input('Regex-off: /'))<CR>

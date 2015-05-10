@@ -9,7 +9,8 @@ hi! link ShowMarksHLm LineNr
 let g:syntastic_enable_signs=1
 let g:syntastic_auto_loc_list=1
 let g:syntastic_disabled_filetypes = ['tcl', 'itcl']
-
+"snipMate
+"let g:snippets_dir variable
 "omni perl + autocomplete
 let g:acp_behaviorPerlOmniLength=0
 
@@ -83,3 +84,11 @@ let g:pyflakes_use_quickfix = 0
 map <leader>g :GundoToggle<CR>
 " pep8 can help to make sure the code is consistent across projects
 let g:pep8_map='<leader>8'
+"vimux mappings
+ " Compile and run the current cpp file 
+ nmap <Leader>vr :call VimuxRunCommand("clear; g++ -o my_file " . bufname("%") . "; ./my_file")<CR>
+ " Prompt for a command to run
+ nmap <Leader>vp :VimuxPromptCommand<CR>
+ nmap <Leader>vl :VimuxRunLastCommand<CR>
+ nmap <Leader>vi :VimuxInspectRunner<CR>
+

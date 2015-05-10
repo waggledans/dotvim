@@ -1,4 +1,0 @@
---langdef=skill
---langmap=skill:.il
---regex-skill=/^\s*[nml]*procedure(\s*(\w+)/\1/
-

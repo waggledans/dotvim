@@ -8,7 +8,7 @@ map Q gq
 nnoremap Y y$
 
 " toggle highlight trailing whitespace
-nmap <silent> <leader>s :set nolist!<CR>
+" nmap <silent> <leader>w :set nolist!<CR>
 
 " turn off magic ie disable regex search
 " nmap <leader>q :set nomagic<CR>
@@ -19,7 +19,7 @@ nmap <silent> <leader>s :set nolist!<CR>
 " Ctrl-N to disable search match highlight
 nmap <silent> <C-N> :silent noh<CR>
 
-" Ctrol-E to switch between 2 last buffers
+" Ctrl-E to switch between 2 last buffers
 nmap <C-E> :b#<CR>
 " ,e to fast finding files. just type beginning of a name and hit TAB
 nmap <leader>e :e **/
@@ -36,9 +36,9 @@ nmap <leader>N :cp<CR>
 set completeopt=menuone,preview
 
 " driving me insane this thing
-cnoremap W w
-cnoremap Q q
-cnoremap E e
+"cnoremap W w
+"cnoremap Q q
+"cnoremap E e
 "diffs:
 nmap du :diffupdate<CR>
 " One line get/put for gvimdiff

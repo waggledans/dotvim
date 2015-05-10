@@ -13,6 +13,7 @@ au! BufRead,BufNewFile *.perl	set filetype=perl
 au! BufRead,BufNewFile *.pl	set filetype=perl
 au! BufRead,BufNewFile *.proof set filetype=verilog
 au! BufRead,BufNewFile *.sh	set filetype=bash
+au! BufRead,BufNewFile *.bashrc	set filetype=bash
 au! BufRead,BufNewFile *.sv	set filetype=sv
 au! BufRead,BufNewFile *.tcl	set filetype=tcl
 au! BufRead,BufNewFile *.v	set filetype=sv
@@ -24,5 +25,9 @@ au! BufRead,BufNewFile *.xlt	set filetype=skill
 au! BufRead,BufNewFile *.vim	set filetype=vim
 au! BufRead,BufNewFile *.m	set filetype=matlab
 au! BufRead,BufNewFile *.mat	set filetype=matlab
+au! BufRead,BufNewFile *.c	set filetype=c
+au! BufRead,BufNewFile *.h	set filetype=c
+au! BufRead,BufNewFile *.cpp	set filetype=cpp
+au! BufRead,BufNewFile *.hpp	set filetype=cpp
 augroup END 
 

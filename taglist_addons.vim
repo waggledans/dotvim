@@ -14,3 +14,5 @@ let s:tlist_def_sv_settings = 'sv;a:access;b:always;c:assertion;' .
 "let tlist_skill_settings =  'skill;.il --langdef=skill --regex-skill=/^\\s*[nml]*procedure(\\s*(\\w+)/\\1/'
 "let tlist_skill_settings =  "scheme;langmap:scheme:.il"
 "let tlist_skill_settings = "skill;options:ctags-skill;f:/nfs/iil/disks/home12/dslov/.vim/skill.tags"
+set tags+=~/.vim/tags/cpp
+"ctags  --sort=1 --c++-kinds=+p --fields=+iaS --extra=+q --language-force=C++ -f cpp cpp_src
