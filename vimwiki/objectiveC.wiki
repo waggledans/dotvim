@@ -19,6 +19,14 @@
         println(name)
 * table view
     first add UITableViewDelegate as a parent class (the class inherited from)
+<<<<<<< HEAD
+=======
+** add outlet @property (weak, nonatomic) IBOutlet UITableView *tblPeople;
+** Make self the delegate and datasource of the table view.
+    self.tblPeople.delegate = self;
+    self.tblPeople.dataSource = self;
+
+>>>>>>> 99e7e29688223069b6a5f8c703c92b4d92a92609
     var cellContent = ["row1", "row2", "row3"]
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cellContent.count   //varContainingNumberOfRows

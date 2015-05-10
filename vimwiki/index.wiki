@@ -8,7 +8,7 @@
 == C/C++ programming ==
 * [[gcc]]
 * [[cpp_notes]]
-* gdb
+* [[gdb]]
 * [[cpp_containers]]
 * [[cpp_templates]]
 * [[cpp_io]]
@@ -33,9 +33,15 @@
 * [[tmux]]
 * [[ubuntu]]
 * [[xargs]]
+<<<<<<< HEAD
 * [[kernel]]
 == MacOS ==
 * [[macos_plist]]
+=======
+== MacOS ==
+* [[macos_plist]]
+*
+>>>>>>> 99e7e29688223069b6a5f8c703c92b4d92a92609
 == Python ==
 * [[python_notes]]
 == SQL ==
@@ -88,6 +94,8 @@
 * [[connectRules]]
 * [[mdl]]
 *
+=== SQL ===
+* [[sqlite]]
 === Cadence Verilog ===
 * [[ams_compile]]
 * [[hdl_var_sample]]

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 = SQL =
 * to save db to file from sqlite shell:
 ATTACH DATABASE my_file AS my_database
@@ -8,17 +9,27 @@ sqlite3 [[peopleinfo.sql]]
 ## I guess VARCHAR(255) and TEXT means pretty much the same, only TEXT isnt length bound
 ## other datatypes are:  REAL, 
 sqlite> CREATE TABLE peopleinfo(pplID INTEGER PRIMARY KEY ON CONFLICT ABORT AUTOINCREMENT, firstname TEXT, lastname VARCHAR(255) NOT NULL, age integer);
+=======
+http://zetcode.com/db/sqlite/tool/
+sqlite3 peopleinfo.sql
+sqlite> CREATE TABLE peopleinfo(pplID integer primary key, firstname text, lastname text, age integer)
+   ...> ;
+>>>>>>> 99e7e29688223069b6a5f8c703c92b4d92a92609
 sqlite> .tables
 sqlite> .separator ,
 sqlite> .import /Users/dans/geography.csv peopleinfo
 sqlite> SELECT * FROM peopleinfo
 sqlite> SELECT * FROM peopleinfo WHERE firstname="dan";
 sqlite> SELECT * FROM peopleinfo WHERE firstname LIKE "dan%";
+<<<<<<< HEAD
 isqlite> SELECT DISTINCT Customer FROM Orders WHERE Customer LIKE 'B%';  ### no duplicates
+=======
+>>>>>>> 99e7e29688223069b6a5f8c703c92b4d92a92609
 sqlite> SELECT * FROM peopleinfo WHERE firstname IN ('dan', 'bob');
 sqlite> INSERT INTO peopleinfo (pplID, firstname, lastname, age) VALUES (1011, "dan", "slov", 37);
 sqlite> INSERT OR REPLACE INTO peopleinfo VALUES(1011, "dans", "slovs", 38);
 sqlite> INSERT OR IGNORE INTO  peopleinfo VALUES(1011, "dans", "slovs", 38);
+<<<<<<< HEAD
 sqlite>ALTER TABLE "table_name" ADD "column_name" TEXT;
 #  So it seems it is fairly easy to insert a column at the the end.
 #  There is no good way to delete a column however:
@@ -48,3 +59,8 @@ sqlite> SELECT Name, Day FRCREATE TABLE peopleinfo(pplID INT AUTO_INCREMENT, fir
 3NF each attribute is directly dependent on superkey
 
 
+=======
+sqlite> DELETE FROM peopleinfo WHERE pplID=1;
+sqlite> UPDATE Cars SET Name='Skoda Octavia' WHERE Id=3;
+sqlite> SELECT * FROM peopleinfo WHERE firstname="dan";
+>>>>>>> 99e7e29688223069b6a5f8c703c92b4d92a92609

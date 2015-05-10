@@ -1,4 +1,4 @@
-= MYSQL =
+[[=]] MYSQL =
 ==DDL 	data definition language (define the model)==
 CREATE DATABASE tutorials;
 show databases;
