@@ -1,3 +1,10 @@
+= usefule flags =
+-c  compile only
+-Dmacro - define macro (also -Dmacro=value)
+-L  - add full path to library search path
+-l  - add .o or .so library (just give  a name like -lmath, the compiler will look for it in std lib search path)
+-E stop after preprocessing (to debug macros for example)
+-S stop after compilation
 = threads =
 gcc –g –o myprog myprog.c –lpthread
 = kernel =

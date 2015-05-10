@@ -1,0 +1,15 @@
+= Shortcuts = 
+* use control space to get snippets
+sysout  Ctrl+space  => System.out.println();
+syserr
+Command+Click - jump to definition 
+Ctrl + Shift + F  - format
+F3 open declaration
+Ctrl-Alt-Down: copies current line or selected lines to below
+Ctrl-Alt-Up:: copies current line or selected lines to above
+Ctrl-Shift-L: brings up a List of shortcut keys
+*
+Command-Shift-O:  add #import statement
+*
+Command+D -  delete the line
+Command-Option-Arrow: copy line

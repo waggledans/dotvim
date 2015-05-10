@@ -1,4 +1,5 @@
 http://lukaszwrobel.pl/blog/tmux-tutorial-split-terminal-windows-easily
+https://gist.github.com/andreyvit/2921703
 Ctrl+b " - split pane horizontally.
 Ctrl+b % - split pane vertically.
 Ctrl+b arrow key - switch pane.

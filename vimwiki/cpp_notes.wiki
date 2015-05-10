@@ -1,0 +1,193 @@
+= links =
+http://www.fredosaurus.com/notes-cpp/index.html
+= constructor, destructor, public etc =
+class Horse {
+private:
+  string name;
+protected:
+    float speed;
+public:
+    Horse(string name); //constructor
+    virtual Horse (const Horse& ); // copy constructor
+    virtual ~Horse();               // destructor
+    virtual Horse& operator=(const Horse& );
+    virtual void gallop();
+
+}
+* shorthand of writing method's body
+StackTemplate() : top(0) {}
+= virtuals =
+http://stackoverflow.com/questions/3970279/what-is-the-point-of-a-private-pure-virtual-function
+= assignment overloading =
+= operator overloading =
+Complx  operator+(const Complx & c) const {
+    return Complx(real + c.real, imag + c.imag);
+}
+Complx & operator=(const Complx &c) {
+    real = c.real;
+    imag = c.imag;
+    return *this;
+}
+friend ostream& operator<<(ostream &os, const Complx &c){
+	os << "(" << c.real << "," << c.imag << ")";
+	return os;
+}
+http://www.fredosaurus.com/notes-cpp/oop-overloading/overloadassign.html
+class Person {
+    private:
+        char* _name;
+        int   _id;
+    public:
+        Person& Person::operator=(const Person& p);
+    . . .
+}
+Person& Person::operator=(const Person& p) {
+    if (this != &p) {  // make sure not same object
+        delete [] _name;                     // Delete old name's memory.
+        _name = new char[strlen(p._name)+1]; // Get new space
+        strcpy(_name, p._name);              // Copy new name
+        _id = p._id;                         // Copy id
+    }
+    return *this;    // Return ref for multiple assignment
+}//end operator=
+== Overloading Derived Class Assignment == 
+If there is a parent (base) class, those fields must also be copied.
+You can accomplish this with the following cryptic statement,
+    this->Parent::operator=(source);
+    http://www.fredosaurus.com/notes-cpp/oop-overloading/overloadassign2.html
+= copy constructor =
+* Don't write a copy constructor if shallow copies are ok
+* If you need a copy constructor, you also need a destructor and operator=
+== Copy constructor syntax ==
+Point::Point(const Point& p) {
+    x = p.x;
+    y = p.y;
+}
+== copy constructor rules ==
+A copy constructor is called whenever a new variable is created from an object.
+This happens in the following cases (but not in assignment).
+
+* A variable is declared which is initialized from another object, eg,
+    Person q("Mickey"); // constructor is used to build q.
+    Person r(p);        // copy constructor is used to build r.
+    Person p = q;       // copy constructor is used to initialize in declaration.
+    p = q;              // Assignment operator, no constructor or copy constructor.
+* A value parameter is initialized from its corresponding argument.
+    f(p);               // copy constructor initializes formal value parameter.
+* An object is returned by a function.
+= override =
+#include <iostream>
+#include <stdio>
+class A {
+public:
+   A() { cout << "default constructor of class A" << endl;}
+   A(const A&) { cout << "copy constructor of class A" << endl;}
+   A& operator=(const A& orig) {
+         cout << "operator = of class A" << endl;
+         return *this;
+}   
+~A() {cout << "destructor of class A" << endl; } ;}
+class B :public A {
+public:
+   B() { cout << "default constructor of class B" << endl; }
+;}
+A a() {
+   cout << "function a"<< endl;
+   A tmp;
+   cout << "end of function a" << endl;
+   return(tmp);
+}￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼
+void main() {
+    cout<<"1"<<endl; cout << "2" << endl; cout<<"3"<<endl; 
+    cout<<"4"<<endl; cout << "5" << endl; cout<<"6"<<endl;
+    cout<<"7"<<endl; cout << "8" << endl; cout<<"9"<<endl;
+}
+/* Expected output:
+1
+function a
+default constructor of class A
+end of function a
+copy constructor of class A
+destructor of class A
+2
+default constructor of class A
+3
+copy constructor of class A
+4
+operator = of class A
+5
+6
+default constructor of class A
+default constructor of class A
+default constructor of class B
+7
+8
+destructor of class A destructor of class A
+9
+destructor of class A destructor of class A destructor of class A
+*/
+= sort array of objects =
+* in order to sort array containing Student object we need to overload '<' operator
+bool operator<(const Student& a, const Student& b) {
+    return a.score < b.score;
+}
+* having overloaded 'less than' we can call  sort function from include<algorithm>
+    int a[7] = {23, 1, 33, -20, 6, 6, 9};
+    sort(a, a+7); // sort takes an address of the first element and the last + 1
+    
+= const =
+* const data
+int const x = 5;
+const int y = 5;
+const int *p_int; // pointer to constant data 
+* const pointer
+int x;
+int * const p_int = &x;
+* const argument (reference)
+bool verifyObjectCorrectness (const myObj& obj); // the function will not change the object
+* const method
+int Loan::calcInterest() const {
+        return loan_value * interest_rate;  }
+* const return type
+http://www.bogotobogo.com/cplusplus/object_returning.php
+* const iterator
+std::vector<int> vec;
+vec.push_back( 3 );
+vec.push_back( 4 );
+vec.push_back( 8 );
+for ( std::vector<int>::const_iterator itr = vec.begin(), end = vec.end(); 
+      itr != end;  ++itr ) {
+        std::cout<< *itr <<std::endl;// just print out the values...
+}
+* const cast (cast away constness)
+bad_strlen( const_cast<char *>(x) );
+
+= lambda functions =
+return_type outer_function_name (int a, float b /* outer function */
+  return_type (*parm_function) /* asterisk in parentheses indicates pointer to a function */ (int parm_parm, float bb),  // inner parms
+  other outer parms); // end of outer function declaration
+[[example:]]
+int CreateButton (
+  int (*callback) (EventInfo &)) {
+  EventInfo event = .... // 
+    if(event.IsMine(windowEvent.position))    
+    { /* repaint */
+    int m = (*callback)(event); //dereference the parameter function and pass it the argument
+    }
+}
+* mutable keyword means that the class member may be changed even by const method without triggering a compile error
+* using c with c++
+#ifdef __cplusplus
+extern "C" {
+#endif
+// C code goes here    
+#ifdef __cplusplus
+}
+#endif
+* predefined macros
+__LINE__  current line
+__FILE__  current source code file name
+__DATE__  current date string "MMmm dd yyyy"
+__TIME__  current time string "hh:mm:ss"
+__cplusplus long integer
+

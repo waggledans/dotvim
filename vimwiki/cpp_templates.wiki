@@ -1,0 +1,28 @@
+* function templates
+** one typename variable example
+template <typename T> T larger (const T &lhs, const T &rhs) {
+if (lhs > rhs) return lhs;
+else return rhs;
+}
+cout << larger<int>(3, 300) << endl;
+** two typename variable example with default values
+template <typename T1=int, typename T2=int> T1 f1(T2 &v1, const T2 &v2) {
+v1 += v2;
+return (T1)v2;
+}
+//usage
+double a1 = f1<double>(12.5, 11);
+int a2 = f1<>(12,11);
+* class templates
+** define/modify
+template <typename T1, typename T2> 
+struct tuple {
+    T1 first; T2 second;
+    tuple(T1 f, T2 s): first(f), second(s) { };
+    void print (ostream &out);
+};
+template <typename T1, typename T2> void tuple<T1,T2>::print(ostream &out) { out << first << ':' << second << endl;
+//usage
+tuple<int, double> t1 (99.8, 87);
+t1.print(cout);
+** template specialization

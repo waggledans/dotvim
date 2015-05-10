@@ -1,0 +1,16 @@
+* having hello_world.c file.
+** compile it: gcc -o hello hello_world.c
+** file hello  would show that it's ELF executable
+** ldd hello  would show that hello is linked to libc.so.6
+** disassemble hello:
+objdump -d hello (otool -tV hello for Mac) 
+objdump -s -j .rodata   would show rodata section code
+** rewrite hello_world to use syscall instead of printf:
+and compile it with static flag to include syscall function
+#include<sys/syscall.h>
+#include<unistd.h>
+int main(void) {
+syscall(SYS_write, 1, "Hello World!\n", 14);
+syscall(SYS_exit, 0);
+}
+* generate ass file  gcc -S  hello.c

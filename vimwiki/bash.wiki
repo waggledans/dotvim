@@ -1,4 +1,17 @@
 ##############  BASH #########
+###  terminal prompt
+# h is the host name, w the complete path 
+export PS1="\h:\w$ "
+host_name:current_directory_path$
+You can also modify my example by using the following options in the export command:
+\d – Current date
+\t – Current time
+\h – Host name
+\# – Command number
+\u – User name
+\W – Current working directory (i.e: Desktop/)
+\w – Current working directory, full path (i.e: /Users/Admin/Desktop)
+
 #### bash scripting #######################
 ###  arguments parsing:
 # 

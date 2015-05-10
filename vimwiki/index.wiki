@@ -3,15 +3,22 @@
 * [[android]]
 == CVS ==
 * [[cvs]]
+== haskell programming ==
+* [[haskell_basics]]
 == C/C++ programming ==
 * [[gcc]]
+* [[cpp_notes]]
 * gdb
+* [[cpp_containers]]
+* [[cpp_templates]]
+* [[cpp_io]]
 == SVN ==
 * [[svn]]
 == GIT ==
 * [[git_howtos]]
 * [[git_add_empty_dir]]
 == LINUX ==
+* [[linux_programming]]
 * [[ack]]
 * [[apt-get]]
 * [[bash]]
@@ -26,8 +33,14 @@
 * [[tmux]]
 * [[ubuntu]]
 * [[xargs]]
+* [[kernel]]
+== MacOS ==
+* [[macos_plist]]
 == Python ==
 * [[python_notes]]
+== SQL ==
+* [[sql_mysql]]
+* [[sqlite]]
 == VIM ==
 * [[vim_howtos]]
 * [[vimdiff]]

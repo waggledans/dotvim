@@ -1,0 +1,96 @@
+* vectors
+** declaration
+vector<type> variable;
+vector<type> variable (initial_size, initial_value);
+v.push_back(new_value);
+** access
+variable[0] or variable.at(0), front(), back()
+*** iterator
+vector<double>::iterator it;
+for( it = v1.begin(); it < v1.end(); it++ ) { *it = some_new_double_value; }
+vector<double>::reverse_iterator it;
+for( it = v1.rbegin(); it < v1.rend(); it++ ) { *it = some_new_double_value; }
+begin() <=> rbegin()
+*** test
+variable.empty()  - returns true if the vector is empty
+** information
+size()
+,capacity()
+max_size()
+resize(size)
+reserve()
+** modify 
+push_back(element) - adds an element to the end
+pop_back()
+insert(a.begin()+n, new_element)  - insert at n-th position
+erase(position)
+erase(first, last)
+clear()
+assign(n, value)    - sets first n elements to value
+
+* List
+#include <list>
+** declaration
+list<T>v; list<T>v(n,val);list<T>v(some_other_list); 
+list<int> variable = list <int> l;
+** modify
+merge (otherList) or merge (otherList, lessFunc)
+splice(position, list)   - move in another list
+reverse()   - reverse the list order
+sort()
+sort(lessFunc)
+remove_if(func) - remove values that satisfy the function
+unique()  make the list uniq
+unique(func)  make the list uniq
+* deque
+#include <deque>
+insertion in the middle is more efficient than vector but less than list
+** modify
+push_front(value)
+pop_front
+* stack
+#include <stack>
+empty()
+size()
+top() - returns the ref to the tos
+push(value)
+pop()
+* queue
+#include <queue>
+front() ref to the first element
+back() ref to the last element
+push(value) - push the value to the end of the line
+pop()       - get the first element
+* pairs
+#include <utility> 
+pair <string, double>val("myKey", 998.0); // val.first, val.second
+// if mySet is an integer set then we can try to insert a new element by using a pair
+// where set_ins.first will point to the element in the set and set_ins.second will tell if the 
+//  element was inserted (true) or existed before (false)
+pair<set<int>::iterator,bool> set_ins = mySet.insert(170);
+* sets
+#include <set>
+#include <multiset>
+#include <utility>
+* modify
+set<T>v;  // empty set
+set<T, compClass>v; // compClass is a custom comparison class
+* maps
+#include <map>
+#include <multimap>
+#include <utility>
+** modify
+map<Key, T>v;
+map<Key,T, CompClass>v
+insert(pair<Key,T>(key,value))
+* comparison class example
+// struct is just like class only methods default to public
+struct even_before_odd {
+    bool operator() (const int& a, const int& b) const {
+    if (a%2==0 and b%2==1) return true;
+    else if (a%2==1 and b%2==0) return false;
+    else return a<b;
+    }
+}
+set<int, even_before_odd>sebo;
+sebo.insert(300);

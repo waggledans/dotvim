@@ -1,11 +1,15 @@
 = my old howtos =
-# configuring git:
+== git architecture and general ==
+git has 3 trees: repo, staged area and working directory
+HEAD points to tip of current branch repo
+MASTER branch is 
+== configuring git ==
 git config --global user.name "Dan Slov"
 git config --global user.email "dan.slov@gmail.com"
 git config --global credential.helper cache
 git config --global credential.helper 'cache --timeout=3600'
 
-# SSH keys
+== SSH keys ==
 cd ~/.ssh
 ssh-keygen -t rsa -C "your_email@example.com"
 # Downloads and installs xclip
@@ -61,12 +65,14 @@ commit for the first time:
     $ git add .
 Or alternatively in this case where there is just one file:
     $ git add README
+== unstage file ==
 If you changed your mind and want to unstage the file
     $ git rm --cached README
 or after the commit you may just remove the file from both the index and workdir
     $ git rm README
 To recover old versions of files
     $ git checkout HEAD -- file_name
+== move files ==
 To move files. The following to things are equivalent:
     $ mv stuff newstuff 
     $ git rm stuff 
@@ -75,8 +81,10 @@ or
     $ git mv stuff newstuff
 
 ###############################
-
+== commit ==
     $ git commit -m 'first commit'
+* adding -a also adds all KNOWN files    
+    $ git commit -am 'first commit'
 or with more details
     git commit -a -m "swp removed" --author="Dan Slov <dan.slov@gmail.com>"
 # to edit the commit message: git commit --amend -m "new commit message"
@@ -86,15 +94,15 @@ copy the hash line and then:
     $git show 7f43a89c39928edba461a0be72aa7f2e51e2d93e
 To see development branch:
     git show-branch --more=10
-Create tag:
+== Create tag ==
     $ git tag -m"Tag version 1.0" V1.0 3ede462
 Checkout files:
 
-
+== push to github ==
 $ git remote add origin git@github.com:username/Hello-World.git
 $ git push origin master
 
-to remove file:
+== remove file ==
     # Create a file and put it under version control
     touch nonsense.txt
     git add . && git commit -m "a new file has been created"
@@ -107,10 +115,37 @@ to remove file:
     # Alternatively you could add deleted files to the staging index via
     git add -A . 
     git commit -m "File nonsense.txt is now removed"
-git alias:
+=== remove untracked files ===
+git clean -n    :shows what file may be cleaned
+git clean -f    :cleans all untracked files. DESTRUCTIVE
+== git alias ==
 $ git config --global alias.show-graph 'log --graph --abbrev-commit --pretty=oneline'
 
-
+== git undo changes ==
+=== undo working dir changes ===
+* simple case: changes in the working dir, rollback to the last commit:
+git checkout -- <file/dir name>     : -- is there only to to confuse with branch name
+git checkout <hash> -- <file/dir name>  : in case want to revert to some of older versions
+=== unstage changes ===
+* let's say you added a file that isnt supposed to be commited
+git reset HEAD <file>     : unstages
+=== ammend commits ===
+* only the very last commit can be modified
+a) first add your changes to index
+git add <file(s)>
+git commit --ammend -m "some new message"
+=== revert commit ===
+* basically takes a commit and UNDOs all the changes. ?? I need to be clear on this one
+* to me it seems the same as checkout
+git revert <hash> 
+git revert -in <hash>   # don't commit after revert
+=== undo commits - reset ===
+* reset changes HEAD pointer
+--soft    :doesnt change staging index or working directory
+# it is pretty safe if we copy log before so we could get reset again to later commit
+git reset --soft <hash>   # all the later commits will just disapear from the log
+--mixed   :default. changes staging index and repo. Doesnt affect working dir
+--hard    :changes repo and makes working dir and staging index match the repo
 ########### COMMIT ##############
 # refs and symrefs are in refs dir.
 # There could be 3 dirs in refs : tags (to hold tags), heads (to hold branches) and remotes.
@@ -143,7 +178,7 @@ show graph:
     $ git log -p master..bug/pr-1
 # checkout some particular branch
     $ git checkout bug/pr-1
-# if there are some mdoified files in the workarea git will attempt
+# if there are some modified files in the workarea git will attempt
 # to merge with the checked out files if -m flag is specified:
     $ git checkout -m dev 
         M NewStuff 
@@ -155,16 +190,20 @@ show graph:
     $ git branch -d bug/pr-3
 # you can recover an accidentally deleted branch by using the 
     $ git reflog
-# Other commands: such as git fsck, and configuration options, such as gc.reflogExpire and gc.pruneExpire, can also help
+# Other commands: such as git fsck, and configuration options, such as gc.reflog,
+  Expire and gc.pruneExpire, can also help
  
 
-############# diff ################
+== diff - show difference==
+* git diff                  :show diffs between work dir and repository
+* git diff --staged         :show diffs between working directory and staged index
+* git diff --cached         :show diffs between working directory and staged index
+git diff --cached <hash>    :the differences between the staged and the given commit.
 # using unix diff (diff -r will traverse two tree objects):
     $ diff -u initial rewrite
 # "git diff" shows the difference between your working directory and the index.
 # "git diff commit" - the differences between your working directory and the given commit.
 #       Common variants of this command name HEAD or a particular branch name as the commit.
-# "git diff --cached commit" - the differences between the staged changes in the index and the given commit.
 #   A common commit for the comparison—and the default if no commit is specified—is HEAD. 
 #   With HEAD, this command shows you how your next commit will alter the current branch.
 #   If the option --cached doesn’t make sense to you, perhaps the synonym --staged will. in Git version 1.6.1 and later.
@@ -187,7 +226,6 @@ $ git config user.name "Jon Loeliger"
     Line 2 stuff 
     Line 3 stuff ^D
 
-$ git add file $ git commit -m"Initial 3 line file" Created initial commit 8f4d2d5: Initial 3 line file 1 files changed, 3 insertions(+), 0 deletions(-) create mode 100644 file
 #Let’s create another commit on the master branch:
 $ cat > other_file 
 Here is stuff on another file! ^D 

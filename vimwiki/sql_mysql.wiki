@@ -1,0 +1,72 @@
+= MYSQL =
+==DDL 	data definition language (define the model)==
+CREATE DATABASE tutorials;
+show databases;
+USE tutorials;
+CREATE TABLE peopleinfo(pplID INT AUTO_INCREMENT, firstname TEXT, lastname VARCHAR(255) NOT NULL, age integer, CONSTRAINT peopleinfo_pk PRIMARY KEY(pplID));
+CREATE TABLE tutorials(ID INT NOT NULL AUTO_INCREMENT, TITLE varchar(255),
+author_id INT NOT NULL, content TEXT, date_create DATE, 
+CONSTRAINT tutorial_pk PRIMARY KEY (id) , CONSTRAINT author_fk FOREIGN KEY (author_id) references authors(id));
+=== Rename table ===
+show tables; 
+ALTER TABLE tutorials RENAME lectures;
+=== Add column ===
+ALTER TABLE lectures ADD rating VARCHAR(100);
+=== remove column ===
+ALTER TABLE lectures DROP rating;
+=== modify column (rename or change type) ===
+ALTER TABLE lectures CHANGE firstname firstName TEXT;
+show tables; 
+=== add foreign key attribute ===
+ALTER TABLE tutorials ADD CONSTRAINT FK_peopleinfo
+FOREIGN KEY (author_id) REFERENCES peopleinfo (pplID) ON UPDATE CASCADE;
+================================================================================
+== DML	data manipulation language (update, insert, delete) ==
+INSERT INTO tutorials(title, author_id, published) VALUES("Some tut", 4, '2013-06-14');
+
+=== Modify records ===
+UPDATE Employees SET FirstName = 'Johnny', LastName='Do'
+WHERE FirstName='John' and LastName = 'Doe' 
+=== Delete set of records ===
+DELETE FROM Employees WHERE YEAR(BirthDate) > YEAR (TODAY(*)) - 16;
+=== VIEW ===
+CREATE VIEW jeffreys_tuts AS (SELECT * from tutorials WHERE author_id = 1);
+                  
+dump database into file:
+--databases db1
+================================================================================
+== SELECT QUERIES ==
+SELECT YEAR(getdate()) - YEAR(BirthDate) AS 'AGE'
+
+* DISTINCT returns distinct records only
+
+SELECT DISTINCT rowid AS Whatever, query, item  FROM _RunInfo R
+WHERE  
+R.rowid>'1' AND R.rowid<'3'   OR    R.rowid  IN ('6','7') OR  R.rowid BETWEEN '4' AND '6'
+
+SELECT DISTINCT rowid as Whatever, query, item
+FROM _RunInfo R
+where R.rowid like '%L%'
+# like 'R%___M_%'     underscore symbol is like ? in globs and % is like *.  
+
+=== Aggregation ===
+* SUM, AVG, COUNT
+* MAX/MIN
+
+SELECT SUM(UnitPrice*UnitsStock) FROM Products;
+SELECT MAX(BirthDate) FROM EMPLOYEES;
+SELECT AVG(UnitPrice) FROM [Order Details]
+WHERE OrderID = 10248;
+
+# Crazy long query where u want to find the name of the city that has max number of employees. The query uses 2 nested queries that use aggregation
+
+SELECT City 
+FROM (
+SELECT CITY, COUNT (*) NumOfEmpPerCity
+FROM Employees
+GROUP BY City) TotalEmpInCity
+WHERE  NumOfEmpPerCity = (SELECT MAX (NumOfEmpPerCity)
+				FROM ( 	
+SELECT CITY, COUNT (*) NumOfEmpPerCity
+FROM Employees
+GROUP BY City) TotalEmpInCity)

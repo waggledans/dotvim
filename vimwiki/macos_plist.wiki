@@ -1,0 +1,8 @@
+* add debug menu to iCal
+defaults write com.apple.iCal IncludeDebugMenu 1
+* safari tweaking
+For example, bookmarks plist is here:
+ ~/Library/Safari/Bookmarks.plist.
+ Convert it to text format:
+ plutil -convert xml1 ~/Library/Safari/Bookmarks\ copy.plist
+

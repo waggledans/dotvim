@@ -1,0 +1,23 @@
+* input stream
+** cin
+** ifstream, istringstream
+** open(), is_open(), close()
+** getline(buffer)  // char [200] buffer
+** ignore
+* output stream
+** cout, cerr, clog
+** ofstream, ostringstream
+good(),eof(),fail(), bad()
+rdstate()  - read current flags
+setstate() - set current flags
+clear()    - clear all flags
+** flush(), write(), put()
+* example
+int main() {
+  ifstream in("Scopy.cpp"); // Open for reading
+  ofstream out("Scopy2.cpp"); // Open for writing
+  string s;
+  while(getline(in, s)) // Discards newline char
+    out << s << "\n"; // ... must add it back
+} ///:~
+

@@ -1,0 +1,71 @@
+= IDE =
+/Users/dans/Programming/adt-bundle-mac-x86_64-20131030-1/sdk/tools/emulator -avd Nexus_5_AVD_22 -netspeed full -netdelay none
+= resources =
+* assets folder 
+AssetManager manager = getAssets();
+InputStream is = manager.open("filename.txt");
+= Activity =
+startActivity(Intent intent)
+startActivityFromChild(Activity child, Intent intent, int
+requestCode)
+startActivityIfNeeded(Intent intent, int requestCode)
+startNextMatchingActivity(Intent intent)
+== startActivityForResult(Intent intent, int requestCode) ==
+If the sub-activity is finished, it can send data back to its caller via an Intent. 
+This is done in the finish() method.
+@Override
+public void finish() {
+  // Prepare data intent 
+  Intent data = new Intent();
+  data.putExtra("returnKey1", "Swinging on a star. ");
+  data.putExtra("returnKey2", "You could be better then you are. ");
+  // Activity finished ok, return the data
+  setResult(RESULT_OK, data);
+  super.finish();
+} 
+Once the sub-activity finishes, the onActivityResult() method in the calling activity is called.
+
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+  if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+    if (data.hasExtra("returnKey1")) {
+      Toast.makeText(this, data.getExtras().getString("returnKey1"),
+        Toast.LENGTH_SHORT).show();
+    }
+  }
+} 
+
+  
+= Maps =
+* maps
+String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?saddr=%f,%f(%s)&daddr=%f,%f (%s)", sourceLatitude, sourceLongitude, "Home Sweet Home", destinationLatitude, destinationLongitude, "Where the party is at");
+Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+startActivity(intent);
+
+To use your current location as the starting point:
+
+String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", destinationLatitude, destinationLongitude, "Where the party is at");
+Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+startActivity(intent);
+if the user doesn't have the maps app installed:
+String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?daddr=%f,%f (%s)", 12f, 2f, "Where the party is at");
+Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+try
+{
+    startActivity(intent);
+}
+catch(ActivityNotFoundException ex)
+{
+    try
+    {
+        Intent unrestrictedIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        startActivity(unrestrictedIntent);
+    }
+    catch(ActivityNotFoundException innerEx)
+    {
+        Toast.makeText(this, "Please install a maps application", Toast.LENGTH_LONG).show();
+    }
+}

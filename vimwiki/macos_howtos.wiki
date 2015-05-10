@@ -1,0 +1,2 @@
+Change host name as it is displayed in terminal window
+sudo scutil --set HostName name-you-want

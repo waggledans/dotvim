@@ -8,25 +8,21 @@ global name
 * global declaration makes function to look for a variabe in enclosing scope
 = data types =
 boolean True, False
-integer
-long
-float
-string
-list
-tuple
-dictionary
-object
-None
-array
+integer, long, float, string, list, tuple, dictionary
+object, None, array
 == very basic script ==
 ui = input(“Enter a number: “)
 print (“The data type is originally”, (type(ui)))
 uconv = int (ui)
 print (“Now the d.t. is”, (type (uconv)))
-power = uconv ** 8
+power = uciikonv ** 8
 print (ui, “raised to the 8th power is: “, power)#note the comma to separate literals from vars
 ##
+* cool dev
 def wiper ():
+>>> import re
+>>> match = re.match('Hello[ \t]*(.*)world', 'Hello Python world') >>> match.group(1)
+'Python '
 = tuples =
 # tuples are immutable, ordered.
 # len (some_tuple) 
@@ -56,23 +52,13 @@ def Sum():
    b = a + b
 Sum()
 print(b)
-#
-Arithmatic: +, -, *, /, and % (modulus)
-Comparison: ==, !=, <, >, <=, >=
-Logical: and, or, not
-Exponentiation: **
-Execution: os.system('ls -l')
-#Requires import os
+# 
 #
 = = strings = 
 * strings are immutable 
 * String Slicing
   s = "Go Gators! Come on Gators!"
-  x = s[0]  # x = "G"
-  x = s[3:9] #x = "Gators"
-  x = s[:2] #x = "Go"
-  x = s[19:] #x = "Gators!"
-  x = s[-7:-2] #x = "Gator"
+  x = s[0]  # x = "G" or  x = s[3:9] #x = "Gators" or x = s[:2] #x = "Go" or x = s[19:] #x = "Gators!"
 * count substring occurances
   x = s.count("Gator") #x = 2
 * endswidth(sub [,start[,end]]): returns true if the string ends with the substr:
@@ -83,7 +69,7 @@ int find(sub [,start[,end]]): returns the numeric position of the first occuranc
 * join / split
 string join(array): combines elements of the string array into a single string and returns it. 
 The separator between elements is the string providing this method.
-  a = ['abc','def','ghi']
+  a = ['abc','def','ghi']sys.arg
   t = "--"
   x = t.join(a) #x = abc--def--ghi 
   '\n'.join(a)	# 'abc\ndef\nghi\n'
@@ -100,17 +86,41 @@ int rfind(sub [,start[,end]]): same as find but returns the numeric position of 
 boolean startswidth(sub [,start[,end]]): returns true if the string starts with the specified substring and false otherwise:
   x = s.startswith("Go") #x = True
 string strip([chars]): returns a copy of the string with leading and trailing characters removed. If chars (a string) is not specified, leading and trailing whitespace is removed.
+  line.rstrip()   strips trailing whitespace
+* formatted strings
+ame = 'marcog'
+number = 42
+print '%s %d' % (name, number)
+# first define dictionary
+# these strings below expect a dictionary after
+# "something %(key_name)s blah-blah" % dictionary
+LIGHT_MESSAGES = {
+    'English': "There are %(number_of_lights)s lights.",
+    'Pirate':  "Arr! Thar be %(number_of_lights)s lights." #this string expects a dictionary
+}
+def lights_message(language, number_of_lights):
+    return LIGHT_MESSAGES[language] % locals()
+= regex = 
+* Group matching
+>>> import re
+>>> match = re.match('Hello[ \t]*(.*)world', 'Hello Python world') >>> match.group(1)   ==> 'Python '
 = HASH DICTIONARY = 
+adict = {}
+adict["one"] = "uno"
 adict = {‘one’:’uno’, ‘two’:’dos’}
 print (adict[‘one’])	  # -> uno
 * the problem with adict[‘one’] is that it will return error if not defined
 * adict.get('one') will return None if not defined
 adict.keys()
+keys = sorted(adict.keys()) # sorted keys
 adict.values()
 adict.items()		      # returns tuples (key, value)
 if 'key' in adict:     # check that the key is in the hash  
 len (adict)	#will return the number of pairs, 2 in this case
 adict.pop(‘two’)		#will pop the pair with the key ‘two’
+del adict('one')  # deletes key-value pair from the dictionary
+* iterating over the dictionary:
+for key in adict:
 = LIST ARRAY =
 == shallow copy vs deep copy ==
 * shallow copy:
@@ -343,16 +353,25 @@ where(expr, 1, 0): Similar to the IDL where function. Returns an array of the sa
   	[1 1 1]]
    print compress(c,a)
   -> [6 9 4 7 4 8]
- 
-
+= locals globals =
+http://www.diveintopython.net/html_processing/locals_and_globals.html
+# locals returns dictionary of name,value of local to function variables
+def unknown_starttag(self, tag, attrs):
+    strattrs = "".join([' %s="%s"' % (key, value) for key, value in attrs])
+    self.pieces.append("<%(tag)s%(strattrs)s>" % locals())
+# the function above requires an explanation perhaps, see string formatting above
+if __name__ == "__main__":
+    for k, v in globals().items():             1
+        print k, "=", v
+        
 = CONDITION =
 == if/else/elif ==
 if choice==1: 
     print(x + y)
 elif choice==2: 
-  print(x - y)
+    print(x - y)
 else:
-  print(x * y)
+    print(x * y)
   
 = LOOPS =
 s = input("Please type some characters and press enter:")
@@ -383,6 +402,9 @@ except ValueError: # This try-except catches only ValueErrors
 except ZeroDivisionError: # This try-except catches only zero division 
 except:                   # This try-except catches everything
 = MODULE =
+* import module_name # no .py extension
+* execute module # unlike import that executes module in its namespace, exec overides local vars
+exec(open('script1.py').read())
 * import sys
   - sys.argv is equivalent to $@ in bash
   - argv[0] is a script name
@@ -418,5 +440,7 @@ os.path.split(os.path.abspath("."))[0]      # the current path "." is expanded t
 import sys
 sys.path.append("/home/me/mypy")
 
-
+== Executing shell commands ==
+Execution: os.system('ls -l')
+#Requires import os
 

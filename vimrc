@@ -1,6 +1,7 @@
 "call pathogen#runtime_append_all_bundles()
 runtime plugin/unbundle/unbundle.vim
 source ~/.vim/global.vim
+source ~/.vim/abreviations.vim
 source ~/.vim/filetype.vim
 source ~/.vim/status.vim
 source ~/.vim/settings.vim

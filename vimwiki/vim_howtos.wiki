@@ -252,6 +252,8 @@ matchit.vim         : % now matches tags <tr><td><script> <?php etc
 :syntax on          : colour syntax in Perl,HTML,PHP etc
 :h regexp<C-D>      : type control-D and get a list all help topics containing
                       regexp (plus use TAB to Step thru list)
+= math expression evaluate =                      
+Ctrl-R=             : In insert mode, allows to evaluate math expression 3+2
 ----------------------------------------
 " MAKE IT EASY TO UPDATE/RELOAD _vimrc
 :nmap ,s :source $VIM/_vimrc
@@ -397,6 +399,8 @@ u@.              : execute command JUST typed in
 :sort /.*\%2v/   : sort all lines on second column *N*
 ----------------------------------------
 = Multiple Files Management (Essential) =
+,b`              : Open left pain with list of open files/buffers 
+:ls              : list all existing buffers 
 :bn              : goto next buffer
 :bp              : goto previous buffer
 :wn              : save file and move to next (super)
@@ -531,13 +535,14 @@ gvim ftp://www.somedomain.com/index.html # uses netrw.vim
 " also
 >% and <%
 ----------------------------------------
-" Redirection & Paste register *
+= Redirection & Paste register =
 :redir @*                    : redirect commands to paste buffer
 :redir END                   : end redirect
 :redir >> out.txt            : redirect to a file
 " Working with Paste buffer
 "*yy                         : yank to paste
 "*p                          : insert from paste buffer
+Ctrl-R"                      : Paste in command line (" is a default reg, but any other can be used)
 " yank to paste buffer (ex mode)
 :'a,'by*                     : Yank range into paste
 :%y*                         : Yank whole buffer into paste
@@ -617,6 +622,7 @@ In regular expressions you must backslash { (count)
 /codes\(\n\|\s\)*where  : normal regexp
 /\vcodes(\n|\s)*where   : very magic
 ----------------------------------------
+
 " pulling objects onto command/search line (SUPER)
 <C-R><C-W> : pull word under the cursor into a command line or search
 <C-R><C-A> : pull WORD under the cursor into a command line or search
@@ -647,7 +653,7 @@ qaq              : empty register "a"
 :let @*=@/              : copy last search to paste buffer
 :let @*=@%              : copy current filename to paste buffer
 ----------------------------------------
-" help for help (USE TAB)
+= help for help (USE TAB) =
 :h quickref             : VIM Quick Reference Sheet (ultra)
 :h tips                 : Vim's own Tips Help
 :h visual<C-D><tab>     : obtain  list of all visual help topics

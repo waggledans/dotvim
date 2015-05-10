@@ -1,0 +1,50 @@
+= SQL =
+* to save db to file from sqlite shell:
+ATTACH DATABASE my_file AS my_database
+.database
+CREATE DATABASE
+http://zetcode.com/db/sqlite/tool/
+sqlite3 [[peopleinfo.sql]]
+## I guess VARCHAR(255) and TEXT means pretty much the same, only TEXT isnt length bound
+## other datatypes are:  REAL, 
+sqlite> CREATE TABLE peopleinfo(pplID INTEGER PRIMARY KEY ON CONFLICT ABORT AUTOINCREMENT, firstname TEXT, lastname VARCHAR(255) NOT NULL, age integer);
+sqlite> .tables
+sqlite> .separator ,
+sqlite> .import /Users/dans/geography.csv peopleinfo
+sqlite> SELECT * FROM peopleinfo
+sqlite> SELECT * FROM peopleinfo WHERE firstname="dan";
+sqlite> SELECT * FROM peopleinfo WHERE firstname LIKE "dan%";
+isqlite> SELECT DISTINCT Customer FROM Orders WHERE Customer LIKE 'B%';  ### no duplicates
+sqlite> SELECT * FROM peopleinfo WHERE firstname IN ('dan', 'bob');
+sqlite> INSERT INTO peopleinfo (pplID, firstname, lastname, age) VALUES (1011, "dan", "slov", 37);
+sqlite> INSERT OR REPLACE INTO peopleinfo VALUES(1011, "dans", "slovs", 38);
+sqlite> INSERT OR IGNORE INTO  peopleinfo VALUES(1011, "dans", "slovs", 38);
+sqlite>ALTER TABLE "table_name" ADD "column_name" TEXT;
+#  So it seems it is fairly easy to insert a column at the the end.
+#  There is no good way to delete a column however:
+    BEGIN TRANSACTION;
+    CREATE TEMPORARY TABLE t1_backup(a,b);
+    INSERT INTO t1_backup SELECT a,b FROM t1;
+    DROP TABLE t1;
+    CREATE TABLE t1(a,b);
+    INSERT INTO t1 SELECT a,b FROM t1_backup;
+    DROP TABLE t1_backup;
+    COMMIT;
+sqlite> DELETE FROM peopleinfo WHERE pplID=1;
+sqlite> UPDATE Cars SET Name='Skoda Octavia' WHERE Id=3;
+sqlite> SELECT * FROM peopleinfo WHERE firstname="dan";
+* INNER JOIN
+sqlite> SELECT Name, Day FROM Customers, Reservations
+        WHERE Customers.CustomerId = Reservations.CustomerId;
+* NATURAL INNER JOIN
+sqlite> SELECT Name, Day FROM Customers NATURAL JOIN Reservations;
+* LEFT OUTER JOIN
+sqlite> SELECT Name, Day FRCREATE TABLE peopleinfo(pplID INT AUTO_INCREMENT, firstname TEXT, lastname VARCHAR(255) NOT NULL, age integer, CONSTRAINT peopleinfo_pk PRIMARY KEY(pplID));OM Customers LEFT JOIN Reservations
+   ...> USING (CustomerId);
+
+= NOTES =
+1NF says that all fields are atomic ie each field contains just 1 value of its type, not a list
+2NF says that no record depends on subset of candidate key (it's about composite primary key)
+3NF each attribute is directly dependent on superkey
+
+

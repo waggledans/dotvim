@@ -74,3 +74,10 @@ call RunVimTmuxCommand("ls")
 sudo apt-get install vim-nox
  :call RunVimTmuxCommand("ls")
  
+= NERD_commenter =
+[count]<leader>cc |NERDComComment| Comment out the current line or text selected in visual mode.
+[count]<leader>c<space> |NERDComToggleComment|
+Toggles the comment state of the selected line(s). If the topmost selected
+line is commented, all selected lines are uncommented and vice versa.
+[count]<leader>ci |NERDComInvertComment|
+Toggles the comment state of the selected line(s)

@@ -1,0 +1,19 @@
+= Basics =
+* compile with -g flag
+g++ -g source.cpp -o my_file
+* start gdb my_file or from gdb shell file source.cpp
+r (run)
+b (break) 10  - breakpoint at line 10
+b my_func
+break file1.c:6 if i >= ARRAYSIZE
+c (continue)
+s (step) step in
+n (next) step over
+p my_var
+watch my_var
+finish - runs till the current function is finished
+delete  - delete breakpoint
+disable - disable bp
+info breakpoints
+info locals  - prints all local vars
+

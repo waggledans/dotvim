@@ -1,0 +1,32 @@
+= Process = 
+Process Descriptor has the following fields:
+* PID
+* Program counter
+* Registers
+* ...
+
+PL - privilege level, PL0 is the highest (kernel mode)
+* New Process:
+** fork()
+int main(int argc, char **argv) {
+    int child_pid = fork();
+    if (child_pid == 0) {
+        printf(“Son of %d is %d\n”, getppid(),getpid());
+        return 0;
+    } else {
+        printf(“Father of %d is %d\n”, child_pid,getpid());
+        return 0;
+}}
+** int execv(char *prog, char **argv)
+stops execution of the current process, clears PCB and inits new PCB
+int main(int argc, char **argv) {
+    while (1) {
+        char *cmd = get_next_command();
+        int child_pid = fork();
+        if (child_pid == 0) {
+            execv(cmd);
+            fprintf(stderr, “exec failed!”);
+        } else {
+            int status;
+            child_pid = wait(&status);
+}}}
