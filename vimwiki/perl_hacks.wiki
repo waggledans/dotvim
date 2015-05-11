@@ -1,0 +1,784 @@
+== PERLDOC  ==
+perldoc perlvar	#will also show names of ‘use English;’
+perldoc List::Util
+
+
+
+= Modules =
+perl -e '{$,="\n"; print @INC}'
+ * set PERL5LIB to add dirs
+== Write modules ==
+=== use Exporter; ===
+@ISA = qw(Exporter);  # same as:  use base 'Exporter';
+ * @EXPORT contains list of symbols (subroutines and variables) of the module to be exported into the caller namespace.
+ * @EXPORT_OK does export of symbols on demand basis.
+Example: 
+
+package Foo;
+use base 'Exporter';
+# sub bar and baz will be exporter
+# by anyone writing: use Foo
+our @EXPORT    = qw(bar baz);
+# writing: use Foo qw(bar hello) will
+# import bar and hello into the main 
+# symbol table when using this module
+our @EXPORT_OK = qw(bar baz hello);
+sub bar {
+  warn 'In Bar';
+}
+sub baz {
+  warn 'In Baz';
+}
+sub hello {
+  warn 'In Hello';
+}
+1; 
+
+== USE / REQUIRE ==
+require		#sort of like use only doesnt run on compilation, it runs only on runtime
+use		#lruns in compilation time which allows various compilation checks
+use Module; # equivalent to BEGIN {require ModuleName; ModuleName->import; }
+
+to see perl search path:
+perl -e ‘$,=qq(\n);print @INC,qq()’
+export PERL5LIB  = “add_your_path”
+One reason to use require is evaluate if module is in @INC
+BEGIN {
+    eval { require Foo::Bar; Foo::Bar->import( qw(foo bar barfu) ); };
+    our foo_bar_module_available = 1 unless ($@);
+}
+our $foo_bar_module_available;
+if ( $foo_bar_module_available ) {
+    fubar( $var, $var2 );   #I can use it
+
+== do / eval==
+do  		# just runs all lines in external file
+		#for instance do MyTest is like use MyTest, only it would run EVERY time the command is called
+
+eval - evaluates (executes) string, returns $@ in case of a failure
+eval ($some_string);
+
+print $@ if @;		#will print exceptions
+== useful modules ==
+=== use English; ===
+ * $OS_ERROR  instead of !
+ * $EVAL_ERROR instead of @
+ * $PROGRAM_NAME instead of 0
+=== use IO::File; ===
+my $filename = shift or die "Usage: ... ";
+my $fh = IO::File->new($filename, "r");
+...
+$fh->close;
+=== use File::Find; ===
+my $ext = ".pl";
+sub wanted {
+    $count++ if /$ext$/    
+}
+find(\&wanted, '.');
+print "$count perl files";
+=== use DateTime; ===
+my $now = DateTime->now;
+my $month = DateTime->month_name;
+use feature ‘:5.10’; #using additional featues like “say”
+use List::Util qw/shuffle first/ ; # example $ color = first {1} shuffle @colors;
+			# or better: ($color) =   shuffle @colors; perldoc List::Util
+use Data::Dumper;
+=== use Try::Tiny; ===
+use Try::Tiny;		#turns eval to try catch blocks
+try { die "goodbye";
+} catch {
+warn "Exception: $_";    
+}
+#!/usr/bin/env perl
+use feature ':5.10';	#to use ‘say’ etc...
+use Carp; 		#to use croak instead of die
+use Autodie;		#automatically adds or die at IO commands
+use Fatal qw/open close/; 	#sort of like Autodie
+use Cwd ‘realpath chdir’   # ex: print realpath("/usr////spool//mqueue/../");  $dir = getcwd(); 
+use Term::ANSIColor;
+use Moose;
+use Moose::Role;
+
+
+= ONE LINERS  =
+perldoc perlrun
+
+perl -pe 1    #1 is needed here to give smth to -e option. This would work exactly like cat
+perl -ne 'print if 2..3'  filename	#print line 2-3
+perl -ne 'print if /begin/.../end/’	#print all between regex /begin/... /end/
+cowsay Hello | perl -e ‘print reverse <>’  # here lines order is reversed
+perl -wnpl -e 's/foo/doo/;'  file_name  	#reads ALL lines of the file_name (-n), substitutes and prints (-p) with adding newline (-l)
+perl -wnl -e 'print "$. : $_”
+perl -lne ‘$s += $_; END{print $s/$.)’	       #prints average of the column
+perl -p -i.bak -e ‘s/\bfoo/bar/g’ *.c    # -i means inplace editing while saving orig under orig.bak
+perl -F= -lane '$f=@F;print qq($F[0] $f)' a.ini	#sort of like awk ‘print $1’
+
+= Language features =
+== Comparison operators  ==
+eq	String equality (== is numeric equality). 
+ne	String inequality (!= is numeric inequality).
+lt	String less than.
+gt	String greater than.
+le	String less than or equal.
+ge	String greater than or equal.
+cmp	String comparison, returning -1, 0, or 1.
+⇔	Numeric comparison, returning -1, 0, or 1.
+
+== IO File test  ==
+
+	-r	File is readable by effective uid/gid.
+	-w	File is writable by effective uid/gid.
+	-x	File is executable by effective uid/gid.
+	-o	File is owned by effective uid.
+	-R	File is readable by real uid/gid.
+	-W	File is writable by real uid/gid.
+	-X	File is executable by real uid/gid.
+	-O	File is owned by real uid.
+	-e	File exists.
+	-z	File has zero size.
+	-s	File has non-zero size (returns size).
+	-f	File is a plain file.
+	-d	File is a directory.
+	-l	File is a symbolic link.
+	-p	File is a named pipe (FIFO).
+	-S	File is a socket.
+	-b	File is a block special file.
+	-c	File is a character special file.
+	-u	File has setuid bit set.
+	-g	File has setgid bit set.
+	-k	File has sticky bit set.
+	-t	Filehandle is opened to a tty.
+	-T	File is a text file.
+	-B	File is a binary file (opposite of -T).
+	-M	Age of file in days when script started.
+	-A	Same for access time.
+	-C	Same for inode change time.
+
+
+
+== PERL FUNCTIONS  ==
+
+given ($grade) { 
+	when ('A') { say 'Well done!'   	} 
+	when ('B') { say 'Try harder!'  	} 
+	default { say 'You are just making it up!' } 
+} 
+
+=== grep ===
+#filtering:
+my @files = glob "*.log";
+my @old_files = grep { -M $_ > 365 } @files; 	#-M returns the number of days
+#implementing unix grep (>unix_grep.pl some_regex file1 file2 file3):
+my $regex = shift; 
+print grep { $_ =~ /$regex/ } <>;
+
+=== map ===
+#return array containing all the numbers of input array, squared:
+my @array = map $_** 2, 1..10;  #any function could be applied to a list this way
+more complicated example to create array of arrays containing all files and their size in bytes:
+my @AOA = map { [ $_, (stat($_))[7] ] } glob('*');
+my @AOA = map { chomp; [split /,/]; } <FILE>;	#read csv file into @AOA
+
+=== sort ===
+@perl_array = (3, 4, 1, 2);
+@sorted_array1 = sort @perl_array;		# same as sort {$b cmp $a} @array;
+@sorted_array2 = sort {$b <=> $a} @perl_array;	#sort numerically
+print "@sorted_array1 \n"; print "@sorted_array2 \n";
+###
+if (exists($perl_array[2])) { delete $perl_array[2]; }
+print join(" ", %perl_hash). "\n";
+
+### lsearch (well, there’s no tcl lsearch in perl but here’s what can be done):
+
+my ($index) = grep { $item eq $list[$_] } 0..$#list;
+splice(@list, $index, 1) if defined $index;
+
+== SYSTEM commands:
+$SIG{INT, TERM, ‘ALRM’}
+$0 = “name you want ps to see”;
+local $SIG{‘ALRM’} = sub {print “Im system call hanler;}; 
+alarm(5); #turn alarmon
+alarm(0); turn alrm off
+
+
+sub timeout {
+    die "TIMEOUT";
+}
+   
+eval {
+    local $SIG{'ALRM'} = \&timeout;
+    alarm(5);
+    my $l = <>;
+    alarm(0);
+};
+   
+print "Operation Timed out waiting for user\n" if $@ =~/TIMEOUT/;
+
+
+#-- calling 'command' with arguments
+system("command arg1 arg2 arg3");
+ 
+#-- better way of calling the same command
+system("command", "arg1", "arg2", "arg3");
+or
+system("command", "arg1");
+if ( $? == -1 ) { print "command failed: $!\n"; }
+else { printf "command exited with value %d", $? >> 8;}
+or
+#-- list the processes running on your system
+open(PS,"ps -e -o pid,stime,args |") || die "Failed: $!\n";
+while ( <PS> )
+{
+  #-- do something here
+}
+ 
+#-- send an email to user@localhost
+open(MAIL, "| /bin/mailx -s test user\@localhost ") || die "mailx failed: $!\n";
+print MAIL "This is a test message";
+
+casting:
+int (@some_array) or scalar(@some_array)
+
+== ARRAY  ==
+$#array			the index of the last element of the array
+$num = @array		number of elements in the array
+push, pop, shift (like pop) , unshift (like push)
+splice @array, 3, 2  	#cutting portion of array in the middle starting from the 3d element
+splice(@a,@a,0,$x,$y)  		#push(@a,$x,$y)      
+splice(@a,-1)			# pop(@a)             
+splice(@a,0,1)   		#shift(@a)           
+splice(@a,0,0,$x,$y)   		#unshift(@a,$x,$y)   
+splice(@a,$i,1,$y)    		#$a[$i] = $y         
+
+
+
+to walk over array its enough:
+$freq {$_} += 1 for @some_array;
+print scalar reverse @some_list
+== HASH  ==
+print Dumper (\%freq);  #prints all the hash
+
+
+
+
+# references vs scalars: http://perldoc.perl.org/perlreftut.html
+
+2   while (<>) {
+   3    chomp;
+   4     my ($city, $country) = split /, /;
+   5     $table{$country} = [] unless exists $table{$country};
+   6     push @{$table{$country}}, $city;
+   7   }
+   8   foreach $country (sort keys %table) {
+   9     print "$country: ";
+  10     my @cities = @{$table{$country}};
+  11     print join ', ', sort @cities;
+  12     print ".\n";
+  13	}
+
+
+
+#Get all the keys corresponding to a certain value:
+http://www.perlmonks.org/?node_id=177969
+my %rhash = reverse %hash;
+my $key = $rhash{$value};
+or
+gg
+
+#operators
+die (“reason: $!”);
+$variable = defined($perl_scalar) ? "Variable \$perl_scalar is Defined!"
+$scalar_string2="Perl Programming Tutorial " x (1+1); #multiply by expression in braces
+*SCALAR_CONSTANT = 5;		#perl constant declaration
+@perl_array3 = (1 .. 3);
+print "Last element of perl_array4 has index: " .  $#perl_array4 ."\n";
+$number_of_elements = @perl_array;
+push(@perl_array, "\n"); pop(@perl_array, "\n"); 
+#
+# create an arrow
+$perl_hash{browser} = iceweasel;
+$perl_hash_reference= \%perl_hash;
+print $perl_hash_reference->{browser} . "\n";
+== SUBS - SUB ROUTINES  ==
+sub will return the last assigned value even though return is not explicitly specified
+template for functions:
+sub ddfdf {
+my ($my_var) = @_; #and not just $my_var = @_;
+}
+use hash ref to pass arguments to sub, use “or” for defaults:
+
+my ($name, $param_ref) = @_;
+my $color = $param_ref -> {age} or 10;
+#better if perl5.10 use operator //  which sort of conditional OR
+my $color = $param_ref -> {age}  // 10;
+#otherwise use exists to check if $key exists and equals 0 or really doesn’t exist
+
+Anonymous functions:
+my $func_ref = sub {....};	#dont forgt ; after sub body definition
+sub sq {
+	my $num = $_[0];
+	my $square = $num*$num;
+return sub {my ($param) = @_; return $squre + $param;};
+}
+$f = sq(10);
+print $f->(3);		#will print 103
+
+###############COMMAND LINE ==
+perl -ne 'END { foreach $d (keys %a) {print $a{$d},": $d\n" }} $a{$_} ++' dtlb.sig | sort -n -r|l
+
+awk '/pattern/ {print $1 "-" $2 "-" $3 "\t" $NF}' inputfile 
+perl -lane'/0/ && print "$F[0]-$F[1]-$F[2]\t$F[-1]"' inputfile 
+perl -F':' -ane '$s{$F[6]}++;' \
+ > -e 'END { print "$_ : $s{$_}" for keys %s }' /etc/passwd
+
+
+BEGIN { $/='**'; } # ** becomes input separator
+Precedence of Perl operators
+Special vars
+Explanation
+$/
+input record separator, like RS in awk
+$\
+output record separator, like ORS in awk
+$ARGV
+input source, like it equals ‘-’ when source is STDIN or filename etc...
+$"
+‘$"’ contains the characters that are automatically inserted between elements of arrays whose names appear in double quotes. space character by default. See also $, 
+$,
+“$,” is involved in two kinds of special formatting for arguments in print statements. Its contents are used on output in place of
+commas that appear between print’s arguments, and also
+between the elements of unquoted array or hash arguments. It’s empty by default. AWK: OFS
+-wnlaF'sep'
+perl –wnlaF':' –e 'print $F[2];'  filename
+-s
+$ print_lines –n F F2 # -n sets $n True
+-i.extension
+perl –i.bak –wnl –e 's/A/B/g; print' file 
+#Make changes in original file after backing it up as file.bak
+-M'mod_name'
+example : convert tabs in $_ to spaces before printing (expand is provided by Text::Tabs):
+perl –M'Text::Tabs' -wnl –e 'print expand $_;' F
+In scripts, employ “use mod_name;” instead.
+$.
+contains line number (to print line number for instance)
+$|
+If nonzero, will flush the output buffer after every write() or print() function. Normally, it is set to 0. 
+select ($file_handle) ;   # make $file_handle default
+$| = 1;           #autoflush default file handle
+
+
+$#
+The default format for printed numbers. Normally, it's set to %.20g
+$%
+Holds the current page number for the default file handle. If you use select() to change the default file handle, $% will change
+$=
+Holds the current page length for the default file handle.
+$-
+
+
+qq()
+instead of using double quotes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==#######	HASH		#####################
+%perl_hash = ( browser => iceweasel,  # you can also use comma instead of arrow operator
+	os , linux);
+while (($hash_key, $hash_value) = each %perl_hash ){
+	print "$hash_key uses port $hash_value\n";
+}
+
+
+==#######	REGEX		#####################
+
+Operators
+Associativity
+\b
+word boundary metacharacter
+\cC
+control+C
+m:RE:
+Uses custom “:” delimiters and the default target of $_
+$'
+after match
+$`
+before match
+$&
+the match
+\d
+digits
+\s
+white space
+s/(\d)*/$1++/e
+increment all found numbers
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if (m/p/i) {$p1++;}
+
+#!/usr/bin/perl
+@array1 = @ARGV; @array2 = @ARGV;
+print "\@array1 = ";
+foreach(@array1) {
+# Substitute at least 3 "s" characters
+	s/s{3,}/SS/g;	print; }
+print "\n\@array2 = ";
+foreach(@array2) {
+# Substitute one or more "s" characters
+	s/s+/S/g;	print; }
+print "\n";
+#
+print "Number of Substitutions made: " . ($text =~ s/e/E/);
+#
+(?=)
+Matches If would match next
+(?!)
+Matches If would NOT match next
+(?<=)
+Matches If would match just before
+(?)
+Matches If would NOT match just before
+(?#)
+= Comment
+#!/usr/bin/perl
+$_="We want you to improve your Perl Regular Expressions skills.";
+# Replace space with "#" if it is followed by "to"
+s/\s(?=to)/#/g;
+print "$_\n";
+# Replace space with "_" if it is NOT followed by "s"
+s/\s(?!s)/_/g;
+print "$_\n";
+==#######	LOOPS	#####################
+for($for_loop=0;$for_loop<=4;$for_loop++) {
+while ($while_loop>=0) {
+
+last	- like break in C. The continue block if any is not executed
+next	- like continue in C. 
+redo	- 
+continue - not like continue in C!!!
+   while (EXPR) {
+       ### redo always comes here
+       do_something;
+   } continue {
+       ### next always comes here
+       do_something_else;
+       # then back the top to re-check EXPR
+   }
+
+==#######	WORK WITH FILES	#####################
+#!/usr/bin/perl
+open (FILEHANDLE, $ARGV[0]) || die "Problems opening file";
+@file=;
+foreach(@file) {	..	}
+
+== MODULES  ==
+use base ‘Exporter’;  means the same as  @ISA = qw(Exporter);
+use DirectlyUnderIncModule;
+use Container::Inside::EvenMoreInside::SomeModule; #that wood imply that SomeModule is 
+#in $INC/Container/Inside/EvenMoreInside directory
+our $y = 7;
+our @y = (7,8);
+our %y = (a => 7, b => 8);
+warn $main::{y}; 	#$main is the current package
+#typeglob dereferencing:	
+warn @{$main::{y}};
+warn %{$main::{y}};
+warn ${$main::{y}};	#also &{$main::{y}}; to run sub (supposing that there’s a sub named y)
+			# it would be useful to run subs with name obtained from a user
+#see how to manipulate typeglob functions in ynon perek’s site
+my @colors = qw/red blue green yellow purple/;
+foreach my $clr (@colors) { $main::{$clr } = sub { "<font color=\"$clr\">@_</font>" };}
+print "Be ", purple("careful"), " with that ", red("Axe"), " Eugene\n";
+
+#scoping of packages
+use somePackage;
+somePackage::somefunction;
+## or in the body of the program.
+{
+package somePackage;
+somefunction;
+}
+
+require doesnt allow to use Exporter, but ‘use’ does
+just add the following lines to module:
+use base ‘Exporter’;
+our @EXPORT = qw/names namees/;
+# or to make user explicitely specify functions he wants to export
+our @EXPORT_OK = qw/names namees/; 
+
+
+
+
+== OBJECTS -  OOP  ==
+=== Specify base or parent module ===
+use base qw(Foo Bar);
+Roughly similar in effect to
+    BEGIN {
+        require Foo;
+        require Bar;
+        push @ISA, qw(Foo Bar);
+    }
+=== Example ===
+ClassName->new;
+ClassName is passed to new as a first argument.
+# fallback:
+@ISA = qw/Name1 Name2/;	 #contains different objects to look in case
+				 # identical to use base ‘Name1’;	
+suppose we have the similar functions for different animals. Sort of like:
+sub Cow::speak {
+      print "a Cow goes moooo!\n";
+    }
+The use of array of this different animals (Cow, Horse and Sheep) is below.
+the next lines of code will not work with use strict refs pragma :
+# Cow::speak, Horse::speak, Sheep::speak as before
+   	@pasture = qw(Cow Cow Horse Sheep Sheep);
+      	foreach $animal (@pasture) {
+            	 &{$animal."::speak"};		### dereferencing a function
+      	}  
+if we used classes instead it would have been $animal->speak.
+when invoking class methodes it’s good to remember that the invocation of:
+    Class->method(@args)
+attempts to invoke subroutine Class::method as:
+    Class::method("Class", @args);
+So we’r gonna have to rewrite our Cow::speak subroutine as follows:
+
+sub Cow::speak {
+      my $class = shift;
+      print "a $class goes moooo!\n";
+    }
+
+or better yet:
+
+{ package Cow;
+      sub sound { "moooo" }
+      sub speak {
+        my $class = shift;
+        print "a $class goes ", $class->sound, "!\n";
+      }
+    }
+INHERITANCE:
+use base ‘SomeSuperClass’;	#kind of inheritance really.
+#sort of:
+package SizedStack;
+require Stack;
+@ISA = (Stack);
+#and it would have ugly override methodes:
+sub _init {
+  my $self = shift;
+  $self->SUPER::_init;
+  $self->{size} = 0;
+}
+
+{ package Animal;
+      sub speak {
+      my $class = shift;
+      print "a $class goes ", $class->sound, "!\n";
+      }
+    }
+Then, for each animal, we say it "inherits" from Animal , along with the animal-specific sound:
+    { package Cow;
+      @ISA = qw(Animal);
+      sub sound { "moooo" }
+    }
+### example of new (should be in every class) and _init (not a must but a good style)
+sub new {
+    my ($class, $params) = @_;
+warn 'Creating new object of class: ', $class;
+  
+    my $self = {};	#here we can add default values btw or even 
+			#if arguments are given Moose style key=> value then
+			# my $self = {@_}; #after shift to remove class name	
+    bless $self, $class;
+    $self->_init($params);
+    return $self;
+}
+sub _init {
+    my ($self, $params) = @_;
+    $self->{age} = $params->{age} || 7;		## || means default value
+    $self->{city}= $params->{city} || 'Haifa';
+    $self->{name} = $params->{name} || 'Frida';
+}
+
+== MOOSE /  MOUSE ==
+package Name;
+use Moose;
+has ‘speed’, is => ‘ro’, isa => ‘Num’, required => 1;
+#isa could be Num, Str or Int, ArrayRef, ArrayRef[Int] etc...
+# can specify sub for  readers/writers as in: reader => “some_sub” or writer=> ‘__some_name’
+# can subtype as:
+subtype ‘age’ , as ‘Int’, where {$_ >= 0 && $_ < 256), message {“type missmatch message};
+enum ‘EyeColor’, [qw/black, yellow/];
+required/default may be specified
+#builder:
+_build_<membr_name>, as in:
+has ‘pet’, is ‘ro’, builder => ‘_build_pet’;
+#or even better specify lazybuild => 1 (and moose will found sub _build_<membr_name> to build the member.
+
+Roles:
+package SomeRole;
+use Moose::Role;
+requires ‘check’;
+
+# some class that wants to use roles:
+use Moose;
+with SomeRole;
+sub check {...}
+
+sub some_sub {
+$self = shift;
+...
+}
+
+
+Delegation:
+handles => [qw/pop/]   #attribute that adds sub ‘pop’ of a member object to the class
+
+Meta-objects:
+my $meta = $self->meta;
+    if ( $meta->has_method('hello') ) {
+        warn 'object has the method hello';
+    }  
+
+
+##Inheritance in Moose:
+extends 'MySuper';
+
+==#TK ###############################
+ http://tkdocs.com/tutorial/index.html
+http://ynonperek.com/course/perl/ui.html
+http://oreilly.com/catalog/mastperltk/chapter/ch15.html
+
+perldoc -l Tk::Button will give a path to the code of Button
+Two types of events: surrounded by << >> and just < >. Those that are surrounded by double brackets are sort of “virtual events” like <<ListboxSelect>> or Tk::Menu <<MenuSelect>>.
+$textentry->insert('end', $_);
+my $txt = $textentry->get ('1.0','end');
+##############Geometry Manager ########
+Pack options: 
+-side => left, right, top, bottom
+-fill => none, x, y, both	#fills allocation rectangle
+-expand => 0, 1		#expand alloc rectangle as the window grows
+-anchor=>'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw' | 'center'	#position the widget in alloc rect
+-after => $otherwidget, -before => $otherwidget
+-ipadx => amount, -ipady => amount, -padx => amount, -pady => amount
+#
+$widget->packForget( );
+@list = $widget->packInfo( ); or   %packinfo = $widget->packInfo;
+@list = $parentwidget->packSlaves( );
+
+#checkbutton, radiobutton, 
+#
+
+== SQL ############ DBI  ==
+
+dbi:mSQL:hostname:database:port_number
+
+# ch04/connect/ex4: Connects to two database, one Oracle, one mSQL
+#                   simultaneously. The mSQL database handle has 
+#                   auto-error-reporting disabled.
+use DBI;            # Load the DBI module
+
+### Perform the connection using the Oracle driver
+my $dbh1 = DBI->connect( "dbi:Oracle:archaeo", "username", "password" )
+    or die "Can't connect to Oracle database: $DBI::errstr\n";
+
+my $dbh2 = DBI->connect( "dbi:mSQL:seconddb", "username", "password" , {
+            PrintError => 0
+        } )
+    or die "Can't connect to mSQL database: $DBI::errstr\n";
+
+exit;
+#
+$rc = $dbh->disconnect();
+
+
+

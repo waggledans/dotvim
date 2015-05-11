@@ -286,7 +286,11 @@ git submodule update
 * remove submodule is AWKWARD
 edit .gitmodules, .git/config and then:
 git rm –cached [plugin path]
-
+== submodule untracked issue (when OS add files to subm directory)==
+* specific problem when some untracked files are added to submodules dir (like in .vim/bundle/*/doc)
+cd .vim/bundle
+echo "doc/tags" > .gitignore_submodules
+git submodule foreach git config --local core.excludesfile "../.gitignore_submodules"
 = Git internals =
 == refs and symrefs are in refs dir ==
 # There could be 3 dirs in refs : tags (to hold tags), heads (to hold branches) and remotes.

@@ -41,7 +41,8 @@
 == MacOS ==
 * [[macos_plist]]
 *
->>>>>>> 99e7e29688223069b6a5f8c703c92b4d92a92609
+== Perl ==
+
 == Python ==
 * [[python_notes]]
 == SQL ==
