@@ -1,38 +1,45 @@
-== PERLDOC  ==
+= PERLDOC  =
 perldoc perlvar	#will also show names of ‘use English;’
 perldoc List::Util
-
-
-
+= CPAN =
+* install cpanm
+* run the line below to install any module you can find:
+cpanm Module::Name
+== perl -MCPAN ==
+* enter shell:
+perl -MCPAN -e shell
+* install module:
+perl -MCPAN -e 'install Chocolate::Belgian'
+== Contribute modules to CPAN ==
+How do I contribute modules to CPAN?
+read the PAUSE FAQ at http://www.cpan.org/modules/04pause.html
+Also,perldoc perlmodlib and perldoc perlmod
 = Modules =
 perl -e '{$,="\n"; print @INC}'
  * set PERL5LIB to add dirs
 == Write modules ==
+
 === use Exporter; ===
 @ISA = qw(Exporter);  # same as:  use base 'Exporter';
  * @EXPORT contains list of symbols (subroutines and variables) of the module to be exported into the caller namespace.
  * @EXPORT_OK does export of symbols on demand basis.
-Example: 
-
-package Foo;
-use base 'Exporter';
-# sub bar and baz will be exporter
-# by anyone writing: use Foo
-our @EXPORT    = qw(bar baz);
-# writing: use Foo qw(bar hello) will
-# import bar and hello into the main 
-# symbol table when using this module
-our @EXPORT_OK = qw(bar baz hello);
-sub bar {
-  warn 'In Bar';
-}
-sub baz {
-  warn 'In Baz';
-}
-sub hello {
-  warn 'In Hello';
-}
-1; 
+== test modules ==
+=== benchmark ===
+http://perldoc.perl.org/Benchmark.html
+=== Test::Simple ===
+http://search.cpan.org/dist/Test-Simple/lib/Test/Tutorial.pod
+=== Test::More ===
+http://perldoc.perl.org/Test/More.html
+* stop testing if any of your modules will not load
+    for my $module (@module) {
+        require_ok $module or BAIL_OUT "Can't load $module";
+    }
+* diag
+ ok( grep(/foo/, @users), "There's a foo user" ) or
+        diag("Since there's no foo, check that /etc/bar is set up right");
+=== is_deeply() ===
+is_deeply( \@got, \@expected ); # compare two arrays
+is_deeply( [sort @got], [sort @expected] );
 
 == USE / REQUIRE ==
 require		#sort of like use only doesnt run on compilation, it runs only on runtime
@@ -98,6 +105,8 @@ use Cwd ‘realpath chdir’   # ex: print realpath("/usr////spool//mqueue/../")
 use Term::ANSIColor;
 use Moose;
 use Moose::Role;
+
+
 
 
 = ONE LINERS  =
@@ -688,7 +697,12 @@ sub _init {
     $self->{city}= $params->{city} || 'Haifa';
     $self->{name} = $params->{name} || 'Frida';
 }
-
+=== testing objects with ok() ===
+    use Test::Simple tests => 2;
+    use Date::ICal;
+    my $ical = Date::ICal->new;         # create an object
+    ok( defined $ical, 'new() returned something');  # check that we got something
+    ok( $ical->isa('Date::ICal'), " and it's the right class" );     # and it's the right class
 == MOOSE /  MOUSE ==
 package Name;
 use Moose;

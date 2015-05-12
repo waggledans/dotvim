@@ -1,4 +1,4 @@
-= Shortcuts = 
+[[=]] Shortcuts = 
 * use control space to get snippets
 sysout  Ctrl+space  => System.out.println();
 syserr
@@ -13,3 +13,6 @@ Command-Shift-O:  add #import statement
 *
 Command+D -  delete the line
 Command-Option-Arrow: copy line
+*
+Command - 3 - opend quick access window. Can be used for example:
+              start type Override and get a list of Super class methods

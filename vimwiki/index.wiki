@@ -12,6 +12,9 @@
 * [[cpp_containers]]
 * [[cpp_templates]]
 * [[cpp_io]]
+== java ==
+* [[java_notes]]
+* [[eclipse]]
 == SVN ==
 * [[svn]]
 == GIT ==
@@ -33,16 +36,14 @@
 * [[tmux]]
 * [[ubuntu]]
 * [[xargs]]
-<<<<<<< HEAD
 * [[kernel]]
 == MacOS ==
 * [[macos_plist]]
-=======
 == MacOS ==
 * [[macos_plist]]
 *
 == Perl ==
-
+* [[perl_hacks]]
 == Python ==
 * [[python_notes]]
 == SQL ==
