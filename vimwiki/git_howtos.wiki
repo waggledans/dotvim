@@ -176,10 +176,6 @@ git ls-tree <tree-ish>  : ls git commited files
     $ git branch prs/pr-1138
 # list all branches
     $ git branch
-# list all branches in bugs dir along with some details:
-    $ git show-branch 'bug/*'
-# list all changes from master to bug/pr-1:
-    $ git log -p master..bug/pr-1
 # checkout some particular branch
     $ git checkout bug/pr-1
 # if there are some modified files in the workarea git will attempt
@@ -190,6 +186,8 @@ git ls-tree <tree-ish>  : ls git commited files
 # another case is that after checkout a developper realized that he wants to ci files to the new branch:
 # -b flag would allow to create anew branch that would have all the modified files indexed
     $ git checkout -b bug/pr-3
+# Ti rename a branch (--move)
+#   $ git branch -m old_name new_name
 # To delete a branch:
     $ git branch -d bug/pr-3
 # you can recover an accidentally deleted branch by using the 
@@ -199,8 +197,10 @@ git ls-tree <tree-ish>  : ls git commited files
  
 
 == diff - show difference==
+* git diff commit1 commit2 -  the differences between the two arbitrary commits.
 * git diff treeish          :show diffs between work dir and repository (HEAD by default)
 * git diff --staged         :show diffs between working directory and staged index
+#   If the option --cached doesn’t make sense to you, perhaps the synonym --staged will.
 * git diff --cached         :show diffs between working directory and staged index
 git diff --cached tree-ish    :the differences between the staged and the given commit.
 === file diff ===
@@ -208,13 +208,13 @@ git diff tree-ish filename  :the diff between the file in the working directory 
 git diff -w                 :ignore white spaces
 # using unix diff (diff -r will traverse two tree objects):
     $ diff -u initial rewrite
-# "git diff" shows the difference between your working directory and the index.
-# "git diff commit" - the differences between your working directory and the given commit.
-#       Common variants of this command name HEAD or a particular branch name as the commit.
-#   A common commit for the comparison—and the default if no commit is specified—is HEAD. 
-#   With HEAD, this command shows you how your next commit will alter the current branch.
-#   If the option --cached doesn’t make sense to you, perhaps the synonym --staged will. in Git version 1.6.1 and later.
-# "git diff commit1 commit2" -  the differences between the two arbitrary commits.
+=== branch diff ===
+* git diff master..branch1
+* git branch --merged
+shows all branches that merged into the current one (and, in theory, could be
+eliminated)
+# list all changes from master to bug/pr-1:
+    $ git log -p master..bug/pr-1
 
 
 = Merge (merging branches) =

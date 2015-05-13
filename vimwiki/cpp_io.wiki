@@ -20,4 +20,3 @@ int main() {
   while(getline(in, s)) // Discards newline char
     out << s << "\n"; // ... must add it back
 } ///:~
-

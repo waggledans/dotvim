@@ -1,3 +1,8 @@
+= general environment settings =
+* modify path 
+let &path.="src/include,/usr/include/AL,"
+= Use VIM for CPP =
+http://www.alexeyshmalko.com/2014/using-vim-as-c-cpp-ide/
 = how to see all headers =
 grep ^= %                   : grep all lines
 :copen                      : open grepped lines in Quickfix list

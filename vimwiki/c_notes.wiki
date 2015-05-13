@@ -1,0 +1,23 @@
+= memory alloc =
+mnemonic - clear-alloc, memory-alloc, re-alloc
+Example array of strings:
+char ** ptr = (char **) malloc (MAXELEMS * sizeof(char *));
+char ** ptr = (char **) calloc (MAXELEMS, sizeof(char*));
+  #include <stdio.h>
+  #include <stdlib.h>
+        int main() {
+            char *str;
+            /* Initial memory allocation */
+            str = (char *) malloc(15);
+            strcpy(str, "tutorialspoint");
+            printf("String = %s,  Address = %u\n", str, str);
+            /* Reallocating memory */
+            str = (char *) realloc(str, 25);
+            strcat(str, ".com");
+            printf("String = %s,  Address = %u\n", str, str);
+            memset(str,'$',25);
+            puts(str);  // will print 25 '$' chars
+            free(str);
+            return(0);
+        }
+* memset        

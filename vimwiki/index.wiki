@@ -6,6 +6,7 @@
 == haskell programming ==
 * [[haskell_basics]]
 == C/C++ programming ==
+* [[c_notes]]
 * [[gcc]]
 * [[cpp_notes]]
 * [[gdb]]
@@ -106,3 +107,5 @@
 * [[smg_howto]]
 === VIVA ===
 * [[viva_notes]]
+= chinese =
+* [[chinese_quick_notes]]

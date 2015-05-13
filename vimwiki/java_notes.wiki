@@ -5,7 +5,21 @@ unlike in C++ where protected members can only access by subclass
 // Java way would be final static class variable
 public final static String NAME = "I'm a static variable";
 * 
+= Generics =
+== Map ==
+* Hashtable is synchronized
+Hashtable<String, Integer> numbers  = new Hashtable<String, Integer>();
+* HashMap
+Not synchronized. Can be synchronized by Collections.synchronizedMap(myMap);
+or better:
+synchronized(myMap) {
+    if (!myMap.containsKey("tomato"))
+        myMap.put("tomato", "red");
+}
+* 
 = Strings =
+StringBuffer is synchronized, StringBuilder is not.
+
 == string equality test ==
 == tests for reference equality.
 .equals() tests for value equality.
@@ -27,6 +41,8 @@ int direction = (int) (Math.random() * 5); switch (direction)
          default   : assert false; // better to use throw new AssertionError(direction);
 } }
 }
+= Annotations =
+It is possible to add your own annotations
 
 = Pattern regex =
 private static final Pattern POINT_PATTERN = Pattern.compile("\\((\\d+),(\\d+),(\\d+)\\);?");
