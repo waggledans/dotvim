@@ -34,9 +34,6 @@
 [submodule "plugin/unbundle"]
 	path = plugin/unbundle
 	url = https://github.com/sunaku/vim-unbundle.git
-[submodule "bundle/autocomplepop"]
-	path = bundle/autocomplepop
-	url = https://github.com/vim-scripts/AutoComplPop.git
 [submodule "bundle/snipmate"]
 	path = bundle/snipmate
 	url = http://github.com/msanders/snipmate.vim
@@ -52,9 +49,6 @@
 [submodule "bundle/vimwiki"]
 	path = bundle/vimwiki
 	url = https://github.com/vimwiki/vimwiki.git
-[submodule "bundle/session"]
-	path = bundle/session
-	url = https://github.com/xolox/vim-session.git
 [submodule "bundle/tmux"]
 	path = bundle/tmux
 	url = https://github.com/christoomey/vim-tmux-navigator.git
@@ -94,3 +88,12 @@
 [submodule "bundle/minibufexpl"]
 	path = bundle/minibufexpl
 	url = https://github.com/weynhamz/vim-plugin-minibufexpl.git
+[submodule "bundle/youcompleteme"]
+	path = bundle/youcompleteme
+	url = https://github.com/Valloric/YouCompleteMe.git
+[submodule "bundle/vundle"]
+	path = bundle/vundle
+	url = https://github.com/gmarik/Vundle.vim.git
+[submodule "vim-bbye"]
+	path = vim-bbye
+	url = https://github.com/moll/vim-bbye.git

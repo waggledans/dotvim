@@ -1,5 +1,13 @@
-= TAGS =
+= vimwiki =
+== how to see all headers ==
+grep ^= %                   : grep all lines
+:copen                      : open grepped lines in Quickfix list
+== formatting ==
+* asterisks for bold: *bold*
+* asterisks for bold: -bold-
 
+
+= TAGS =
 TlistAddFiles | TlistAddFilesRecursive |
 TlistOpen | TlistClose| TlistUpdate
 

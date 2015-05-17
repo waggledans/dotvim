@@ -17,6 +17,10 @@ let g:acp_behaviorPerlOmniLength=0
 let g:delimitMate_expand_space = 1
 let g:delimitMate_expand_cr = 1
 
+" vimux
+" Prompt for a command to run map
+nnoremap <Leader>vp :VimuxPromptCommand<CR>
+
 " nerdtree
 " Ctrl-P to Display the file browser tree
 nmap <C-P> :NERDTreeToggle<CR>
@@ -32,6 +36,8 @@ vmap <leader>/ :call NERDComment(0, "invert")<cr>
 let Tlist_Show_Menu=1
 nmap <leader>t :TlistToggle<CR>
 
+" YouCompleteMe
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
 " sessionman
 nmap <leader>S :SessionList<CR>
 nmap <leader>SS :SessionSave<CR>
@@ -42,7 +48,7 @@ let g:miniBufExplVSplit = 25
 let g:miniBufExplorerMoreThanOne = 100
 let g:miniBufExplUseSingleClick = 1
 " ,b to display current buffers list
-nmap <Leader>b :MiniBufExplorer<cr>
+nmap <Leader>b :MBEOpen<cr>
 
 let g:Conque_ReadTimeout = 50 " timeout for waiting for command output.
 let g:Conque_TERM = 'xterm'

@@ -1,6 +1,6 @@
-= how to see all headers =
-grep ^= %                   : grep all lines
-:copen                      : open grepped lines in Quickfix list
+= language =
+* pass
+* generatore, yield
 = scope =
 LEGB rule: Local Scope, Enclosing Scope, Global Scope, and Built-in Scope. 
 * global var definition:
@@ -31,14 +31,6 @@ def wiper ():
 # some_tuple.count(some_element) will return the number of the elements in the tuple
 # search
 # in		#’something’ in tuple_name  will return True or False
-
-#!/usr/bin/python
-if (x > y):
-   print("x is greater than y")
-   x = x -1
-else:
-   print("x is less than or equal to y")
-##
 bool = True
 name = "Craig"
 age = 26
@@ -52,8 +44,19 @@ def Sum():
    b = a + b
 Sum()
 print(b)
-# 
-#
+== named_tuple ==
+>>> # Basic example
+>>> Point = namedtuple('Point', ['x', 'y'])
+>>> p = Point(11, y=22)     # instantiate with positional or keyword arguments
+>>> p[0] + p[1]             # indexable like the plain tuple (11, 22)
+33
+>>> x, y = p                # unpack like a regular tuple
+>>> x, y
+(11, 22)
+>>> p.x + p.y               # fields also accessible by name
+33
+>>> p                       # readable __repr__ with a name=value style
+ =>  Point(x=11, y=22)
 = = strings = 
 * strings are immutable 
 * String Slicing
@@ -122,6 +125,8 @@ del adict('one')  # deletes key-value pair from the dictionary
 * iterating over the dictionary:
 for key in adict:
 = LIST ARRAY =
+* declare
+result_list = list()
 == shallow copy vs deep copy ==
 * shallow copy:
 a = [1, 2, 3]
@@ -129,7 +134,8 @@ b = a
 b[0] = 4  #a[0] also becomes 4
 * deep copy:
 b = a[:]
-== append,count,extend,index,insert,pop,remove,reverse,sort,del,sorted ==
+== append,count,extend,index,insert,pop,remove,reverse,sort,del,sorted, index ==
+["foo", "bar", "baz"].index('bar')      => 1
 some_list.remove (element_name)
 some_list.insert (2, element_name)		# insert some_element to position indexed 2
 some_list.del(2)      # delete element with index 2
@@ -375,6 +381,10 @@ else:
   
 = LOOPS =
 s = input("Please type some characters and press enter:")
+while test < num:
+    do_stuff()
+else:
+    do_other_stuff()
 for c in s:
     print(c)
 print("Done")
@@ -435,7 +445,6 @@ os.path.realpath(path)
 os.path.split(os.path.abspath("."))[0]      # the current path "." is expanded to /Users/derek/work, so head is '/Users/derek' and tail is 'work'
 
 
-
 === adding dirs to the search path ===
 import sys
 sys.path.append("/home/me/mypy")
@@ -443,4 +452,56 @@ sys.path.append("/home/me/mypy")
 == Executing shell commands ==
 Execution: os.system('ls -l')
 #Requires import os
-
+* execute shell command AND read its output
+http://stackoverflow.com/questions/4760215/running-shell-command-from-python-and-capturing-the-output
+import subprocess
+p = subprocess.Popen(['ls', '-a'], stdout=subprocess.PIPE, 
+                                stderr=subprocess.PIPE)
+out, err = p.communicate()
+print out
+def runProcess(exe):    
+    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    while(True):
+      retcode = p.poll() #returns None while subprocess is running
+      line = p.stdout.readline()
+      yield line
+      if(retcode is not None):
+        break
+= yield =
+http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generators-explained/
+= OOP / object oriented python / class =
+== constructor overloading using factory (@classmethod) ==
+>>> class MyData:
+...     def __init__(self, data):
+...         "Initialize MyData from a sequence"
+...         self.data = data
+...     
+...     @classmethod
+...     def fromfilename(cls, filename):
+...         "Initialize MyData from a file"
+...         data = open(filename).readlines()
+...         return cls(data)
+...     
+...     @classmethod
+...     def fromdict(cls, datadict):
+...         "Initialize MyData from a dict's items"
+...         return cls(datadict.items())
+... 
+>>> MyData([1, 2, 3]).data
+[1, 2, 3]
+>>> MyData.fromfilename("/tmp/foobar").data
+['foo\n', 'bar\n', 'baz\n']
+>>> MyData.fromdict({"spam": "ham"}).data
+[('spam', 'ham')]
+== Inheritance ==
+class Shape:
+  def __init__(self):
+    self.color = "blue"
+class Circle(Shape):
+  def __init__(self, r):
+    Shape.__init__(self)
+    self.radius = r
+  def calcDiameter(self):
+    return self.radius * 2
+== Overiding ==
+    

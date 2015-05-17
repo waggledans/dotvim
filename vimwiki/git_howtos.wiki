@@ -1,4 +1,4 @@
-= my old howtos =
+ to local repo= my old howtos =
 == git architecture and general ==
 git has 3 trees: repo, staged area and working directory
 HEAD points to tip of current branch repo
@@ -94,9 +94,13 @@ copy the hash line and then:
     $git show 7f43a89c39928edba461a0be72aa7f2e51e2d93e
 To see development branch:
     git show-branch --more=10
-== Create tag ==
-    $ git tag -m"Tag version 1.0" V1.0 3ede462
-Checkout files:
+== tag create / maintain ==
+* list tags:
+  $ git tag
+* Create tag 
+  $ git tag -m"Tag version 1.0" V1.0 3ede462
+* push tags 
+  $ git push --tags
 
 == push to github ==
 $ git remote add origin git@github.com:username/Hello-World.git
@@ -132,11 +136,11 @@ git checkout tree-ish -- <file/dir name>  : in case want to revert to some of ol
 === unstage changes ===
 * let's say you added a file that isnt supposed to be commited
 git reset HEAD <file>     : unstages
-=== ammend commits ===
+=== amend commits ===
 * only the very last commit can be modified
 a) first add your changes to index
 git add <file(s)>
-git commit --ammend -m "some new message"
+git commit --amend -m "some new message"
 === revert commit ===
 * basically takes a commit and UNDOs all the changes. ?? I need to be clear on this one
 * to me it seems the same as checkout
@@ -171,13 +175,13 @@ git ls-tree <tree-ish>  : ls git commited files
     $ gitk$ git checkout -b bug/pr-3
 
 = branch =
-
 # create branch
     $ git branch prs/pr-1138
 # list all branches
     $ git branch
 # checkout some particular branch
     $ git checkout bug/pr-1
+# shorcut is: git checkout -b new_branch   (create a branch and switch to it)
 # if there are some modified files in the workarea git will attempt
 # to merge with the checked out files if -m flag is specified:
     $ git checkout -m dev 
@@ -197,6 +201,8 @@ git ls-tree <tree-ish>  : ls git commited files
  
 
 == diff - show difference==
+* to use vimdiff for files:
+https://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
 * git diff commit1 commit2 -  the differences between the two arbitrary commits.
 * git diff treeish          :show diffs between work dir and repository (HEAD by default)
 * git diff --staged         :show diffs between working directory and staged index
@@ -204,7 +210,7 @@ git ls-tree <tree-ish>  : ls git commited files
 * git diff --cached         :show diffs between working directory and staged index
 git diff --cached tree-ish    :the differences between the staged and the given commit.
 === file diff ===
-git diff tree-ish filename  :the diff between the file in the working directory in in tree-ish
+git diff tree-ish filename  :the diff between the file in the working directory tree-ish
 git diff -w                 :ignore white spaces
 # using unix diff (diff -r will traverse two tree objects):
     $ diff -u initial rewrite
@@ -215,63 +221,116 @@ shows all branches that merged into the current one (and, in theory, could be
 eliminated)
 # list all changes from master to bug/pr-1:
     $ git log -p master..bug/pr-1
-
-
+== stash ==
+  $ git stash save "blah blah"
+this command would stash all the changes and run git reset --hard HEAD  
+  $ git stash -u (git stash --include-untracked) 
+* view stash:
+  $ git stash list        will display list of stashes
+* even more info:
+  $ git stash show -p stash@{1}
+  git stash apply         leaves copy in stash
+  git stash pop           removes it from the stash
+* delete stash  
+  git stash drop        stash@{0} 
+  git stash clear       : deletes all stashes
 = Merge (merging branches) =
-$ git init 
-#Initialized empty Git repository in /tmp/conflict/.git/ 
-$ git config user.email "jdl@example.com" 
-$ git config user.name "Jon Loeliger"
-$ cat > file 
-    Line 1 stuff 
-    Line 2 stuff 
-    Line 3 stuff ^D
-#Let’s create another commit on the master branch:
-$ cat > other_file 
-Here is stuff on another file! ^D 
-# git add other_file 
-$ git commit -m"Another file"
-Created commit 761d917: Another file 
-1 files changed, 1 insertions(+), 0 deletions(-) 
-create mode 100644 other_file
-# So far, the repository has one branch with two commits, where each commit introduced a new file.
-# Next, let’s change to a different branch and modify the first file:
-git checkout -b alternate master^ 
-# Switched to a new branch "alternate"
-git show-branch 
-* [alternate] Initial 3 line file
-! [master] Another file 
---
-+ [master] Another file 
-*+ [alternate] Initial 3 line file
-# make some trivial changes to the file:
-$ cat >> file 
-Line 4 alternate stuff ^D 
-$ git commit -a -m"Add alternate's line 4" 
-Created commit b384721: Add alternates line 4
-1 files changed, 1 insertions(+), 0 deletions(-)
-# Now the merge itself:
-$ git checkout master 
-Switched to branch "master"
-$ git status 
-# On branch master nothing to commit (working directory clean)
-
-o# Yep, ready for a merge!
-$ git merge alternate
-Merge made by recursive.
-file |  1 + 1 files changed, 1 insertions(+), 0 deletions(-)
-
-
+* --no-ff flag would not incorporate commits of the branch being merged:
+    $ git merge alternate
+    $ git merge --no-ff alternate
+    $ git merge v1.0 --no-commit --no-ff
+* in case of conflicts, git just writes conflicted files, important to fix it
+* if there are too many conflicts:
+    $ git merge --abort
+* use merge tool
+  $ git mergetool --tool=meld
+= REBASE =
+* eliminates merge-commit(ie commit after merge)
+* local rebase example: rebase hotfix branch on develop branch:
+  $ git checkout hotfix
+  $ git rebase develop (now we have hotfix branch that contains all develop
+  commits and, on top of them, hotfix commits)
+  $ checkout develop
+  $ merge hotfix    (this one would sync develop and hotfix)
+* conflict example (master has conflicted files with origin/master):
+  $ git fetch
+  $ git rebase
+* from here, in case of a conflict, there are 3 options:
+  $ git rebase --continue (after resolving the conflict)
+  $ git rebase --skip     (skip meaning drop conflicting commit from the local
+  repo) 
+  $ git rebase --abort    (abort rebase altogether)
+* in case of git rebase --continue:
+** resolve the conflict
+** add the fixed files: $ git add file_names
+** $ git rebase --continue
 = REMOTE =
-
-git fetch  - Retrieves objects and their related metadata from a remote repository
-git pull   - Like git fetch, but also merges changes into a corresponding branch
+* Create remote *bare* repo for push/pull only
+  $ git init --bare project1.git  
+* see all the remotes:
+  $ git remote
+* add remote (typically remote is called origin)
+  $ git remote alias URL
+* remove remote
+  $ git remote rm alias
+== Remote branch ==
+=== create remote branch ===
+  $ git checkout local_branch_name
+  $ git push origin local_branch_name
+** if need to pull changes from there
+  $ git pull origin local_branch_name
+** if repeated many times 
+  $ git branch --set-upstream local_branch_name origin/local_branch_name
+  $ git pull
+=== checkout remote branch ===
+* if somebody else created a branch and you want to pull it
+  $ git pull
+  $ git branch local_name origin/branch_name      : will make tracking branch
+  or
+  $ git checkout -b develop origin/develop
+=== delete remote branch ===
+  $ git push origin :v0
+  or more intuitive:
+  $ git push origin --delete hotfix_branch
+* prune all the deleted remote branches  
+  $ git remote prune origin
+=== show origin - IMPORTANT ===
+# it is all confusing so the command to see all branches and tracking status:
+  $ git remote show origin
+== tracking ==
+http://www.gitguys.com/topics/tracking-branches-and-remote-tracking-branches/
+http://www.gitguys.com/topics/adding-and-removing-remote-branches
+refs/remotes/origin/master should be remote-tracking branch (whatever is fefined
+                        for fetch in refs/config
+also:
+git branch --set-upstream-to=refs/remotes/origin/master master
+* Branch v0 set up to track remote branch v0 from origin.
+  $ git branch --set-upstream v0 origin/v0  
+* push -u makes sure that changes in remote are tracked
+  ie it makes the current branch a tracking branch
+  $ git push -u origin master
+* or to have local branch track remote branch with different name
+  $ git push -u origin some_local_branch:remote_branch_name  
+=== remote basics ===  
+* see all branches  
+  $ git branch -a
+* fetch from remote to local repo (but not working directory)  
+  $ git fetch
+* merge changes and commit 
+  $ git merge origin/master 
+* git pull   - "git fetch + git merge" together
+* pull while specifying remote branch name
+  $ git pull origin branch_name
 git push   - Transfers objects and their related metadata to a remote repository
 git ls-remote   Shows references within a remote
+== Remote FAQ ==
+* ambiguous input
+http://stackoverflow.com/questions/26046698/git-refname-origin-master-is-ambiguous
+* how to delete unwanted ref:
+git update-ref -d refs/origin/master
 
 $ git clone --bare /Users/dans/myproj .
 git remote add origin /Users/dans/repos/myproj
-$ git branch -a
 git remote updates
 
 
@@ -283,6 +342,10 @@ git submodule add git@mygithost:billboard lib/billboard
 git submodule init
 * update submodule
 git submodule update
+* cd into submodule directory
+git checkout master
+git pull
+git submodule update --init --recursive
 * remove submodule is AWKWARD
 edit .gitmodules, .git/config and then:
 git rm –cached [plugin path]

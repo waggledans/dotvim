@@ -66,7 +66,6 @@ Point::Point(const Point& p) {
 == copy constructor rules ==
 A copy constructor is called whenever a new variable is created from an object.
 This happens in the following cases (but not in assignment).
-
 * A variable is declared which is initialized from another object, eg,
     Person q("Mickey"); // constructor is used to build q.
     Person r(p);        // copy constructor is used to build r.

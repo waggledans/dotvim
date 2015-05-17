@@ -13,6 +13,7 @@
 * [[cpp_containers]]
 * [[cpp_templates]]
 * [[cpp_io]]
+* [[cpp_snippets]]
 == java ==
 * [[java_notes]]
 * [[eclipse]]

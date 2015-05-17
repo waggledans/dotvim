@@ -1,4 +1,13 @@
-"call pathogen#runtime_append_all_bundles()
+" call pathogen#runtime_append_all_bundles()
+"set rtp+=~/.vim/bundle/Vundle.vim
+"call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+" "call vundle#begin('~/some/path/here')
+"
+" " let Vundle manage Vundle, required
+"Plugin 'gmarik/Vundle.vim'
+" All of your Plugins must be added before the following line
+"call vundle#end()            " required
 runtime plugin/unbundle/unbundle.vim
 source ~/.vim/global.vim
 source ~/.vim/abreviations.vim
