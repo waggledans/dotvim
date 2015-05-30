@@ -19,6 +19,7 @@
 [submodule "bundle/matchit"]
 	path = bundle/matchit
 	url = https://github.com/benjifisher/matchit.zip.git
+        ignore = untracked  
 [submodule "bundle/commentary"]
 	path = bundle/commentary
 	url = https://github.com/tpope/vim-commentary
@@ -37,24 +38,29 @@
 [submodule "bundle/snipmate"]
 	path = bundle/snipmate
 	url = http://github.com/msanders/snipmate.vim
+        ignore = untracked  
 [submodule "ftbundle/bash/bash-support"]
 	path = ftbundle/bash/bash-support
 	url = https://github.com/vim-scripts/bash-support.vim.git
+        ignore = untracked  
 [submodule "bundle/bufexplorer"]
 	path = bundle/bufexplorer
         url = https://github.com/jlanzarotta/bufexplorer.git
 [submodule "ftbundle/bash/awk-support"]
 	path = ftbundle/bash/awk-support
 	url = https://github.com/vim-scripts/awk-support.vim.git
+        ignore = untracked  
 [submodule "bundle/vimwiki"]
 	path = bundle/vimwiki
 	url = https://github.com/vimwiki/vimwiki.git
+        ignore = untracked  
 [submodule "bundle/tmux"]
 	path = bundle/tmux
 	url = https://github.com/christoomey/vim-tmux-navigator.git
 [submodule "bundle/taglist"]
 	path = bundle/taglist
 	url = https://github.com/vim-scripts/taglist.vim
+        ignore = untracked  
 [submodule "bundle/vim-misc"]
 	path = bundle/vim-misc
 	url = https://github.com/xolox/vim-misc.git
