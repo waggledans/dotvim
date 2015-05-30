@@ -56,7 +56,7 @@ where R.rowid like '%L%'
 SELECT SUM(UnitPrice*UnitsStock) FROM Products;
 SELECT MAX(BirthDate) FROM EMPLOYEES;
 SELECT AVG(UnitPrice) FROM [Order Details]
-WHERE OrderID = 10248;
+WHERE OrderID = 10248
 
 # Crazy long query where u want to find the name of the city that has max number of employees. The query uses 2 nested queries that use aggregation
 

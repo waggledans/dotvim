@@ -5,6 +5,95 @@ unlike in C++ where protected members can only access by subclass
 // Java way would be final static class variable
 public final static String NAME = "I'm a static variable";
 * 
+= Java 7 features =
+== static initializers ==
+private static final Map<Integer, String> myMap2 = new HashMap<Integer, String>(){
+        {
+            put(1, "one");
+            put(2, "two");
+        }
+    };
+private static final Map<Integer, String> myMap = new HashMap<Integer, String>();
+    static {
+        myMap.put(1, "one");
+        myMap.put(2, "two");
+    }
+== Instance Field Initializers ==
+== enumb classes ==
+public enum OliveName {
+    KALAMATA("Kalamata"), LIGURIO("Ligurio"), PICHOLINE(Picholine), GOLDEN(Golden);
+    /*
+      Constructor here is necessary for toString method to return not the uppercase enum value 
+      but string associated with enum value
+    */
+    private nameAsString;
+    private OliveName(String nameAsString) {
+        this.nameAsString = nameAsString;
+    }
+    @Override
+    String toString () {
+      retur this.nameToString;
+    }
+    };
+== member classes ==
+http://docs.oracle.com/javase/tutorial/java/javaOO/nested.html
+=== local inner class ===
+class defined within a method doesnt need access modifier, it's automatically private
+unlike nested classes which are static, member classes (or inner classes) are not static
+=== anonymous inner class ===
+ new Object() {
+    void newFunctionalityMethod() {do stuff}
+ }.newFunctionalityMethod();
+ 
+== Reflection API ==
+    Olive olive = new Olive(OliveName.KALAMATA, OliveColour.BLACK);
+    // Dynamic class instantiation
+    Class<?> cl = olive.getClass();
+    System.Out.println(cl.getName());
+    Contructor<?>[] constructors = cl.getConstructors();
+    Constructor<?> con = constructors[0];
+    Object obj = null;
+    try {
+    obj = con.newInstance(OliveName.KALAMATA, OliveColour.BLACK);
+    } catch(Exception e) {}
+== working with files ==
+* Path can parse file name (get directories etc)
+Path path = Paths.get("/path/to/myFile.txt");
+path.getFile(), path.getNameCount() returns list of dirs in the file name
+path.toRealPath(LinkOption.NOFOLLOW_LINKS);
+getFileSystem()
+
+=== copy remove move ===
+Files.copy(src, target, StandardCopyOption.REPLACE_EXISTING); Files.move(..
+Files.delete(Path file), Files.CreateDirectory;
+=== reading / writing files ===
+// Both BufferedReader and BufferedWriter receive new Files.newBuffered[Reader/Writer]
+Charset charset = Charset.forName("US-ASCII");
+BufferedReader br = new BufferedReader(Files.newBufferedReader(Path path, charset));
+* To work with directories/file system also see:
+SimpleFileVisitor<Path>()  class
+== Using Try-With-Resources in Java 7 ==
+try ( // here I can init vars that should be cleaned even if exception occured
+  FileReader fr = new FileReader("Filename.txt");
+  BufferedReader br = new BufferedReader(fr);
+) {
+    code
+} catch (FileNotFoundException e) {} finally {}
+
+= Java 8 features =
+== lambda ==
+//in case of java used in SAM (single abstract method) interfaces:
+// Runnable, Callable, Comparator, TimerTask
+// In Java8 they are called Functional Interfaces
+Runnable r1 = () -> System.out.println("Hello!");
+Runnable r2 = () -> {
+    System.out.println("Print line One");
+    System.out.println("Print line One");
+    }
+new Thread(r1).start(); new Thread(r2).start();
+
+= multithreading =
+see java_multithreading vimwiki
 = Generics =
 == Map ==
 * Hashtable is synchronized
@@ -24,23 +113,16 @@ StringBuffer is synchronized, StringBuilder is not.
 == tests for reference equality.
 .equals() tests for value equality.
 = Assertions =
-public class IIDemo
-{
-   final static int NORTH = 0;
-   final static int SOUTH = 1;
-   final static int EAST = 2;
-   final static int WEST = 3;
-   public static void main(String[] args)
-   {
-int direction = (int) (Math.random() * 5); switch (direction)
-{
-         case NORTH: System.out.println("travelling north"); break;
-         case SOUTH: System.out.println("travelling south"); break;
-         case EAST : System.out.println("travelling east"); break;
-         case WEST : System.out.println("travelling west"); break;
+Add -ea in project configuration
+public class IIDemo {
+   final static int LEFT = 0;
+   final static int RIGHT = 1;
+   public static void main(String[] args) {
+int direction = (int) (Math.random() * 3); switch (direction) {
+         case LEFT: System.out.println("travelling north"); break;
+         case RIGHT: System.out.println("travelling south"); break;
          default   : assert false; // better to use throw new AssertionError(direction);
-} }
-}
+} } }
 = Annotations =
 It is possible to add your own annotations
 

@@ -14,3 +14,38 @@ syscall(SYS_write, 1, "Hello World!\n", 14);
 syscall(SYS_exit, 0);
 }
 * generate ass file  gcc -S  hello.c
+= IPC, pipes =
+== unnamed pipes ==
+
+== named pipes ==
+* from cmdline: 
+mknod filename p
+or better:
+mkfifo filename
+* from program:
+    #include <sys/types.h> #include <sys/stat.h>
+    int mkfifo(const char *filename, mode_t mode);
+    int mknod(const char *filename, mode_t mode | S_IFIFO, (dev_t) 0);
+=== read and write named pipe ===
+* open(const char *path, O_RDONLY);
+    The open call will block; it will not return until a process opens the same FIFO for writing.
+* open(const char *path, O_RDONLY | O_NONBLOCK);
+    The open call will now succeed and return immediately,
+    even if the FIFO has not been opened for writing by any process.
+* open(const char *path, O_WRONLY);
+    The open call will block until a process opens the same FIFO for reading.
+* open(const char *path, O_WRONLY | O_NONBLOCK);
+    The open call will return immediately, but if no process has the FIFO open for reading,
+    open will return an error, –1, and the FIFO won’t be opened. 
+    If a process does have the FIFO open for reading, the file descriptor returned can be used for writing to the FIFO.
+* if all went well with open
+  res = write(pipe_fd, buffer, BUFFER_SIZE);
+  or
+  res = read(pipe_fd, buffer, BUFFER_SIZE);
+  bytes_read += res;
+= semaphores =
+#include <sys/sem.h>
+int semctl(int sem_id, int sem_num, int command, ...);
+int semget(key_t key, int num_sems, int sem_flags);
+int semop(int sem_id, struct sembuf *sem_ops, size_t num_sem_ops);
+

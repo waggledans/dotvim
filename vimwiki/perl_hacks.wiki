@@ -121,6 +121,17 @@ perl -wnl -e 'print "$. : $_”
 perl -lne ‘$s += $_; END{print $s/$.)’	       #prints average of the column
 perl -p -i.bak -e ‘s/\bfoo/bar/g’ *.c    # -i means inplace editing while saving orig under orig.bak
 perl -F= -lane '$f=@F;print qq($F[0] $f)' a.ini	#sort of like awk ‘print $1’
+-wnlaF'sep'
+perl –wnlaF':' –e 'print $F[2];'  filename
+-s
+$ print_lines –n F F2 # -n sets $n True
+-i.extension
+perl [[–i.bak]] –wnl –e 's/A/B/g; print' file 
+#Make changes in original file after backing it up as file.bak
+-M'mod_name'
+example : convert tabs in $_ to spaces before printing (expand is provided by Text::Tabs):
+perl –M'Text::Tabs' -wnl –e 'print expand $_;' F
+In scripts, employ “use mod_name;” instead.
 
 = Language features =
 == Comparison operators  ==
@@ -343,31 +354,20 @@ perl -F':' -ane '$s{$F[6]}++;' \
 
 BEGIN { $/='**'; } # ** becomes input separator
 Precedence of Perl operators
-Special vars
-Explanation
-$/
-input record separator, like RS in awk
-$\
-output record separator, like ORS in awk
-$ARGV
-input source, like it equals ‘-’ when source is STDIN or filename etc...
-$"
-‘$"’ contains the characters that are automatically inserted between elements of arrays whose names appear in double quotes. space character by default. See also $, 
-$,
-“$,” is involved in two kinds of special formatting for arguments in print statements. Its contents are used on output in place of
-commas that appear between print’s arguments, and also
-between the elements of unquoted array or hash arguments. It’s empty by default. AWK: OFS
--wnlaF'sep'
-perl –wnlaF':' –e 'print $F[2];'  filename
--s
-$ print_lines –n F F2 # -n sets $n True
--i.extension
-perl –i.bak –wnl –e 's/A/B/g; print' file 
-#Make changes in original file after backing it up as file.bak
--M'mod_name'
-example : convert tabs in $_ to spaces before printing (expand is provided by Text::Tabs):
-perl –M'Text::Tabs' -wnl –e 'print expand $_;' F
-In scripts, employ “use mod_name;” instead.
+= Special vars =
+http://perldoc.perl.org/perlvar.html
+
+|----|------------------------------------------|
+| $/ | input record separator, like RS in awk   |
+|----|------------------------------------------|
+| $\ | output record separator, like ORS in awk |
+|----|------------------------------------------|
+| $" | array record separator                   |
+|----|------------------------------------------|
+| $' | array output record separator,           |
+|----|------------------------------------------|
+| $, | outpu record separator, like OFS in awk  |
+|----|------------------------------------------|
 $.
 contains line number (to print line number for instance)
 $|
@@ -383,6 +383,7 @@ Holds the current page number for the default file handle. If you use select() t
 $=
 Holds the current page length for the default file handle.
 $-
+
 
 
 qq()
@@ -793,6 +794,4 @@ my $dbh2 = DBI->connect( "dbi:mSQL:seconddb", "username", "password" , {
 exit;
 #
 $rc = $dbh->disconnect();
-
-
 

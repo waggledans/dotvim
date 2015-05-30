@@ -1,3 +1,27 @@
+= data types =
+shot / short int, signed/unsigned short   : 16b 
+= bit manipulation =
+== set/clear n-th bit ==
+unsigned short n = 3;
+unsigned int a = 0;
+unsigned int b = 1;
+b << n;
+int unsigned c = a | b;
+= string =
+#include <stdio.h>
+// strncmp compares first n characters
+int main() {
+  char string1[20];
+  char string2[20];
+  strcpy(string1, "Hello"); strcpy(string2, "Hellooo");
+  printf("Return Value is : %d\n", strncmp( string1, string2, 4));
+  strcpy(string1, "Helloooo"); strcpy(string2, "Hellooo");
+  printf("Return Value is : %d\n", strncmp( string1, string2, 10));
+
+  strcpy(string1, "Hellooo"); strcpy(string2, "Hellooo");
+  printf("Return Value is : %d\n", strncmp( string1, string2, 20));
+  return 0;
+}
 = memory alloc =
 mnemonic - clear-alloc, memory-alloc, re-alloc
 Example array of strings:

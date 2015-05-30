@@ -1,0 +1,6 @@
+= submit form =
+<form action="simpleServlet" method="get">
+  <input type="text" name="fname"><br>
+  <input type="text" name="lname"><br>
+  <input type="submit" value="Submit">
+</form>

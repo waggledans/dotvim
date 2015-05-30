@@ -1,0 +1,8 @@
+= mem structures =
+* Oracle instance = (server - instance connected to DB) instance means memory + proc that supports 1 DB 
+* System Global Area - SGA
+  ** DB buffer: Scratch space for SQL
+  ** Log buffer
+  ** Shared pool:  cache
+* Prog global area
+  One server process per user session, runs on client

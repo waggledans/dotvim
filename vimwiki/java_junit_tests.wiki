@@ -1,0 +1,72 @@
+/*
+////  Used here:
+@BeforeClass
+@AfterClass
+@Before
+@After
+@Test
+@Test(expected=NullPointerException.class)
+assertTrue / assertFalse
+assertArrayEquals
+assertEquals
+
+*/
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import org.junit.*;
+import java.util.*;
+
+public class MainTest {
+	static private List<String> testLines;
+	static private List<String> answers;
+	
+	@BeforeClass
+	// would run before the test suit just once
+	public static void setUpSuit() {
+		System.out.println("Running Suit");
+		testLines = new ArrayList<String>();
+		answers = new ArrayList<String>();
+		testLines.add("(1,2,6);(9,23,22);(22,6,24);(8,14,19);(23,12,30)");
+		answers.add("1 2 6 0 8 14 9 23 22 6 23 12 30 0");
+	}
+	@AfterClass
+	// would run aftre the test suit just once
+	public static void setDownSuit() {
+		System.out.println("Finishing Suit");
+	}
+	@Before
+	// would run before each test
+	public void setUp() {
+		System.out.println("Running test");
+	}
+
+	@After
+	// would run after each test
+	public void setDown() {
+		System.out.println("Finishing test");
+	}
+
+	@Test
+	// @Test(expected=NullPointerException.class)
+	// @Test(timeout=2)
+	public void testMain() {
+		int i = 0;
+		for (String testLine : testLines) {
+			String answer = answers.get(i);
+			assertEquals(answer, Main.parseLine(testLine));
+			i++;
+		}
+		
+		// assertTrue(underTest.getSkyline(testLine).equals(answer));
+		// assertFalse
+		// assertArrayEquals
+		 * assertEquals("10 x 0 must be 0", 0, tester.multiply(10, 0));
+	}
+
+	@Test
+	public final void testParseLine() {
+		fail("Not yet implemented"); // TODO
+	}
+
+}
+
