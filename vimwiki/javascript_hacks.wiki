@@ -1,0 +1,264 @@
+= data types =
+* loosely-typed (dynamic typing)
+    object
+    number
+    string
+    boolean
+    undefined
+      var person;                  // Value is undefined, type is undefined
+    null
+= function =
+function myFunction(p1, p2) {
+    return p1 * p2;              // The function returns the product of p1 and p2
+}
+* calling myFunction without parentheses will return func definition
+== JavaScript Closures ==
+
+var add = (function () {
+    var counter = 0;
+    return function () {return counter += 1;}
+})();
+
+add(); add(); add();
+
+// the counter is now 3
+= object =
+== prototype ==
+function person(first, last, age, eyecolor) {
+    this.firstName = first;
+    this.lastName = last;
+    this.age = age;
+    this.eyeColor = eyecolor;
+    this.name = function() {return this.firstName + " " + this.lastName;};
+}
+// so person is a prototype for myFather
+var myFather = new person("John", "Doe", 50, "blue");
+== example 1 ==
+var person = {firstName:"John", 
+              lastName:"Doe", 
+              age:50, 
+              eyeColor:"blue",
+              sayHello: function() {
+                    return “hi there.”;
+                    }
+              };
+== example 2 ==
+function Parenizor(value) {
+    this.setValue(value);
+}
+
+Parenizor.method('setValue', function (value) {
+    this.value = value;
+    return this;
+});
+
+Parenizor.method('getValue', function () {
+    return this.value;
+});
+
+Parenizor.method('toString', function () {
+    return '(' + this.getValue() + ')';
+});
+/////
+myParenizor = new Parenizor(0);
+myString = myParenizor.toString();
+== inheritance ==
+http://www.crockford.com/javascript/inheritance.html
+function ZParenizor(value) {
+    this.setValue(value);
+}
+
+ZParenizor.inherits(Parenizor);
+
+ZParenizor.method('toString', function () {
+    if (this.getValue()) {
+        return this.uber('toString'); // uber is like java's super
+    }
+    return "-0-";
+});
+= Constructors =
+== simple object ==
+var CreatePerson = function (firstName, lastName) {
+var person = {
+    firstName: firstName,
+    lastName: lastName,
+    sayHello: function() {
+        return “hi there.”;
+    }}};
+    
+== defining properties for the object ==
+http://stackoverflow.com/questions/18524652/how-to-use-javascript-object-defineproperty
+=== definePropery ===
+function Product(name,price) {
+  this.name = name;
+  this.price = price;
+  var _discount; // private member
+  Object.defineProperty(this,"discount",{  // this answers the comment (pun intended)
+    get: function() { return _discount; },
+    set: function(value) { _discount = value; if(_discount>80) _discount = 80; }
+  });
+}
+
+// the client code
+var sneakers = new Product("Sneakers",20);
+sneakers.discount = 50; // 50, setter is called
+sneakers.discount+= 20; // 80, not 90!
+alert(sneakers.discount); // getter is called
+
+=== defineProperty outside class definition ===
+Object.defineProperty(person, “fullName”, {
+    get: function() {
+        return this.firstName + “ ” + this.lastName;
+    },
+    enumerable: true,
+    /*
+    enumerable means that the prop will be emumerated by one of the following:
+    for (var prop in person) {}
+    Object.keys(person);
+    */
+    writable: true,		// means its not read-only
+    configurarable: true	// means that the property may be redefined (by parasitic inheri or smth)
+});
+=== defineProperies ===
+var person = {};
+Object.defineProperties(person, {
+    firstName: {
+        value: firstName,
+        writable: true
+    },
+    lastName: {
+        value: lastName,
+        writable: true
+    },
+    fullName: {
+        get: function() {return this.firstName + “ “ + lastName;}
+        set: function(value0, value1) {this.firstName =value0; this.lastName = value1; }
+    }
+}
+return person
+};
+var johnDoe = createPerson (“John”, “Doe”);
+///////////////////////////////////////////////////////////////////////////////////////////
+== Parasitic inheritance modifies one object into another ==
+// 
+///////////////////////////////////////////////////////////////////////////////////////////
+var createEmployee = function(firstName, lastName, position) {
+// add new property
+var person = createPerson(firstName, lastName);
+person.position = position;
+/*
+Object.getOwnPropertyDescriptor helps reusing a configurable property (without circular dependency) rather than redefining it
+*/
+var fullName = Object.getOwnPropertyDescriptor(person, “fullName”);
+// get the function called “fullName” : var fullNameFunction = fullName.get
+// just calling “get” wouldnt work because we need to refer to employee object
+// bind function to person object rather than employee object
+var fullNameFunction = fullName.get.bind(person);
+Object.defineProperty(person, “fullName”, {
+get: function() {
+fullNameFunction + “ , ” + this.position;
+},
+enumerable: true,
+configurarable: true
+});
+var sayHelloFn = person.sayHello.bind(person);
+person.sayHello = function() {
+return sayHelloFn() + “ My name is  “ this.fullName;
+};
+return person;
+};
+var johnDoe = createEmployee(“John”, “Doe”, “Manager”);
+///////////////////////////////////////////////////////////////////////////////////////////
+// Prototype inheritance
+///////////////////////////////////////////////////////////////////////////////////////////
+// First create the object based on person object
+var employer = Object.create(person);
+employer.hasOwnPropery(“fullName”)	=> false
+empoyer.__proto__	=== person;	=>true 	// prototype property 
+// redefine sayHi method
+employer.sayHi = function(){ return this.__proto__.sayHi.call(this) + “in addition, I am a manager ” + this.fullName;}
+// redefine sayHi method upon creating inherited object
+var employer = Object.create(person, {
+sayHi:  function(){ return this.__proto__.sayHi.call(this) + “in addition, I am a manager ” + this.fullName;},
+fullName: {
+get: function() {return this.firstName + “ “ + lastName;}
+}
+});
+
+= example	////////////////////// =
+var Employee = function(firstName, lastName, position) {
+// call the prototype constructor
+    Person.call(this, firstName, lastName);
+    this.position = position;
+};
+Employee.prototype = Object.create(Person.prototype {
+    sayHi:  function(){ return Person.prototype.sayHi.call(this) + “, my position is ” + this.position;},
+    fullName: {
+        get: function() {
+        var desc = Object.getOwnPropertyDescriptor(Person.prototype, “fullName”);
+        return desc.get.call(this) + “, ”+ this.position;
+    }
+);	// to add all Person methods
+/*
+// a better way (to avoid multiple calls to  Object.getOwnPropertyDescriptor is to define a closure
+get: function() {
+var desc = Object.getOwnPropertyDescriptor(Person.prototype, “fullName”).get;
+return function() {
+return desc.call(this) + “, ”+ this.position;
+}
+}
+*/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Custom events
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// DOM allows us to add/remove listener
+ver EventTarget = function(){
+	Object.defineProperty(this, “__listeners”, {
+value: {
+}
+});
+};
+Object.defineProperties(EventTarget.prototype, {
+	addListener: {
+	value: function (type, listener){
+		if(typeof this.__listeners[type] === “undefined”) {
+			this.__listeners[type] = []; }
+		this.__listeners[type].push(listener);
+},
+enumerable: true
+},
+__fire: {
+	value: function(evtObj) {
+		if (typeof evtObj.type === “underfined”){
+	throw new Error(“Event evtObj must have a type property”);
+}
+if (typeof evtObj.target === “underfined”){
+	evtObj.target = this;
+}
+	var listeners = this.__listeners[type];
+for (var i = 0, len = listeners.length, i < len; ++i) {
+	listeners[i].call(this, evtObj);
+}
+}
+},
+	removeListener: {
+value: function (type, listener){
+	var listeners = this.__listeners[type];
+	if(typeof listeners[type] === “undefined”) {
+		return;
+	}
+for (var i = 0, len = listeners.length, i < len; ++i) {
+if (listeners[i] == listener) {
+	listeners.splice(i,1);
+	break;
+}
+}
+},
+enumerable: true
+
+},
+});
+
+
+

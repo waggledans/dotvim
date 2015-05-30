@@ -1,3 +1,5 @@
+= wget =
+wget --accept pdf,jpg --mirror --progress --adjust-extension --convert-links --backup-converted --no-parent http://site/path/
 = modifiers =
 * a good explanation about them is here: http://www.grymoire.com/Unix/Csh.html#uh-92
 * example

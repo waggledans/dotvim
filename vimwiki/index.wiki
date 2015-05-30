@@ -6,6 +6,7 @@
 == haskell programming ==
 * [[haskell_basics]]
 == C/C++ programming ==
+* [[makefile]]
 * [[c_notes]]
 * [[gcc]]
 * [[cpp_notes]]
@@ -14,15 +15,22 @@
 * [[cpp_templates]]
 * [[cpp_io]]
 * [[cpp_snippets]]
+== javascript ==
+* [[html]]
+* [[javascript_hacks]]
 == java ==
 * [[java_notes]]
+* [[java_multithreading]]
+* [[java_junit_tests]]
 * [[eclipse]]
+* [[gradle]]
 == SVN ==
 * [[svn]]
 == GIT ==
 * [[git_howtos]]
 * [[git_add_empty_dir]]
 == LINUX ==
+* [[linux_system]]
 * [[linux_programming]]
 * [[ack]]
 * [[apt-get]]
@@ -48,9 +56,10 @@
 * [[perl_hacks]]
 == Python ==
 * [[python_notes]]
-== SQL ==
+== SQL DB Mongo NoSQL ==
 * [[sql_mysql]]
 * [[sqlite]]
+* [[mongodb]]
 == VIM ==
 * [[vim_howtos]]
 * [[vimdiff]]

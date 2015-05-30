@@ -1,0 +1,52 @@
+= general command line commands =
+== find ==    
+  * combine find with grep:
+    find . -name \*.cpp -exec grep -q "debug" '{}' \; -print
+  * return file names only
+    find . -type f -name "*John*"	
+== grep ==    
+-l  :only file names are returned
+
+= networking =
+curl -i -X POST -H "Content-Type:application/json" -d '{  "firstName" : "Frodo",  "lastName" : "Baggins" }' http://localhost:8080/
+wget 
+scp
+scp -i ~/Desktop/amazon.pem ~/Desktop/MS115.fa  ubuntu@ec2-54-166-128-20.compute-1.amazonaws.com:~/data/
+ssh
+= System info =
+* lscpu or	      less /proc/cpuinfo
+* free <-m|t|g> or    less /proc/meminfo
+    ** free -gt, free -mt
+* dmidecode --type 17
+* lshw -short -C memory
+* uname -mrs  : kernel info
+* lsb_release -a  : release info (it's not installed everywhere)
+* fdisk -l | grep '^Disk /dev/'  : Display installed hard disk and size
+ssh -i /Users/dans/ama_test_key.pem ec2-user@52.11.163.16 -v    : AWS ubunthu
+ssh -i /Users/dans/ama_test_key.pem ec2-user@52.25.81.84 -v	: amazon_linux
+scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/home/ec2-user/downloads
+
+= user administration =
+grep group-name /etc/group  : check group exists 
+groupadd <group-name>	    : create group
+useradd -G <group-name> username
+id -u			    : user id
+id -g : group id, id -G	    : all user's groups
+chown `id -u` /data/db	    : change ownership for whatever id-u returns
+= generate key =
+== keytool ==
+* valid for 3650 days
+    keytool -genkey -alias <your alias> -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+== openssl ==
+    openssl genrsa -des3 -out server.key 2048
+** (optional) to remove passphrase:
+    cp server.key server.key.org
+    openssl rsa -in server.key.org -out server.key
+** generate csr (certificate registration request) 
+    openssl req -new -key server.key -out server.csr
+** generate self-signed 
+    openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+** restart apache and test
+    /etc/init.d/httpd stop
+    /etc/init.d/httpd start
+

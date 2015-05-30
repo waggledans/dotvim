@@ -102,15 +102,9 @@ To see development branch:
 * push tags 
   $ git push --tags
 
-== push to github ==
-$ git remote add origin git@github.com:username/Hello-World.git
-$ git push origin master
 
 == remove file ==
-    # Create a file and put it under version control
-    touch nonsense.txt
-    git add . && git commit -m "a new file has been created"
-    # Remove the file
+    # Remove indexed file
     rm nonsense.txt
     # Try standard way of committing -> will not work 
     git add . && git commit -m "a new file has been created"
@@ -265,7 +259,10 @@ this command would stash all the changes and run git reset --hard HEAD
 ** add the fixed files: $ git add file_names
 ** $ git rebase --continue
 = REMOTE =
-* Create remote *bare* repo for push/pull only
+== push to github ==
+$ git remote add origin git@github.com:username/Hello-World.git
+$ git push origin master
+== Create remote *bare* repo for push/pull only ==
   $ git init --bare project1.git  
 * see all the remotes:
   $ git remote

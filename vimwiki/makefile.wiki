@@ -1,0 +1,65 @@
+= simple makefile =
+http://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
+= rules =
+targets : dependencies ; command
+        command
+        ...
+Example. The following rule will print a file name that changed since the last time you printed them:
+print: *.c ; echo "running print"
+    lpr -p $?
+    touch print
+
+=  =
+
+= first makefile =
+objects = main.o kbd.o command.o display.o \
+          insert.o search.o files.o utils.o
+
+edit : $(objects)
+        gcc -o edit $(objects)
+main.o : main.c defs.h
+        gcc -c main.c
+kbd.o : kbd.c defs.h command.h
+        gcc -c kbd.c
+command.o : command.c defs.h command.h
+        gcc -c command.c
+display.o : display.c defs.h buffer.h
+        gcc -c display.c
+insert.o : insert.c defs.h buffer.h
+        gcc -c insert.c
+search.o : search.c defs.h buffer.h
+        gcc -c search.c
+files.o : files.c defs.h buffer.h command.h
+        gcc -c files.c
+utils.o : utils.c defs.h
+        gcc -c utils.c
+.PHONY : clean
+clean :
+        rm edit $(objects)
+= good makefile =
+IDIR =../include
+CC=gcc
+CFLAGS=-I$(IDIR)
+
+ODIR=obj
+LDIR =../lib
+
+LIBS=-lm
+
+_DEPS = hellomake.h
+DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+
+_OBJ = hellomake.o hellofunc.o 
+OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+hellomake: $(OBJ)
+	gcc -o $@ $^ $(CFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 

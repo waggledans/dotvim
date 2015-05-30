@@ -58,7 +58,6 @@ print(b)
 >>> p                       # readable __repr__ with a name=value style
  =>  Point(x=11, y=22)
 = = strings = 
-* strings are immutable 
 * String Slicing
   s = "Go Gators! Come on Gators!"
   x = s[0]  # x = "G" or  x = s[3:9] #x = "Gators" or x = s[:2] #x = "Go" or x = s[19:] #x = "Gators!"
@@ -412,17 +411,22 @@ except ValueError: # This try-except catches only ValueErrors
 except ZeroDivisionError: # This try-except catches only zero division 
 except:                   # This try-except catches everything
 = MODULE =
+https://docs.python.org/2/tutorial/modules.html
 * import module_name # no .py extension
 * execute module # unlike import that executes module in its namespace, exec overides local vars
 exec(open('script1.py').read())
 * import sys
-  - sys.argv is equivalent to $@ in bash
+  - sys.argv is equivalent to $@ in bash (or @ARGV in perl)
   - argv[0] is a script name
+Perl:   ($script, $first, $second, $third) = @ARGV; 
+Python: script, first, second, third = argv
 * FindBin equivalent
 import os
 import sys
 bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
+* from fibo import fib1 ## allows instead of fibo.fib1() run fib1()
 = IO operations =
+== files ==
 catfile = open(filename,"r")
 for line in catfile: 
     print(line)
@@ -433,6 +437,16 @@ outfile = open(filename,"w")
 outfile.write("Hello " + yourName + ". How are you?\n") 
 outfile.write("Next year you will be "+str(age+1) +" years old\n") 
 outfile.close()
+== stdin ==
+* the simplest way:
+age = raw_input("How old are you? ")
+*
+import fileinput
+for line in fileinput.input():
+    pass
+*
+for line in sys.stdin:
+    print line
 == path manipulations ==
 http://docs.python.org/2/library/os.path.html
 os.path.expanduser("~dans")     #/home/dans

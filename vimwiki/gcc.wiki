@@ -1,3 +1,5 @@
+= typical c compile command =
+gcc –g -std=c99 –o myprog myprog.c –lpthread
 = usefule flags =
 -c  compile only
 -Dmacro - define macro (also -Dmacro=value)
