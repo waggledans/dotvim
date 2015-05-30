@@ -37,6 +37,14 @@ chown `id -u` /data/db	    : change ownership for whatever id-u returns
 == keytool ==
 * valid for 3650 days
     keytool -genkey -alias <your alias> -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+== ssh-keygen ==
+* generate public/private key pair. Default is ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+* Copies the contents of the id_rsa.pub file to your clipboard
+    pbcopy < ~/.ssh/id_rsa.pub
+* may need to start ssh-agent
+    eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa    
 == openssl ==
     openssl genrsa -des3 -out server.key 2048
 ** (optional) to remove passphrase:
