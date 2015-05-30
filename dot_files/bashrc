@@ -1,15 +1,16 @@
-export PATH=/usr/local/bin:/Applications/homebrew/bin:$PATH
 alias nali='vim ~/.bashrc'
 alias sali='source ~/.bashrc'
 alias m='most '
 alias l='less '
 alias g='grep -eir '
-alias vim='vim -o'
+alias vim='/usr/local/Cellar/macvim/7.4-76/MacVim.app/Contents/MacOS/Vim -o'
 alias vi=vim
-alias gvim=vim
+alias gvim=mvim
+alias vimdiff=mvimdiff
+alias gvimdiff=mvimdiff
 alias md=mkdir
-export PAGER="/usr/local/bin/most -s"
 if [ -f ~/.git-completion.bash ]; then
     source ~/.git-completion.bash
 fi
+
 
