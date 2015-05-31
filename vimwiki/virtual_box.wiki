@@ -1,0 +1,12 @@
+* Forward port 3022 for the host to port 22 of virtual machine
+    VBoxManage modifyvm myserver --natpf1 "ssh,tcp,,3022,,22"
+* verify    
+    VBoxManage showvminfo myserver | grep 'Rule'
+* ssh to virtual machine    
+    ssh -p 3022 user@127.0.0.1
+    
+* resize vmdk disk image:
+** convert to vdi first
+    vboxmanage clonehd "virtualdisk.vmdk" "new-virtualdisk.vdi" --format vdi
+** resize
+    vboxmanage modifyhd "new-virtualdisk.vdi" --resize 30720
