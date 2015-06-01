@@ -51,7 +51,6 @@
 * [[macos_plist]]
 == MacOS ==
 * [[macos_plist]]
-*
 == Perl ==
 * [[perl_hacks]]
 == Python ==
@@ -60,6 +59,7 @@
 * [[sql_mysql]]
 * [[sqlite]]
 * [[mongodb]]
+* [[oracledb]]
 == VIM ==
 * [[vim_howtos]]
 * [[vimdiff]]
@@ -106,9 +106,6 @@
 * [[irun]]
 * [[connectRules]]
 * [[mdl]]
-*
-=== SQL ===
-* [[sqlite]]
 === Cadence Verilog ===
 * [[ams_compile]]
 * [[hdl_var_sample]]

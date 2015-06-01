@@ -4,5 +4,5 @@
   ** DB buffer: Scratch space for SQL
   ** Log buffer
   ** Shared pool:  cache
-* Prog global area
+* Prog global area PGA
   One server process per user session, runs on client
