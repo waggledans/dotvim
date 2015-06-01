@@ -25,14 +25,22 @@ ssh
 ssh -i /Users/dans/ama_test_key.pem ec2-user@52.11.163.16 -v    : AWS ubunthu
 ssh -i /Users/dans/ama_test_key.pem ec2-user@52.25.81.84 -v	: amazon_linux
 scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/home/ec2-user/downloads
-
+== Disk administration ==
+* check how much space avail in /tmp
+df -h /tmp
 = user administration =
+* change user home directory
+usermod -m -d /newhome/username username
 grep group-name /etc/group  : check group exists 
+* add user/group
 groupadd <group-name>	    : create group
 useradd -G <group-name> username
+* change ownership
 id -u			    : user id
-id -g : group id, id -G	    : all user's groups
-chown `id -u` /data/db	    : change ownership for whatever id-u returns
+id -g           : group id
+id -G	    : all user's groups
+chown -R `id -u` /data/db	    : change ownership for whatever id-u returns
+chgrp -R group_name file/directory_name    : change dir group
 = generate key =
 == keytool ==
 * valid for 3650 days

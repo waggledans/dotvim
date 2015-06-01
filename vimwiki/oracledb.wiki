@@ -1,8 +1,47 @@
 = mem structures =
 * Oracle instance = (server - instance connected to DB) instance means memory + proc that supports 1 DB 
+  basically a bunch of memory objects required to tap into DB
+* RAC (Real Application Cluster)
+  a bunch of instances connected to DB
 * System Global Area - SGA
   ** DB buffer: Scratch space for SQL
+  ** Buffer cache: area in memory stores data blocks
   ** Log buffer
   ** Shared pool:  cache
-* Prog global area
-  One server process per user session, runs on client
+* PGA - Prog global area
+  One server process per user session
+  
+  
+== Retrieve  parameters ==
+  show parameter db_name
+  show parameter instance_name
+  show parameter db_block_size
+  select file_name, bytes/1024/1024 "MB" FROM dba_data_files ORDER BY 1;
+  select member, status, group FROM v$logfile;
+= processes =
+ckpt - checkpoint
+dbw0 - db writer
+lgw  - log writer
+arc  - archiver
+pmon - process monitor
+smon - system monitor
+= administration =
+== First login ==
+sudo service oracle-xe start
+sudo usermod -a -G dba YOURUSERNAME
+sqlplus sys as sysdba
+create user USERNAME identified by PASSWORD;
+* if the prev step doesnt work:
+  alter database open resetlogs;
+grant connect, resource to USERNAME;
+alter user <username> default tablespace <tablespace_name>;
+alter user <username> temporary tablespace <temp tablespace_name>;
+
+exit;
+
+== grant user ==
+Grant select on table_name to user;
+alter user hr identified by hr account unlock;
+grant debug connect session to hr; 
+grant debug any procedure to hr
+

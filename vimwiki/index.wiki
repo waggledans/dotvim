@@ -30,6 +30,7 @@
 * [[git_howtos]]
 * [[git_add_empty_dir]]
 == LINUX ==
+* [[virtual_box]]
 * [[linux_system]]
 * [[linux_programming]]
 * [[ack]]
@@ -57,9 +58,11 @@
 == Python ==
 * [[python_notes]]
 == SQL DB Mongo NoSQL ==
+* [[sql_plsql]]
 * [[sql_mysql]]
 * [[sqlite]]
 * [[mongodb]]
+* [[oracledb]]
 == VIM ==
 * [[vim_howtos]]
 * [[vimdiff]]
