@@ -1,0 +1,43 @@
+= Little theory =
+* Data Definition Language (DDL)
+    These SQL commands are used for creating, modifying, and dropping the structure of database objects.
+    The commands are CREATE, ALTER, DROP, RENAME, and TRUNCATE.
+
+* Data Manipulation Language (DML)
+    These SQL commands are used for storing, retrieving, modifying, and deleting data. 
+    These commands are SELECT, INSERT, UPDATE, and DELETE.
+
+* Transaction Control Language (TCL)
+    These SQL commands are used for managing changes affecting the data. 
+    These commands are COMMIT, ROLLBACK, and SAVEPOINT.
+
+* Data Control Language (DCL)
+    These SQL commands are used for providing security to database objects.
+    These commands are GRANT and REVOKE.
+= SQLPLUS =
+describe employees
+> returns columns of EMPLOYEES table along with data type and NULL/not NULL
+= Little practice =
+== variables ==
+variable_name datatype [NOT NULL := value ]; 
+* Example (“salary” is a variable of datatype number and of length 6.)
+DECLARE
+    salary  number (6);
+    dept varchar2(10) NOT NULL := “HR Dept”;
+
+* Example: The below program will get the salary of an employee with id '1116' and display it on the screen.
+
+DECLARE 
+ var_salary number(6); 
+ var_emp_id number(6) = 1116; 
+BEGIN
+ SELECT salary 
+ INTO var_salary 
+ FROM employee 
+ WHERE emp_id = var_emp_id; 
+ dbms_output.put_line(var_salary); 
+ dbms_output.put_line('The employee ' 
+  	|| var_emp_id || ' has  salary  ' || var_salary); 
+END; 
+/
+NOTE: The backward slash '/' in the above program indicates to execute the above PL/SQL Block.     
