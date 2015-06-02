@@ -31,6 +31,8 @@ df -h /tmp
 = user administration =
 * change user home directory
 usermod -m -d /newhome/username username
+* add existing user to existing group
+  sudo usermod -a -G oinstall dans
 grep group-name /etc/group  : check group exists 
 * add user/group
 groupadd <group-name>	    : create group

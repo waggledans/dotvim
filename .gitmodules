@@ -94,9 +94,6 @@
 [submodule "bundle/minibufexpl"]
 	path = bundle/minibufexpl
 	url = https://github.com/weynhamz/vim-plugin-minibufexpl.git
-[submodule "bundle/youcompleteme"]
-	path = bundle/youcompleteme
-	url = https://github.com/Valloric/YouCompleteMe.git
 [submodule "bundle/vundle"]
 	path = bundle/vundle
 	url = https://github.com/gmarik/Vundle.vim.git
