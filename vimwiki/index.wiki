@@ -109,9 +109,6 @@
 * [[irun]]
 * [[connectRules]]
 * [[mdl]]
-*
-=== SQL ===
-* [[sqlite]]
 === Cadence Verilog ===
 * [[ams_compile]]
 * [[hdl_var_sample]]

@@ -15,8 +15,48 @@
     These SQL commands are used for providing security to database objects.
     These commands are GRANT and REVOKE.
 = SQLPLUS =
+== Tables ==
+-- Create a table under other user schema
+    CREATE TABLE some_other_user_name.person (id NUMBER, first VARCHAR2(30), state VARCHAR2(2));
+-- add unique constraint to one field and Primary key to another    
+    ALTER TABLE person ADD CONSTRAINT pk_person PRIMARY KEY(id);
+    ALTER TABLE person ADD CONSTRAINT uk_person UNIQUE(state);
+-- Add another column    
+    ALTER TABLE person ADD zip_code VARCHAR(7) ;
+    ALTER TABLE person ADD marital_status CHAR(1) DEFAULT 'S';
+-- Modify column    
+    ALTER TABLE person MODIFY marital_status CHAR(1) DEFAULT 'M';
+-- add CHECK constraint (could be any condition)
+    ALTER TABLE person ADD CONSTRAINT ck_marital_status CHECK( marital_status in ('S', 'M', 'D'));
+-- Create a table from some other table
+    CREATE TABLE colorado_person AS
+        SELECT * FROM PERSON WHERE state = 'CO';
+-- add foreign key constraint
+    ALTER TABLE person ADD CONSTRAINT fk_person FOREIGN KEY(state) REFERENCES STATES(state);
+-- create a view called "person_view" with just one column 'name'
+  CREATE OR REPLACE VIEW person_view(name) AS
+    SELECT last || ', ' || first 
+    FROM person ORDER BY last, first;
+
+
+
 describe employees
 > returns columns of EMPLOYEES table along with data type and NULL/not NULL
+= check value for NULL =
+
+
+= Get only max value out of group =
+    SELECT MAX(field) OVER (PARTITION BY some_other_field) some_name
+    FROM some_table
+    WHERE field = some_name;
+Example:
+    SELECT * FROM (
+        SELECT DISTINCT COLL_CODE, MAJR_CODE , 
+            DEGREE_CODE, SHRDGMR_GRAD_DATE, MAX(SHRDGMR_GRAD_DATE) over (partition by MAJR_CODE) MAXGRADYEAR  
+        FROM SHRDGMR  
+        WHERE SHRDGMR_LEVL_CODE = 'UG' 
+    WHERE SHRDGMR_GRAD_DATE = MAXGRADYEAR) rdgmrcol;
+
 = Little practice =
 == variables ==
 variable_name datatype [NOT NULL := value ]; 
