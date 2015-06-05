@@ -210,6 +210,8 @@ git diff -w                 :ignore white spaces
     $ diff -u initial rewrite
 === branch diff ===
 * git diff master..branch1
+* diff between specific file in diff branches
+  $ git diff lebigmac master  -- vimwiki/index.wiki
 * git branch --merged
 shows all branches that merged into the current one (and, in theory, could be
 eliminated)
