@@ -18,6 +18,8 @@
 == javascript ==
 * [[html]]
 * [[javascript_hacks]]
+* [[javascript_nodejs]]
+* [[jmeter]]
 == java ==
 * [[java_notes]]
 * [[java_multithreading]]
@@ -52,7 +54,6 @@
 * [[macos_plist]]
 == MacOS ==
 * [[macos_plist]]
-*
 == Perl ==
 * [[perl_hacks]]
 == Python ==

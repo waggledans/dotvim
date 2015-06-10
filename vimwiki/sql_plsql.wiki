@@ -15,6 +15,16 @@
     These SQL commands are used for providing security to database objects.
     These commands are GRANT and REVOKE.
 = SQLPLUS =
+== queries ==
+* substition variables
+SELECT first_name, last_name FROM employees WHERE employee_id = &eid;
+SELECT first_name, last_name FROM employees WHERE last_name = '&name';
+* use && if subst var is used more than once
+SELECT first_name, last_name, &&prompt FROM employees WHERE last_name LIKE '%mit%' ORDER BY &prompt;
+* use define for variable definition
+DEFINE eid = 100;
+SELECT first_name, last_name FROM employees WHERE employee_id = &eid;
+
 == Tables ==
 -- Create a table under other user schema
     CREATE TABLE some_other_user_name.person (id NUMBER, first VARCHAR2(30), state VARCHAR2(2));
@@ -58,12 +68,32 @@ Example:
     WHERE SHRDGMR_GRAD_DATE = MAXGRADYEAR) rdgmrcol;
 
 = Little practice =
-== variables ==
 variable_name datatype [NOT NULL := value ]; 
-* Example (“salary” is a variable of datatype number and of length 6.)
+== DATA TYPES / VARIABLES ==
+  * NUMBER(precision, scale)
+    NUMBER(4,2)  => 25.21, 25.157 => 25.16...
+  * BOOLEAN  -- could be TRUE, FALSE, NULL
+=== Composite DataTypes ===
+    Records
+    Nested Tables 
+    Varrays 
+    Associative Arrays
+=== DATE ===
+    11-NOV-2013 14:25:34
+    l_date date := '10-nov-13';
+    l_date := TO_DATE('10-NOV-2013 15:25:34', 'DD-MON-RRRR HH24:MI:SS');
+    l_date := TO_DATE('11/10/2013 15:25:34', 'MM/DD/RRRR HH24:MI:SS');
+    
+=== Example === 
 DECLARE
-    salary  number (6);
+    l_second NUMBER DEFAULT 2.21;  
+    salary  number (6); -- “salary” is a variable of datatype number and of length 6.
+    INTEGER : NUMBER(38,0)
+    l_second CONSTANT NUMBER DEFAULT 2.21;  -- constant declaration
+    l_num_vartype l_num%TYPE := 1.123;      -- inherit type from 1.123
+    l_num_coltype departments.dept_id%TYPE; -- inherit type from that coloumn  
     dept varchar2(10) NOT NULL := “HR Dept”;
+    l_boolean BOOLEAN;
 
 * Example: The below program will get the salary of an employee with id '1116' and display it on the screen.
 

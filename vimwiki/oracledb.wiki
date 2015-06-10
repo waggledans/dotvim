@@ -17,7 +17,7 @@
   show parameter instance_name
   show parameter db_block_size
   select file_name, bytes/1024/1024 "MB" FROM dba_data_files ORDER BY 1;
-  select member, status, group FROM v$logfile;
+  select member, status, group# FROM v$logfile;
 = processes =
 ckpt - checkpoint
 dbw0 - db writer
@@ -26,7 +26,38 @@ arc  - archiver
 pmon - process monitor
 smon - system monitor
 = administration =
-
+* create role
+== grant user ==
+Grant select on table_name to user;
+alter user hr identified by hr account unlock;
+grant debug connect session to hr; 
+grant debug any procedure to hr
+P_SEND_ADD_REGISTRATION
+== Grant user SELECT on all tables in schema ==
+    FOR x IN (SELECT * FROM user_tables)
+    LOOP   
+    EXECUTE IMMEDIATE 'GRANT SELECT ON ' || x.table_name || ' TO <<someone>>'; 
+    END LOOP;
+  or
+    SQL> SET PAGESIZE 1000
+    SQL> SELECT 'GRANT SELECT, UPDATE, DELETE ON '||TABLE_NAME||' TO <USERNAME>;' FROM USER_TABLES;
+== TABLESPACE management==    
+  SELECT tablespace_name, logging FROM dba_tablespaces;
+  SELECT name FROM v$tablespace;
+  SELECT name FROM v$datafile;
+-- Create tablespace  
+  CREATE TABLESPACE nologin DATAFILE /u01/oracle_home1/oradata/NEWDB/nologin.log size 10m nologging;
+  
+=== TEMPORARY TABLESPACE MANAGEMENT ===
+-- see all temp files
+    select * from dba_temp_files;
+-- check for default temp tablespace:    
+select property_value from database_properties where property_name like '%DEFAULT_TEMP_TABLESPACE%';
+-- add tempfile 
+-- check the current tempfile:
+    SELECT name FROM v$tempfile;
+-- create a new one (if the query didnt return anything)
+    ALTER TABLESPACE temp ADD TEMPFILE '/tmp/name.dbf' SIZE 1024M AUTOEXTEND ON;
 == useful commands ==
 show user     : to see whoami
 SELECT table_name FROM user_tables;
@@ -62,14 +93,34 @@ grant debug any procedure to hr
 alter user <username> default tablespace <tablespace_name>;
 alter user <username> temporary tablespace <temp tablespace_name>;
 
-select temp,/tmp/tmp.dbf from dba_temp_files;
-select property_value from database_properties where property_name like '%DEFAULT_TEMP_TABLESPACE%';
-* Select name from v$tempfile;
-    If output is "no row selected" then:
-ALTER TABLESPACE temp ADD TEMPFILE '/tmp/name.dbf' SIZE 1024M AUTOEXTEND ON;
-Install demo
+* Install demo
 SQL> @?/demo/schema/human_resources/hr_main.sql
+
+
+* Config TNS listener in $ORACLE_HOME/network/admin/tnsnames.ora
+Example:
+ORCLDB =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = ubuntu-VirtualBox)(PORT = 5500))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = orcldb)
+    )
+  )
+  
+
 = System queries =
+===cdb vs pdb (container DB) ===
+> sqlplus / as sysdba
+SQL> select instance_name, version, status, con_id from v$instance;
+-- if there are PDB available, move into one:
+SQL> alter session set container=orclpdb;
+-- Instead of selecting INSTANCE_NAME from V$INSTANCE;
+-- use the following SHOW commands: SHOW CON_ID & SHOW CON_NAME:
+SQL> con_id    --> CON_ID | 3
+SQL> show con_name  --> CON_NAME |  PDB1
+-- desc v$pdbs;
+
 http://razorsql.com/articles/oracle_system_queries.html
  * Find all procedures
 SELECT * FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('FUNCTION','PROCEDURE','PACKAGE')
@@ -82,21 +133,5 @@ OR:
 The difference is dba_source will have the text of all stored objects. 
 All_source will have the text of all stored objects accessible by the user performing the query. 
 
-
-
 exit;
 
-== grant user ==
-Grant select on table_name to user;
-alter user hr identified by hr account unlock;
-grant debug connect session to hr; 
-grant debug any procedure to hr
-P_SEND_ADD_REGISTRATION
-== Gran user SELECT on all tables in schema ==
-    FOR x IN (SELECT * FROM user_tables)
-    LOOP   
-    EXECUTE IMMEDIATE 'GRANT SELECT ON ' || x.table_name || ' TO <<someone>>'; 
-    END LOOP;
-  or
-    SQL> SET PAGESIZE 1000
-    SQL> SELECT 'GRANT SELECT, UPDATE, DELETE ON '||TABLE_NAME||' TO <USERNAME>;' FROM USER_TABLES;

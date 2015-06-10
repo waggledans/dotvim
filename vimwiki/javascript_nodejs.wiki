@@ -1,0 +1,16 @@
+= read file =
+* blocking vs nonblocking
+var fs = require("fs");
+console.log("Starting");
+// first nonblocking:
+fs.readFile("sample.txt", function(error, data) {
+	console.log("Contents of file:\n " + data);
+});
+// Blocking read:	
+// var content = fs.readFileSync("sample.txt");	
+// console.log("Contents: " + content);
+console.log("Carry on executing");
+= Parse JSON =
+var content = fs.readFileSync("sample.txt");	
+var config = JSON.parse(content);
+

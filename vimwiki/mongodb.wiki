@@ -142,19 +142,19 @@ db.links.update(n, {$inc: {favourites: -5}});
 === findAndModify can return updated object ===
 // use new: true  to get the updated object
 // use new: false (default)  to get the outdated object
-document.users.findAndModify(
+document.users.findAndModify({
     query: {name: "Kate Wills"}, 
     update: {$set: {age:20}}, 
     new: true
-);
+});
 ==== findAndModify more complicated example ====
-document.users.findAndModify(
+document.users.findAndModify({
     query: {favourites: 110}, 
     update: {$inc: {favourites:10}}, 
     sort: {title: 1},   // sort ascend by title
     new: true,
-    fields: { title: 1, favourites: 1, _id: 0}
-);
+    fields: { title: 1, favourites: 1, _id: 0} // A subset of fields to return
+});
 === update array field ===
 ==== push ====
 var n = {title: "Nettuts+"}

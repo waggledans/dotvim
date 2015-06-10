@@ -1,0 +1,4 @@
+jmeter -n -t ~/Downloads/jt.jmx -l test -reports ~/Downloads/rep.jtl
+* debug parameters
+log_level.org.apache.http=DEBUG
+log_level.org.apache.http.wire=DEBUG

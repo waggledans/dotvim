@@ -1,3 +1,19 @@
+= bash boot source sequence =
+/etc/profile
+~/.bash_profile
+~/.bashrc
+~/.bash_login
+~/.profile
+~/.bash_logout
+= switch user =
+$ whoami
+user1
+$ su - user2
+Password:
+$ whoami
+user2
+# to switch to root:
+$ su -
 = general command line commands =
 == find ==    
   * combine find with grep:
@@ -28,7 +44,7 @@ scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/h
 == Disk administration ==
 * check how much space avail in /tmp
 df -h /tmp
-= user administration =
+= user administration =hr-model30-247282
 * change user home directory
 usermod -m -d /newhome/username username
 * add existing user to existing group
