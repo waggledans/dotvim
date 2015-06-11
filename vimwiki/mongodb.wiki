@@ -4,7 +4,9 @@ Document    ~ record/row
 Field       ~ RDBMS column  {key:value}
 = import / export =
 mongoexport -d myApp -c users --out user_data.json
+mongoexport --host prod-db.avu.com  --port 27017 --collection majors_temp --db mars_clear  --out /tmp/mongotmp/majors.json
 mongoimport -d myApp -c users --out user_data.json
+mongoimport --host prod-db.abu.org  --port 27017 --collection majors_temp --db mars_clear  --file /tmp/mongotmp/majors.json 
 mongodump 
 mongorestore -d myApp ./dump/myApp
 bsondump dump/myApp/users.bson > users.json
@@ -103,10 +105,14 @@ db.user.find({email: 'johndoe@gmail.com'}, {title: 0, url: false});
     reduce: function (doc, o) {o.favCount += doc.favourites;},
     finalize: function (o) {o.name = db.users.findOne({_id: o.userId}).name;});
  });
- * regex
+
+ == regex ==
   db.links.find({title: /tuts\+$/});
   or 
   db.links.find({title: {$regex: /tuts\+$/, $ne: "MobileTuts+"}});
+ * using variable:
+  db.links.find({id: new RegExp("^mj:" + e.majorcode +"__[1-9]$")}
+  
 = update =
 == update existing document (ie replace it) ==
 var dave_document = db.customers.findOne({firstName: "Dave"});
@@ -121,6 +127,9 @@ db.books.update({title:"core java"},{$unset: {pages: 245});
 // false means dont create a new doc (see the next example)
 // true means apply to all found basically
 db.books.update({title:"core java"},{$set: {pages: 245}, false, true);
+// can also update number of keys:
+db.books.update({title:"core java"},{$set: {pages: 245, author: author_name}, false, true);
+
 === update a document or create new one if doesnt exist ===
 // just add one more parameter
 db.customers.update({firstName: "Dave"}, dave_document, true);

@@ -7,6 +7,27 @@
     undefined
       var person;                  // Value is undefined, type is undefined
     null
+= loop if etc =
+* for (var ind in some_array) {}
+== test undefined, null, isNan ==
+* === vs == 
+=== is the Identity operator, and is used to test that value and type are equal.
+    "3" == 3 // true
+    "3" === 3 // false
+    1 == true // true
+    1 === true // false
+    "1" == true // true
+    "1" === true // false
+* if (typeof myVar != 'undefined') // (not sure???) the value has been decrlared but it's type is undefined
+* isNaN(123)    // returns false
+* test for empty string
+        if (!a) { }
+    ** to ignore white spaces
+        if (!a.trim()) {}
+= array =
+Array.isArray()
+= string =
+
 = function =
 function myFunction(p1, p2) {
     return p1 * p2;              // The function returns the product of p1 and p2

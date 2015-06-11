@@ -24,6 +24,27 @@ arc  - archiver
 pmon - process monitor
 smon - system monitor
 = administration =
+
+== useful commands ==
+show user     : to see whoami
+SELECT table_name FROM user_tables;
+DESC  some_table_name;	      : to see the table columns
+* check constraints (dba_constrains for the whole system)
+  SELECT constraint_name, constraint_type FROM user_constraints WHERE table_name='CITIES';
+P  - primary key
+R  - foreign key
+  SELECT column_name, position FROM user_cons_columns WHERE constraint_name='pk_cities'; 
+or together:
+  SELECT constraint_name, column_name, position FROM user_cons_columns WHERE constraint_name IN
+	(SELECT constraint_name, constraint_type FROM user_constraints WHERE table_name='CITIES');
+-- get information about table's columns:w
+
+SELECT column_name, column_default, column_type, nullable FROM user_tab_columns WHERE table_name='person';
+-- query for foreign key constraint
+    SELECT a.constraint_name, a.constraint_type, column_name, r_constraint_name
+    FROM user_constraints a, user_cons_columns b, 
+    WHERE a.constraint_name = b.constraint_name AND a.table_name='PERSON';
+
 == First login ==
 sudo service oracle-xe start
 sudo usermod -a -G dba YOURUSERNAME
@@ -32,8 +53,34 @@ create user USERNAME identified by PASSWORD;
 * if the prev step doesnt work:
   alter database open resetlogs;
 grant connect, resource to USERNAME;
+
+alter user hr identified by hr account unlock;
+grant debug connect session to hr; 
+grant debug any procedure to hr
 alter user <username> default tablespace <tablespace_name>;
 alter user <username> temporary tablespace <temp tablespace_name>;
+
+select temp,/tmp/tmp.dbf from dba_temp_files;
+select property_value from database_properties where property_name like '%DEFAULT_TEMP_TABLESPACE%';
+* Select name from v$tempfile;
+    If output is "no row selected" then:
+ALTER TABLESPACE temp ADD TEMPFILE '/tmp/name.dbf' SIZE 1024M AUTOEXTEND ON;
+Install demo
+SQL> @?/demo/schema/human_resources/hr_main.sql
+= System queries =
+http://razorsql.com/articles/oracle_system_queries.html
+ * Find all procedures
+SELECT * FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('FUNCTION','PROCEDURE','PACKAGE')
+SELECT * FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('FUNCTION','PROCEDURE','PACKAGE') AND OWNER='USER'
+== search text in procedures ==
+http://www.zilckh.com/how-to-search-a-text-in-stored-procedure-trigger-function-or-view/
+    SELECT * FROM ALL_source WHERE UPPER(text) LIKE '%BLAH%'
+OR:
+    SELECT * FROM DBA_source WHERE UPPER(text) LIKE '%BLAH%'
+The difference is dba_source will have the text of all stored objects. 
+All_source will have the text of all stored objects accessible by the user performing the query. 
+
+
 
 exit;
 
@@ -42,4 +89,12 @@ Grant select on table_name to user;
 alter user hr identified by hr account unlock;
 grant debug connect session to hr; 
 grant debug any procedure to hr
-
+P_SEND_ADD_REGISTRATION
+== Gran user SELECT on all tables in schema ==
+    FOR x IN (SELECT * FROM user_tables)
+    LOOP   
+    EXECUTE IMMEDIATE 'GRANT SELECT ON ' || x.table_name || ' TO <<someone>>'; 
+    END LOOP;
+  or
+    SQL> SET PAGESIZE 1000
+    SQL> SELECT 'GRANT SELECT, UPDATE, DELETE ON '||TABLE_NAME||' TO <USERNAME>;' FROM USER_TABLES;
