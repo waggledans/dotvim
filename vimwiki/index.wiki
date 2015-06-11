@@ -52,7 +52,6 @@
 * [[macos_plist]]
 == MacOS ==
 * [[macos_plist]]
-*
 == Perl ==
 * [[perl_hacks]]
 == Python ==
