@@ -3,3 +3,22 @@
 	name = Dan Slov
 [core]
 	exludesfile = /Users/dans/.gitignore
+	excludesfile = /Users/dans/.gitignore
+
+[diff]
+	tool = mvimdiff
+	external = /Users/dans/git-diff-wrapper.sh
+[push]
+	default = simple
+[alias]
+	st = status
+	log = log --oneline
+	l = log --oneline
+	ci = commit
+	co = checkout
+	dfs = diff --staged
+	br = branch -r
+	logg = log --graph --oneline --decorate --abbrev-commit --all
+	mergem = merge --no-ff
+[merge]
+	tool = mvimdiff

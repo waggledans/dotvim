@@ -203,6 +203,8 @@ https://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
 #   If the option --cached doesn’t make sense to you, perhaps the synonym --staged will.
 * git diff --cached         :show diffs between working directory and staged index
 git diff --cached tree-ish    :the differences between the staged and the given commit.
+=== blame ===
+git blame index.html --data short
 === file diff ===
 git diff tree-ish filename  :the diff between the file in the working directory tree-ish
 git diff -w                 :ignore white spaces
@@ -218,12 +220,16 @@ eliminated)
 # list all changes from master to bug/pr-1:
     $ git log -p master..bug/pr-1
 == stash ==
-  $ git stash save "blah blah"
-this command would stash all the changes and run git reset --hard HEAD  
+* stash all the changes and run git reset --hard HEAD  
+  $ git stash save "stash description"
+* do not stash the staging area (need to test this one):
+  $ git stash save --keep-index
+* stash untracked files:
+  $ git stash save --include-untracked
   $ git stash -u (git stash --include-untracked) 
 * view stash:
   $ git stash list        will display list of stashes
-* even more info:
+* show more info about one particular stash:
   $ git stash show -p stash@{1}
   git stash apply         leaves copy in stash
   git stash pop           removes it from the stash

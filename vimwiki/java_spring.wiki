@@ -1,0 +1,77 @@
+= Spring container = 
+Just write code using Factory Pattern where Spring manufactures objects using configuration file,
+which is xml file. Spring bean factory would generate beans after reading Spring XML.
+public class DrawingApp {
+  Triangle triangle = new Triangle();
+  BeanFactory factory = new XmlBeanFactory();
+  triangle.draw();
+}
+= Spring bean scope = 
+  * Singleton (default)
+    <bean id="triangle" ... scope="singleton">
+  * Prototype (new bean is created with every context.getBean requeest)
+  Web-aware context bean scope
+  * request - new bean per servlet request
+  * session - new bean per session
+  * global session - new bean per http session (per portlet)
+= property file =
+ * Register a Properties File in XML
+    <context:property-placeholder location="classpath:foo.properties" />
+    or
+    <context:property-placeholder location="classpath:foo.properties" />
+ * Register a Properties file using annotation PropertySource
+        @Configuration
+        @PropertySource("classpath:foo.properties")
+        public class PropertiesWithJavaConfig {
+            @Bean
+            public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+                return new PropertySourcesPlaceholderConfigurer();
+            }
+        }   
+= constructor injection =
+== using xml ==
+   <bean id="exampleBean" class="examples.ExampleBean">
+      <constructor-arg index="0" value="equilateral"/>
+      <constructor-arg index="1" value="100"/>
+   </bean>
+  or another example using name and type properties
+  <bean id="CustomXmlBean" class="org.arturas.summerfav.beans.CustomXmlBean">
+        <constructor-arg name="name" type="String" value="The Big Custom XML Bean" />
+        <constructor-arg>
+            <bean id="SuperBean" class="org.arturas.summerfav.beans.SuperBean" />
+        </constructor-arg>
+    </bean>
+== using annotations ==
+http://www.concretepage.com/spring/example_propertyoverrideconfigurer_spring
+    @Component 
+    public class ExampleBean { 
+        @Autowired
+        public ExampleBean(@Value("${prop1}") String type, @Value("${prop2}") int height) { 
+            // rest of the code
+        } 
+    } 
+  * where prop1 and prop2 are defined in srping propeties file in property-placeholder:
+    <context:property-override location="classpath:beanOverride.cfg"/>
+  * beanOverride.cfg (format beanName.property=value):
+    ExampleBean.prop1=type
+    ExampleBean.prop2=height
+= getter injection =
+<bean id="triangle" class="com.dans.training.spring.Triangle">
+	<property name="type" value="equilateral"/> 
+= bean =
+== using xml ==
+<beans>
+    <bean name="transferService" class="com.acme.TransferServiceImpl"/>
+</beans>
+== using annotation ==
+    * @Configuration
+        Annotating a class with the @Configuration annotation indicates that the class will be used by JavaConfig as a source of bean definitions.
+@Configuration
+public class AppConfig {
+    @Bean
+    public TransferService transferService() {
+        return new TransferServiceImpl();
+    }
+}
+= autowire =
+ * byName, byType (when there is only one bean of this type is defined in xml

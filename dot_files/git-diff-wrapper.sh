@@ -2,6 +2,7 @@
 # git-diff-wrapper.sh
 # diff is called by git with 7 parameters:
 # path old-file old-hex old-mode new-file new-hex new-mode
+# git config --global diff.external ~/git-diff-wrapper.sh 
 # git config --global diff.external <path_to_this_script>
 /Applications/homebrew/bin/mvimdiff "$2" "$5" | cat
 

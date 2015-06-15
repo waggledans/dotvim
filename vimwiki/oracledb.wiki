@@ -10,8 +10,6 @@
   ** Shared pool:  cache
 * PGA - Prog global area
   One server process per user session
-  
-  
 == Retrieve  parameters ==
   show parameter db_name
   show parameter instance_name

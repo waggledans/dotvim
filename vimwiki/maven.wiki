@@ -1,0 +1,27 @@
+= start new project with maven =mvn archetype:generate
+> choose a number:  1268 (1268: remote -> org.springframework.boot:spring-boot-sample-web-ui-archetype (Spring Boot Web UI Sample) or 610: remote -> org.apache.maven.archetypes:maven-archetype-quickstart (An archetype which contains a sample Maven project.))
+> choose version: 6
+groupId: com.dans.training.spring     //package name
+artifactId:  MavenTestApp             // application name
+version:         
+= stages =
+mvn compile
+mvn test
+mvn package (runs both test and compile)
+* run:
+  java -cp target/MavenTestApp-1.0-SNAPSHOT.jar com.dans.training.maven.App
+
+mvn install
+= dependencies = 
+artifacts that are used by our code
+= plugins =
+something that used after the our code is built
+ * Example(lines in config.xml and then command to run the plugin)
+ <build><plugins>
+  <groupId>org.mortbay.jetty</grouId>
+  <artifactId>maven-jetty-plugin</artifactId>
+  ...
+mvn jetty:run  
+ * Example2:
+  compile plugin
+

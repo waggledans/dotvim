@@ -5,6 +5,9 @@ unlike in C++ where protected members can only access by subclass
 // Java way would be final static class variable
 public final static String NAME = "I'm a static variable";
 * 
+= java servlets =
+== java jsp ==
+<jsp:forward page="guest.html" />
 = Java 7 features =
 == static initializers ==
 private static final Map<Integer, String> myMap2 = new HashMap<Integer, String>(){
