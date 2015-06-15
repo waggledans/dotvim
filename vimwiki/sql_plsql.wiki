@@ -24,6 +24,42 @@ SELECT first_name, last_name, &&prompt FROM employees WHERE last_name LIKE '%mit
 * use define for variable definition
 DEFINE eid = 100;
 SELECT first_name, last_name FROM employees WHERE employee_id = &eid;
+== joins ==
+=== inner join ===
+could be queried in 3 ways:
+ * regular (omitting INNER JOIN keyword)
+SELECT e.FN, e.LN. d.DeptID
+FROM Emp e, Dept d WHERE e.DeptID = d.DeptID
+ * natural (applicable where columns are named the same )
+SELECT e.FN, e.LN. d.DeptID
+FROM Emp e INNER JOIN ON Dept d 
+USING (DeptID);
+ * explicit (the most 'verbal')
+SELECT e.FN, e.LN. d.DeptID
+FROM Emp e INNER JOIN ON Dept d 
+ON (e.DeptID = d.DeptID);
+=== outer join ===
+=== cartesian join ===
+=== self join ===
+SELECT e1.EmpName Staffer, e2.EmpName Manager
+FROM emp e1 INNER JOIN emp e2 
+ON (e2.mgrName = e1.EmpID);
+== subqueries ==
+== Set operators ==
+http://www.gplivna.eu/papers/sql_set_operators.htm
+Genaral rules:
+  * Column number should match
+  * Data type should match
+* UNION / UNION ALL
+The difference between the two is that UNION ALL doesnt remove duplicates
+    SELECT city FROM tableforset1 
+    UNION ALL               
+    SELECT city FROM tableforset2;V
+* MINUS
+The same as EXCEPT in ANSI.
+The order matters!!!
+* INTERSECT
+  Just like INNER JOIN that operates on every column
 
 == Tables ==
 -- Create a table under other user schema
@@ -50,40 +86,70 @@ SELECT first_name, last_name FROM employees WHERE employee_id = &eid;
 
 
 
-describe employees
+describe employees;
 > returns columns of EMPLOYEES table along with data type and NULL/not NULL
 = check value for NULL =
 
 
-= Get only max value out of group =
+= grouping / aggregating =
+== grouping syntax ==
+* IMPORTANT point is that group by expression should include all columns 
+  other than those being modified some grouping function !!! :)
+  The solution is using PARTITION BY instead of GROUP BY
+
+SELECT col1, group_fx(col2)
+FROM  tablename WHERE condition
+GROUP BY expression  ORDER BY column_name;
+
+* use HAVING for filtering groups (and not WHERE)
+        SELECT department_id, AVG(salary) FROM EMPLOYEES
+        HAVING AVG(salary) > 9000
+        ORDER BT department_id;
+== Get only max value out of group ==
     SELECT MAX(field) OVER (PARTITION BY some_other_field) some_name
     FROM some_table
     WHERE field = some_name;
 Example:
     SELECT * FROM (
-        SELECT DISTINCT COLL_CODE, MAJR_CODE , 
-            DEGREE_CODE, SHRDGMR_GRAD_DATE, MAX(SHRDGMR_GRAD_DATE) over (partition by MAJR_CODE) MAXGRADYEAR  
+        SELECT DISTINCT COLL_CODE,MAJR_CODE,SHRDGMR_GRAD_DATE,  
+            MAX(SHRDGMR_GRAD_DATE) over (partition by MAJR_CODE) MAXGRADYEAR  
         FROM SHRDGMR  
-        WHERE SHRDGMR_LEVL_CODE = 'UG' 
-    WHERE SHRDGMR_GRAD_DATE = MAXGRADYEAR) rdgmrcol;
+        WHERE SHRDGMR_LEVL_CODE = 'UG' )
+    WHERE SHRDGMR_GRAD_DATE = MAXGRADYEAR ;
 
 = Little practice =
 variable_name datatype [NOT NULL := value ]; 
-== DATA TYPES / VARIABLES ==
+== DATATYPES / VARIABLES ==
   * NUMBER(precision, scale)
     NUMBER(4,2)  => 25.21, 25.157 => 25.16...
   * BOOLEAN  -- could be TRUE, FALSE, NULL
 === Composite DataTypes ===
-    Records
-    Nested Tables 
-    Varrays 
-    Associative Arrays
+  * Records
+    DECLARE
+        TYPE dept_rec IS RECORD(dept_id departments.dept_id%TYPE,
+  * Nested Tables 
+  * Varrays 
+  * Associative Arrays
+=== %TYPE, %ROWTYPE ===
 === DATE ===
     11-NOV-2013 14:25:34
     l_date date := '10-nov-13';
     l_date := TO_DATE('10-NOV-2013 15:25:34', 'DD-MON-RRRR HH24:MI:SS');
     l_date := TO_DATE('11/10/2013 15:25:34', 'MM/DD/RRRR HH24:MI:SS');
-    
+  
+  l_date := TO_DATE('10-FEB-2014', 'DD-MON-RRRR');
+  ADD_MONTH(l_date, 1);
+  * example:
+    SELECT  SFRSTCR_RSTS_CODE,SFRSTCR_RSTS_DATE
+        FROM SATURN.SFRSTCR WHERE  SFRSTCR_RSTS_DATE  
+        between TO_DATE('01-JAN-2015','dd-MON-yy')  and TO_DATE('28-FEB-2015','dd-MON-yy');
+  * MONTHS_BETWEEN example
+        SELECT MONTHS_BETWEEN 
+            (TO_DATE('02-02-1995','MM-DD-YYYY'),
+            TO_DATE('01-01-1995','MM-DD-YYYY') ) "Months"
+            FROM DUAL;
+=== type casting === 
+TO_CHAR(num, date), TO_NUMBER(char), TO_DATE(CHAR)
 === Example === 
 DECLARE
     l_second NUMBER DEFAULT 2.21;  
@@ -111,3 +177,251 @@ BEGIN
 END; 
 /
 NOTE: The backward slash '/' in the above program indicates to execute the above PL/SQL Block.     
+
+== COMMIT / ROLLBACK ==
+BEGIN
+    UPDATE departments
+        SET dept_name = 'Marketing' WHERE dept_id = 2;
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+END;
+
+= CURSORS =
+== implicit cursors ==
+* implicit cursors produce SQL%FOUND,  SQL%NOTFOUND, SQL%ROWCOUNT
+* 
+* Example:
+DECLARE
+l_dept_id departments.dept_id%TYPE;
+l_dept_name departments.dept_name%TYPE;
+BEGIN
+  SELECT dept_id,
+    dept_name INTO l_dept_id,
+    l_dept_name FROM departments
+  WHERE dept_id = 1; 
+  IF SQL%FOUND THEN
+    DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT ); 
+  END IF;
+END;
+== explicit cursors ==
+CURSOR <cursor_name> IS select_statement;
+* Example1:
+    DECLARE
+        l_dept_id departments.dept_id%TYPE;
+        l_dept_name departments.dept_name%TYPE;
+    CURSOR cur_get_departments IS 
+          SELECT dept_id,dept_name FROM departments
+          WHERE dept_id = 1;
+    BEGIN
+        OPEN cur_get_departments; 
+            FETCH cur_get_departments
+              INTO l_dept_id, l_dept_name; -- should match SELECT columns
+            DBMS_OUTPUT.PUT_LINE( l_dept_name);
+        CLOSE cur_get_departments;
+    END;
+* Example2 (multiple row select):
+    DECLARE
+        CURSOR cur_get_employees IS
+            SELECT emp_id,
+            emp_sal * 0.10 bonus
+            FROM employee;
+        cur_get_employees_var cur_get_employees%ROWTYPE; -- ROWTYPE means there could be a number of rows
+    BEGIN
+        OPEN cur_get_employees; 
+        LOOP
+            FETCH cur_get_employees 
+              INTO cur_get_employees_var;
+            EXIT WHEN cur_get_employees%NOTFOUND; 
+            DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.emp_id);
+            DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.bonus);
+        END LOOP;
+        IF cur_get_employees%ISOPEN THEN  -- sort of exception guard
+          CLOSE cur_get_employees;
+        END IF;
+        --- CLOSE cur_get_employees;  -- should be here when there is no IF above???
+    END;
+=== explicit cursor parameters ===
+CURSOR <cursor_name>[(param1,param2..paramN)] IS select_statement;
+  * ￼param_name datatype [DEFAULT]
+  * Example
+DECLARE
+    CURSOR cur_get_departments(p_rows NUMBER DEFAULT 5) IS
+        SELECT dept_id, dept_name
+            FROM departments
+            WHERE ROWNUM <= p_rows;
+    cur_get_departments_var cur_get_departments%ROWTYPE; 
+BEGIN
+    OPEN cur_get_departments( 2); 
+        LOOP
+            FETCH cur_get_departments
+            INTO cur_get_departments_var;
+            EXIT WHEN cur_get_departments%NOTFOUND;
+            DBMS_OUTPUT.PUT_LINE(cur_get_departments_var.dept_id); 
+        END LOOP;
+    CLOSE cur_get_departments; 
+END;
+==== Cursor For Loop ====
+-- seems to be syntactic sugar for loop fetch
+    FOR cur_rec IN <cursor_name or sql_query> LOOP
+        statements;
+    END LOOP;
+    
+ * Explicit Cursor For Loop Example:   
+DECLARE
+    CURSOR cur_get_employees IS
+        SELECT emp_id, emp_sal * 0.10 bonus
+            FROM employee;
+BEGIN
+    FOR cur_get_employees_var IN cur_get_employees LOOP 
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.emp_id); 
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.bonus);
+    END LOOP;
+END;
+ * Implicit Cursor For Loop Example:   
+DECLARE
+    l_num NUMBER := 2;
+BEGIN
+    FOR cur_get_employees_var IN
+            (SELECT dept_id, dept_name FROM departments
+                WHERE ROWNUM <= l_num) LOOP
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.emp_id); 
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.bonus);
+    END LOOP;
+END;
+=== ref cursors ===
+  * general
+    TYPE <ref_cur_name> IS REF CURSOR [ RETURN return_type]
+  * Cursor Attributes
+        ** <cursor>%FOUND
+        ** <cursor>%NOTFOUND
+        ** <cursor>%ISOPEN
+        ** <cursor>%ROWCOUNT
+  * Strongly typed cursor variables      
+    DECLARE
+        -- here ref cursor is kindof like typedef.
+        TYPE rc_dept IS REF CURSOR RETURN departments%ROWTYPE; -- rc_* is a good naming practice
+        -- the next line declares var of rc_type that is ref cursor
+        rc_dept_cur rc_dept;
+        l_dept_rowtype departments%ROWTYPE;
+        l_id departments.dept_id%TYPE:= 1; 
+        l_dept_id departments.dept_id%TYPE;
+        l_dept_name  departments.dept_name%TYPE;
+    BEGIN
+        OPEN rc_dept_cur FOR
+            SELECT * FROM departments WHERE dept_id = l_id;
+            l_id := 2; 
+        LOOP
+        FETCH rc_dept_cur INTO l_dept_rowtype;
+        EXIT WHEN rc_dept_cur%NOTFOUND; 
+        DBMS_OUTPUT.PUT_LINE(l_dept_rowtype.dept_id);
+        END LOOP;
+    OPEN rc_dept_cur FOR
+    SELECT * FROM departments WHERE dept_name = 'Accounting';
+    LOOP
+    FETCH rc_dept_cur INTO l_dept_id, l_dept_name; 
+    EXIT WHEN rc_dept_cur%NOTFOUND; 
+    DBMS_OUTPUT.PUT_LINE(l_dept_id);
+    END LOOP;
+    CLOSE rc_dept_cur;
+    END;
+    
+
+    DECLARE
+        TYPE dept_rec IS RECORD(dept_id departments.dept_id%TYPE,
+        dept_name departments.dept_name%TYPE); 
+        TYPE rc_dept IS REF CURSOR RETURN dept_rec;
+        rc_dept_cur rc_dept;
+        l_dept_rec dept_rec;
+        l_choice NUMBER := 1;
+    BEGIN
+        IF l_choice = 1 THEN
+            OPEN rc_dept_cur FOR
+            SELECT * FROM departments
+            WHERE dept_id = 1;
+        ELSE
+            OPEN rc_dept_cur FOR
+            SELECT * FROM departments
+            WHERE dept_name = 'Accounting'; 
+        END IF;
+        LOOP
+            FETCH rc_dept_cur INTO l_dept_rec;
+            EXIT WHEN rc_dept_cur%NOTFOUND; 
+            DBMS_OUTPUT.PUT_LINE(l_dept_rec.dept_id);
+        END LOOP;
+        CLOSE rc_dept_cur;
+    END;
+= procedure =
+* compile and run (I guess it'd run only if procedure ends with /):
+@/full/path/to/procedure.sql
+* recompile
+  ALTER PROCEDURE update_dept COMPILE;
+* call stored procedure
+    http://docs.oracle.com/cd/B10501_01/appdev.920/a96590/adg10pck.htm#37785
+  basically: EXECUTE <procedure name> or anonymous PLSQL block
+* example
+CREATE OR REPLACE PROCEDURE 
+      update_dept AS l_emp_id employee.emp_id%TYPE := 10;
+BEGIN
+    UPDATE employee
+    SET emp_dept_id = 2 
+      WHERE emp_id = l_emp_id; 
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE(SQLERRM); 
+        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE); 
+        ROLLBACK;
+        RAISE;
+END update_dept;
+/
+= function =
+  * use DUAL table in order to run function
+SELECT yourfunction(args) AS ValueName FROM DUAL;
+== Oracle provided ==
+ROUND, CEIL.
+LPAD, LTRIM, UPPER - pad with spaces/trim spaces/uppercase
+NVL ( expr1 , expr2 ): If expr1 is null, then NVL returns expr2. If expr1 is not null, then NVL returns expr1.
+NVL2 ( expr1 , expr2 , expr3 ): If expr1 is null, then NVL2 returns expr3. If expr1 is not null, then NVL2 returns expr2
+== define function ==
+    CREATE [OR REPLACE] FUNCTION [schema.]<function_name> 
+    RETURN <datatype> IS | AS
+        <declaration section> 
+    BEGIN
+        statements;
+    RETURN <datatype>;
+    [EXCEPTION]
+    END [<function_name>];
+* example
+CREATE OR REPLACE FUNCTION get_emp_count 
+RETURN NUMBER AS 
+CURSOR cur_get_dept_id IS
+  SELECT dept_id FROM departments
+  WHERE dept_name = 'IT';
+  l_dept_id departments.dept_id%TYPE;
+  l_count NUMBER := 0;
+BEGIN
+    OPEN cur_get_dept_id;
+        FETCH cur_get_dept_id INTO l_dept_id; 
+    CLOSE cur_get_dept_id;
+    SELECT count(*) INTO l_count FROM employee
+    WHERE emp_dept_id = l_dept_id; 
+    RETURN l_count;
+EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM); 
+    DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE); 
+    RAISE;
+END get_emp_count;
+
+= package =
+= trigger =
+CREATE OR REPLACE TRIGGER drop_trigger
+  BEFORE DROP on hr.SCHEMA
+  BEGIN
+    RAISE APPLICATION ERROR (
+      num => -20000,
+      msg => 'Cannot drop object');
+  END
+

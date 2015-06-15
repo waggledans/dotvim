@@ -89,11 +89,14 @@ grant connect, resource to USERNAME;
 
 alter user hr identified by hr account unlock;
 grant debug connect session to hr; 
+GRANT CREATE PROCEDURE TO hr;
+GRANT ALTER ANY PROCEDURE TO hr;
+GRANT EXECUTE ON <schema_name>.<procedure_name> TO hr;
 grant debug any procedure to hr
 alter user <username> default tablespace <tablespace_name>;
 alter user <username> temporary tablespace <temp tablespace_name>;
 
-* Install demo
+* Install demo (? means ORACLE_HOME, @ means compile (and execute?))
 SQL> @?/demo/schema/human_resources/hr_main.sql
 
 
@@ -112,7 +115,8 @@ ORCLDB =
 = System queries =
 ===cdb vs pdb (container DB) ===
 > sqlplus / as sysdba
-SQL> select instance_name, version, status, con_id from v$instance;
+SQL> SELECT instance_name, version, status, con_id FROM v$instance;
+SQL> SELECT NAME, OPEN_MODE, RESTRICTED, OPEN_TIME FROM V$PDBS;
 -- if there are PDB available, move into one:
 SQL> alter session set container=orclpdb;
 -- Instead of selecting INSTANCE_NAME from V$INSTANCE;

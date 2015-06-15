@@ -282,4 +282,20 @@ enumerable: true
 });
 
 
+= finding DOM objects =
+// collection of objects having class name "example"
+var x = document.getElementsByClassName("example");
+// returns the first element with id "id"
+document.getElementById("id")
+// by name:
+var x = document.getElementsByName("animal");
+var i;
+for (i = 0; i < x.length; i++) {
+    if (x[i].type == "checkbox") {
+        x[i].checked = true;
+    }
+}
+// by tag name
+var list = document.getElementsByTagName("UL")[0];
+list.getElementsByTagName("LI")[0].innerHTML = "Milk";
 

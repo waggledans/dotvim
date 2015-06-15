@@ -1,3 +1,8 @@
+= modules =
+* install locally vs installed globally
+npm install <module name> -g
+* update
+npm update <module name>
 = read file =
 * blocking vs nonblocking
 var fs = require("fs");
@@ -10,6 +15,9 @@ fs.readFile("sample.txt", function(error, data) {
 // var content = fs.readFileSync("sample.txt");	
 // console.log("Contents: " + content);
 console.log("Carry on executing");
+= write file =
+fs.writeFile("filename", "textToWrite", funciton(error){});
+fs.writeFileSync("filename", "textToWrite", funciton(error){});
 = Parse JSON =
 var content = fs.readFileSync("sample.txt");	
 var config = JSON.parse(content);

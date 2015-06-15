@@ -1,0 +1,11 @@
+= operators =
+site:  couldbe domain
+site:nbc.com, site:.gov
+<search string> site:edu filetype:pdf
+https://support.google.com/websearch/answer/2466433?hl=en
+*  '-' dash
+  to exclude words/sites from your search results
+jaguar speed -car or pandas -site:wikipedia.org
+*  '"'  double quotes for exact phrase
+  use asterisk for wildcards.
+  Example: "imagine all the people", "imagine * people"

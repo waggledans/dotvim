@@ -15,3 +15,7 @@ fi
 
 
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home
+export PATH=/tomcat/bin:$PATH
+
+#THIS MUST BE AT THE END OF THE FILE FOR GVM TO WORK!!!
+[[ -s "/Users/dans/.gvm/bin/gvm-init.sh" ]] && source "/Users/dans/.gvm/bin/gvm-init.sh"
