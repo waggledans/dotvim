@@ -22,6 +22,7 @@
 * [[java_notes]]
 * [[java_multithreading]]
 * [[java_junit_tests]]
+* [[java_spring]]
 * [[eclipse]]
 * [[gradle]]
 == SVN ==

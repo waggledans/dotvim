@@ -19,3 +19,6 @@
 	dfs = diff --staged
 	br = branch -r
 	logg = log --graph --oneline --decorate --abbrev-commit --all
+	mergem = merge --no-ff
+[merge]
+	tool = mvimdiff
