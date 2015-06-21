@@ -1,10 +1,6 @@
 = Document Base =
 == android ==
 * [[android]]
-== CVS ==
-* [[cvs]]
-== haskell programming ==
-* [[haskell_basics]]
 == C/C++ programming ==
 * [[makefile]]
 * [[c_notes]]
@@ -15,9 +11,15 @@
 * [[cpp_templates]]
 * [[cpp_io]]
 * [[cpp_snippets]]
+== haskell programming ==
+* [[haskell_basics]]
+== internet ==
+* [[google_hacks]]
 == javascript ==
 * [[html]]
 * [[javascript_hacks]]
+* [[javascript_nodejs]]
+* [[jmeter]]
 == java ==
 * [[java_notes]]
 * [[java_multithreading]]
@@ -26,6 +28,8 @@
 * [[eclipse]]
 * [[gradle]]
 * [[maven]]
+* [[groovy]]
+* [[spock]]
 == SVN ==
 * [[svn]]
 == GIT ==
@@ -52,14 +56,11 @@
 * [[kernel]]
 == MacOS ==
 * [[macos_plist]]
-== MacOS ==
-* [[macos_plist]]
 == Perl ==
 * [[perl_hacks]]
 == Python ==
 * [[python_notes]]
 == SQL DB Mongo NoSQL ==
-* [[sql_plsql]]
 * [[sql_mysql]]
 * [[sqlite]]
 * [[mongodb]]
@@ -68,6 +69,13 @@
 * [[vim_howtos]]
 * [[vimdiff]]
 * [[vimplugins]]
+== SVN ==
+* [[svn]]
+== CVS ==
+* [[cvs]]
+== GIT ==
+* [[git_howtos]]
+* [[git_add_empty_dir]]
 == Verilog ==
 * [[pli]]
 * [[gtkwave]]

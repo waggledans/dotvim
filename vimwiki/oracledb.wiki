@@ -1,3 +1,19 @@
+= Little SQL theory =
+* Data Definition Language (DDL)
+    These SQL commands are used for creating, modifying, and dropping the structure of database objects.
+    The commands are CREATE, ALTER, DROP, RENAME, and TRUNCATE.
+
+* Data Manipulation Language (DML)
+    These SQL commands are used for storing, retrieving, modifying, and deleting data. 
+    These commands are SELECT, INSERT, UPDATE, and DELETE.
+
+* Transaction Control Language (TCL)
+    These SQL commands are used for managing changes affecting the data. 
+    These commands are COMMIT, ROLLBACK, and SAVEPOINT.
+
+* Data Control Language (DCL)
+    These SQL commands are used for providing security to database objects.
+    These commands are GRANT and REVOKE.
 = mem structures =
 * Oracle instance = (server - instance connected to DB) instance means memory + proc that supports 1 DB 
   basically a bunch of memory objects required to tap into DB
@@ -15,7 +31,7 @@
   show parameter instance_name
   show parameter db_block_size
   select file_name, bytes/1024/1024 "MB" FROM dba_data_files ORDER BY 1;
-  select member, status, group FROM v$logfile;
+  select member, status, group# FROM v$logfile;
 = processes =
 ckpt - checkpoint
 dbw0 - db writer
@@ -24,7 +40,71 @@ arc  - archiver
 pmon - process monitor
 smon - system monitor
 = administration =
+SYS and SYSTEM two default admin accounts 
+* AAA - autentification, authorization (privileges), accounting (logging users actions) 
+** second A authorization: privileges:
+  *** system (instance/db permissions, connect, DDL
+** object - apply to schema obj (DML)
+** grant/revoke privileges (to other users for  objects)
+* user is identified by pw, OS or globally by LDAP
+LDAP - enterprise lightweight directory access protocol
+(OID - oracle internet, mac os OD - open directory, windows Active Directory)
+* Create new user
+CREATE USER username IDENTIFIED BY some_pw DEFAULT TABLESPACE users
+QUOTA 100M ON users TEMPORARY TABLESPACE temp PROFILE corp_user PASSWORD EXPIRE;
+* Drop  user
+DROP username;
 
+== roles ==
+* default roles
+  ** connect
+  ** resource
+  ** dba
+CREATE ROLE role_name;
+GRANT CONNECT, SELECT ANY TABLE, INSERT ANY TABLE, UPDATE ANY TABLE, DELETE ANY TABLE TO role_name;
+GRANT role_name TO user_name;
+* 
+== all current user privileges ==
+set heading off
+set pages 0
+set long 9999999
+select dbms_metadata.get_granted_ddl('ROLE_GRANT', user)  
+from dual;
+select dbms_metadata.get_granted_ddl('SYSTEM_GRANT', user)  
+from dual;
+select dbms_metadata.get_granted_ddl('OBJECT_GRANT', user)  
+from dual;
+== grant user ==
+Grant select on table_name to user;
+alter user hr identified by hr account unlock;
+grant debug connect session to hr; 
+grant debug any procedure to hr
+P_SEND_ADD_REGISTRATION
+== Grant user SELECT on all tables in schema ==
+    FOR x IN (SELECT * FROM user_tables)
+    LOOP   
+    EXECUTE IMMEDIATE 'GRANT SELECT ON ' || x.table_name || ' TO <<someone>>'; 
+    END LOOP;
+  or
+    SQL> SET PAGESIZE 1000
+    SQL> SELECT 'GRANT SELECT, UPDATE, DELETE ON '||TABLE_NAME||' TO <USERNAME>;' FROM USER_TABLES;
+== TABLESPACE management==    
+  SELECT tablespace_name, logging FROM dba_tablespaces;
+  SELECT name FROM v$tablespace;
+  SELECT name FROM v$datafile;
+-- Create tablespace  
+  CREATE TABLESPACE nologin DATAFILE /u01/oracle_home1/oradata/NEWDB/nologin.log size 10m nologging;
+  
+=== TEMPORARY TABLESPACE MANAGEMENT ===
+-- see all temp files
+    select * from dba_temp_files;
+-- check for default temp tablespace:    
+select property_value from database_properties where property_name like '%DEFAULT_TEMP_TABLESPACE%';
+-- add tempfile 
+-- check the current tempfile:
+    SELECT name FROM v$tempfile;
+-- create a new one (if the query didnt return anything)
+    ALTER TABLESPACE temp ADD TEMPFILE '/tmp/name.dbf' SIZE 1024M AUTOEXTEND ON;
 == useful commands ==
 show user     : to see whoami
 SELECT table_name FROM user_tables;
@@ -56,18 +136,54 @@ grant connect, resource to USERNAME;
 
 alter user hr identified by hr account unlock;
 grant debug connect session to hr; 
+GRANT CREATE PROCEDURE TO hr;
+GRANT ALTER ANY PROCEDURE TO hr;
+GRANT EXECUTE ON <schema_name>.<procedure_name> TO hr;
 grant debug any procedure to hr
 alter user <username> default tablespace <tablespace_name>;
 alter user <username> temporary tablespace <temp tablespace_name>;
 
-select temp,/tmp/tmp.dbf from dba_temp_files;
-select property_value from database_properties where property_name like '%DEFAULT_TEMP_TABLESPACE%';
-* Select name from v$tempfile;
-    If output is "no row selected" then:
-ALTER TABLESPACE temp ADD TEMPFILE '/tmp/name.dbf' SIZE 1024M AUTOEXTEND ON;
-Install demo
+* Install demo (? means ORACLE_HOME, @ means compile (and execute?))
 SQL> @?/demo/schema/human_resources/hr_main.sql
-= System queries =
+
+
+* Config TNS listener in $ORACLE_HOME/network/admin/tnsnames.ora
+Example:
+ORCLDB =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = ubuntu-VirtualBox)(PORT = 5500))
+    (CONNECT_DATA =
+      (SERVER = DEDICATED)
+      (SERVICE_NAME = orcldb)
+    )
+  )
+  
+
+= data dictionaries / System queries =
+* SELECT table_name, comments FROM dict; -- to see all tables
+* SELECT table_name, comments FROM dict WHERE table_name LIKE '%SEQ%';
+* SELECT table_name, comments FROM dict_columns; -- to see all columns  for all tables
+* all_objects, user_objects - contain functions, packages etc...
+* all_constraints, user_constraints
+== system queries ==
+select dbms_metadata.get_granted_ddl('ROLE_GRANT', user) from dual;
+select dbms_metadata.get_granted_ddl('SYSTEM_GRANT', user) from dual;
+select dbms_metadata.get_granted_ddl('OBJECT_GRANT', user) from dual;
+== v$* tables ==
+SELECT * FROM v$instance; -- v$process, v$parameter, v$database
+SELECT * FROM v$process;
+===cdb vs pdb (container DB) ===
+> sqlplus / as sysdba
+SQL> SELECT instance_name, version, status, con_id FROM v$instance;
+SQL> SELECT NAME, OPEN_MODE, RESTRICTED, OPEN_TIME FROM V$PDBS;
+-- if there are PDB available, move into one:
+SQL> alter session set container=orclpdb;
+-- Instead of selecting INSTANCE_NAME from V$INSTANCE;
+-- use the following SHOW commands: SHOW CON_ID & SHOW CON_NAME:
+SQL> con_id    --> CON_ID | 3
+SQL> show con_name  --> CON_NAME |  PDB1
+-- desc v$pdbs;
+
 http://razorsql.com/articles/oracle_system_queries.html
  * Find all procedures
 SELECT * FROM ALL_OBJECTS WHERE OBJECT_TYPE IN ('FUNCTION','PROCEDURE','PACKAGE')
@@ -80,21 +196,432 @@ OR:
 The difference is dba_source will have the text of all stored objects. 
 All_source will have the text of all stored objects accessible by the user performing the query. 
 
-
-
 exit;
 
-== grant user ==
-Grant select on table_name to user;
-alter user hr identified by hr account unlock;
-grant debug connect session to hr; 
-grant debug any procedure to hr
-P_SEND_ADD_REGISTRATION
-== Gran user SELECT on all tables in schema ==
-    FOR x IN (SELECT * FROM user_tables)
-    LOOP   
-    EXECUTE IMMEDIATE 'GRANT SELECT ON ' || x.table_name || ' TO <<someone>>'; 
+= SQLPLUS =
+== DDL ==
+=== TABLES ===
+CREATE TABLE MY_TABLE (col1(NUMBER(5), col2(VARCHAR2(2)));
+-- Create a table under other user schema
+    CREATE TABLE some_other_user_name.person (id NUMBER, first VARCHAR2(30), state VARCHAR2(2));
+-- add unique constraint to one field and Primary key to another    
+    ALTER TABLE person ADD CONSTRAINT pk_person PRIMARY KEY(id);
+    ALTER TABLE person ADD CONSTRAINT uk_person UNIQUE(state);
+-- Add another column    
+    ALTER TABLE person ADD zip_code VARCHAR(7) ;
+    ALTER TABLE person ADD marital_status CHAR(1) DEFAULT 'S';
+-- Modify column    
+    ALTER TABLE person MODIFY marital_status CHAR(1) DEFAULT 'M';
+-- add CHECK constraint (could be any condition)
+    ALTER TABLE person ADD CONSTRAINT ck_marital_status CHECK( marital_status in ('S', 'M', 'D'));
+-- Create a table from some other table
+    CREATE TABLE colorado_person AS
+        SELECT * FROM PERSON WHERE state = 'CO';
+-- add foreign key constraint
+    ALTER TABLE person ADD CONSTRAINT fk_person FOREIGN KEY(state) REFERENCES STATES(state);
+    
+    TRUNCATE table;
+    DROP table;
+=== VIEWS ===
+-- create a view called "person_view" with just one column 'name'
+  CREATE OR REPLACE VIEW person_view(name) AS
+    SELECT last || ', ' || first 
+    FROM person ORDER BY last, first;
+=== SEQUENCE ===
+CREATE SEQUENCE test_seq START_WITH 100 INCREMENT BY 1 NOMAXVALUE NOCACHE;
+INSERT INTO person VALUES (test_seq.NEXTVAL, 'name1', 'surname1');
+INSERT INTO person VALUES (test_seq.NEXTVAL, 'name2', 'surname2');
+INSERT INTO person VALUES (test_seq.NEXTVAL, 'name3', 'surname3');
+=== SYNONYM ===
+CREATE PUBLIC SYNONYM e1 FOR HR.employees;
+= DML =
+== INSERT ==
+INSERT INTO products (pid, prodname, price) VALUES (110, 'Foobar', 99.9);
+== queries ==
+* substition variables
+SELECT first_name, last_name FROM employees WHERE employee_id = &eid;
+SELECT first_name, last_name FROM employees WHERE last_name = '&name';
+* use && if subst var is used more than once
+SELECT first_name, last_name, &&prompt FROM employees WHERE last_name LIKE '%mit%' ORDER BY &prompt;
+* use define for variable definition
+DEFINE eid = 100;
+SELECT first_name, last_name FROM employees WHERE employee_id = &eid;
+== joins ==
+=== inner join ===
+could be queried in 3 ways:
+ * regular (omitting INNER JOIN keyword)
+SELECT e.FN, e.LN. d.DeptID
+FROM Emp e, Dept d WHERE e.DeptID = d.DeptID
+ * natural (applicable where columns are named the same )
+SELECT= DML = e.FN, e.LN. d.DeptID
+FROM Emp e INNER JOIN ON Dept d 
+USING (DeptID);
+ * explicit (the most 'verbal')
+SELECT e.FN, e.LN. d.DeptID
+FROM Emp e INNER JOIN ON Dept d 
+ON (e.DeptID = d.DeptID);
+=== outer join ===
+=== cartesian join ===
+=== self join ===
+SELECT e1.EmpName Staffer, e2.EmpName Manager
+FROM emp e1 INNER JOIN emp e2 
+ON (e2.mgrName = e1.EmpID);
+== subqueries ==
+== Set operators ==
+http://www.gplivna.eu/papers/sql_set_operators.htm
+Genaral rules:
+  * Column number should match
+  * Data type should match
+* UNION / UNION ALL
+The difference between the two is that UNION ALL doesnt remove duplicates
+    SELECT city FROM tableforset1 
+    UNION ALL               
+    SELECT city FROM tableforset2;V
+* MINUS
+The same as EXCEPT in ANSI.
+The order matters!!!
+* INTERSECT
+  Just like INNER JOIN that operates on every column
+
+== Tables ==
+describe employees;
+> returns columns of EMPLOYEES table along with data type and NULL/not NULL
+= check value for NULL =
+
+
+= grouping / aggregating =
+== grouping syntax ==
+* IMPORTANT point is that group by expression should include all columns 
+  other than those being modified some grouping function !!! :)
+  The solution is using PARTITION BY instead of GROUP BY
+
+SELECT col1, group_fx(col2)
+FROM  tablename WHERE condition
+GROUP BY expression  ORDER BY column_name;
+
+* use HAVING for filtering groups (and not WHERE)
+        SELECT department_id, AVG(salary) FROM EMPLOYEES
+        HAVING AVG(salary) > 9000
+        ORDER BT department_id;
+== Get only max value out of group ==
+    SELECT MAX(field) OVER (PARTITION BY some_other_field) some_name
+    FROM some_table
+    WHERE field = some_name;
+Example:
+    SELECT * FROM (
+        SELECT DISTINCT COLL_CODE,MAJR_CODE,SHRDGMR_GRAD_DATE,  
+            MAX(SHRDGMR_GRAD_DATE) over (partition by MAJR_CODE) MAXGRADYEAR  
+        FROM SHRDGMR  
+        WHERE SHRDGMR_LEVL_CODE = 'UG' )
+    WHERE SHRDGMR_GRAD_DATE = MAXGRADYEAR ;
+
+= PLSQL =
+variable_name datatype [NOT NULL := value ]; 
+== DATATYPES / VARIABLES ==
+  * NUMBER(precision, scale)
+    NUMBER(4,2)  => 25.21, 25.157 => 25.16...
+  * BOOLEAN  -- could be TRUE, FALSE, NULL
+  * CLOB     -- up to 4G of text
+=== Composite DataTypes ===
+  * Records
+    DECLARE
+        TYPE dept_rec IS RECORD(dept_id departments.dept_id%TYPE,
+  * Nested Tables 
+  * Varrays 
+  * Associative Arrays
+=== %TYPE, %ROWTYPE ===
+=== DATE ===
+    11-NOV-2013 14:25:34
+    l_date date := '10-nov-13';
+    l_date := TO_DATE('10-NOV-2013 15:25:34', 'DD-MON-RRRR HH24:MI:SS');
+    l_date := TO_DATE('11/10/2013 15:25:34', 'MM/DD/RRRR HH24:MI:SS');
+  
+  l_date := TO_DATE('10-FEB-2014', 'DD-MON-RRRR');
+  ADD_MONTH(l_date, 1);
+  * example:
+    SELECT  SFRSTCR_RSTS_CODE,SFRSTCR_RSTS_DATE
+        FROM SATURN.SFRSTCR WHERE  SFRSTCR_RSTS_DATE  
+        between TO_DATE('01-JAN-2015','dd-MON-yy')  and TO_DATE('28-FEB-2015','dd-MON-yy');
+  * MONTHS_BETWEEN example
+        SELECT MONTHS_BETWEEN 
+            (TO_DATE('02-02-1995','MM-DD-YYYY'),
+            TO_DATE('01-01-1995','MM-DD-YYYY') ) "Months"
+            FROM DUAL;
+=== type casting === 
+TO_CHAR(num, date), TO_NUMBER(char), TO_DATE(CHAR)
+=== Example === 
+DECLARE
+    l_second NUMBER DEFAULT 2.21;  
+    salary  number (6); -- “salary” is a variable of datatype number and of length 6.
+    INTEGER : NUMBER(38,0)
+    l_second CONSTANT NUMBER DEFAULT 2.21;  -- constant declaration
+    l_num_vartype l_num%TYPE := 1.123;      -- inherit type from 1.123
+    l_num_coltype departments.dept_id%TYPE; -- inherit type from that coloumn  
+    dept varchar2(10) NOT NULL := “HR Dept”;
+    l_boolean BOOLEAN;
+
+* Example: The below program will get the salary of an employee with id '1116' and display it on the screen.
+
+DECLARE 
+ var_salary number(6); 
+ var_emp_id number(6) = 1116; 
+BEGIN
+ SELECT salary 
+ INTO var_salary 
+ FROM employee 
+ WHERE emp_id = var_emp_id; 
+ dbms_output.put_line(var_salary); 
+ dbms_output.put_line('The employee ' 
+  	|| var_emp_id || ' has  salary  ' || var_salary); 
+END; 
+/
+NOTE: The backward slash '/' in the above program indicates to execute the above PL/SQL Block.     
+
+== COMMIT / ROLLBACK /SAVEPOINT ==
+SAVEPOINT sp_name; -- 
+BEGIN
+    UPDATE departments
+        SET dept_name = 'Marketing' WHERE dept_id = 2;
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+END;
+
+= CURSORS =
+== implicit cursors ==
+* implicit cursors produce SQL%FOUND,  SQL%NOTFOUND, SQL%ROWCOUNT
+* 
+* Example:
+DECLARE
+l_dept_id departments.dept_id%TYPE;
+l_dept_name departments.dept_name%TYPE;
+BEGIN
+  SELECT dept_id,
+    dept_name INTO l_dept_id,
+    l_dept_name FROM departments
+  WHERE dept_id = 1; 
+  IF SQL%FOUND THEN
+    DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT ); 
+  END IF;
+END;
+== explicit cursors ==
+CURSOR <cursor_name> IS select_statement;
+* Example1:
+    DECLARE
+        l_dept_id departments.dept_id%TYPE;
+        l_dept_name departments.dept_name%TYPE;
+    CURSOR cur_get_departments IS 
+          SELECT dept_id,dept_name FROM departments
+          WHERE dept_id = 1;
+    BEGIN
+        OPEN cur_get_departments; 
+            FETCH cur_get_departments
+              INTO l_dept_id, l_dept_name; -- should match SELECT columns
+            DBMS_OUTPUT.PUT_LINE( l_dept_name);
+        CLOSE cur_get_departments;
+    END;
+* Example2 (multiple row select):
+    DECLARE
+        CURSOR cur_get_employees IS
+            SELECT emp_id,
+            emp_sal * 0.10 bonus
+            FROM employee;
+        cur_get_employees_var cur_get_employees%ROWTYPE; -- ROWTYPE means there could be a number of rows
+    BEGIN
+        OPEN cur_get_employees; 
+        LOOP
+            FETCH cur_get_employees 
+              INTO cur_get_employees_var;
+            EXIT WHEN cur_get_employees%NOTFOUND; 
+            DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.emp_id);
+            DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.bonus);
+        END LOOP;
+        IF cur_get_employees%ISOPEN THEN  -- sort of exception guard
+          CLOSE cur_get_employees;
+        END IF;
+        --- CLOSE cur_get_employees;  -- should be here when there is no IF above???
+    END;
+=== explicit cursor parameters ===
+CURSOR <cursor_name>[(param1,param2..paramN)] IS select_statement;
+  * ￼param_name datatype [DEFAULT]
+  * Example
+DECLARE
+    CURSOR cur_get_departments(p_rows NUMBER DEFAULT 5) IS
+        SELECT dept_id, dept_name
+            FROM departments
+            WHERE ROWNUM <= p_rows;
+    cur_get_departments_var cur_get_departments%ROWTYPE; 
+BEGIN
+    OPEN cur_get_departments( 2); 
+        LOOP
+            FETCH cur_get_departments
+            INTO cur_get_departments_var;
+            EXIT WHEN cur_get_departments%NOTFOUND;
+            DBMS_OUTPUT.PUT_LINE(cur_get_departments_var.dept_id); 
+        END LOOP;
+    CLOSE cur_get_departments; 
+END;
+==== Cursor For Loop ====
+-- seems to be syntactic sugar for loop fetch
+    FOR cur_rec IN <cursor_name or sql_query> LOOP
+        statements;
     END LOOP;
-  or
-    SQL> SET PAGESIZE 1000
-    SQL> SELECT 'GRANT SELECT, UPDATE, DELETE ON '||TABLE_NAME||' TO <USERNAME>;' FROM USER_TABLES;
+    
+ * Explicit Cursor For Loop Example:   
+DECLARE
+    CURSOR cur_get_employees IS
+        SELECT emp_id, emp_sal * 0.10 bonus
+            FROM employee;
+BEGIN
+    FOR cur_get_employees_var IN cur_get_employees LOOP 
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.emp_id); 
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.bonus);
+    END LOOP;
+END;
+ * Implicit Cursor For Loop Example:   
+DECLARE
+    l_num NUMBER := 2;
+BEGIN
+    FOR cur_get_employees_var IN
+            (SELECT dept_id, dept_name FROM departments
+                WHERE ROWNUM <= l_num) LOOP
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.emp_id); 
+        DBMS_OUTPUT.PUT_LINE(cur_get_employees_var.bonus);
+    END LOOP;
+END;
+=== ref cursors ===
+  * general
+    TYPE <ref_cur_name> IS REF CURSOR [ RETURN return_type]
+  * Cursor Attributes
+        ** <cursor>%FOUND
+        ** <cursor>%NOTFOUND
+        ** <cursor>%ISOPEN
+        ** <cursor>%ROWCOUNT
+  * Strongly typed cursor variables      
+    DECLARE
+        -- here ref cursor is kindof like typedef.
+        TYPE rc_dept IS REF CURSOR RETURN departments%ROWTYPE; -- rc_* is a good naming practice
+        -- the next line declares var of rc_type that is ref cursor
+        rc_dept_cur rc_dept;
+        l_dept_rowtype departments%ROWTYPE;
+        l_id departments.dept_id%TYPE:= 1; 
+        l_dept_id departments.dept_id%TYPE;
+        l_dept_name  departments.dept_name%TYPE;
+    BEGIN
+        OPEN rc_dept_cur FOR
+            SELECT * FROM departments WHERE dept_id = l_id;
+            l_id := 2; 
+        LOOP
+        FETCH rc_dept_cur INTO l_dept_rowtype;
+        EXIT WHEN rc_dept_cur%NOTFOUND; 
+        DBMS_OUTPUT.PUT_LINE(l_dept_rowtype.dept_id);
+        END LOOP;
+    OPEN rc_dept_cur FOR
+    SELECT * FROM departments WHERE dept_name = 'Accounting';
+    LOOP
+    FETCH rc_dept_cur INTO l_dept_id, l_dept_name; 
+    EXIT WHEN rc_dept_cur%NOTFOUND; 
+    DBMS_OUTPUT.PUT_LINE(l_dept_id);
+    END LOOP;
+    CLOSE rc_dept_cur;
+    END;
+    
+
+    DECLARE
+        TYPE dept_rec IS RECORD(dept_id departments.dept_id%TYPE,
+        dept_name departments.dept_name%TYPE); 
+        TYPE rc_dept IS REF CURSOR RETURN dept_rec;
+        rc_dept_cur rc_dept;
+        l_dept_rec dept_rec;
+        l_choice NUMBER := 1;
+    BEGIN
+        IF l_choice = 1 THEN
+            OPEN rc_dept_cur FOR
+            SELECT * FROM departments
+            WHERE dept_id = 1;
+        ELSE
+            OPEN rc_dept_cur FOR
+            SELECT * FROM departments
+            WHERE dept_name = 'Accounting'; 
+        END IF;
+        LOOP
+            FETCH rc_dept_cur INTO l_dept_rec;
+            EXIT WHEN rc_dept_cur%NOTFOUND; 
+            DBMS_OUTPUT.PUT_LINE(l_dept_rec.dept_id);
+        END LOOP;
+        CLOSE rc_dept_cur;
+    END;
+= procedure =
+* compile and run (I guess it'd run only if procedure ends with /):
+@/full/path/to/procedure.sql
+* recompile
+  ALTER PROCEDURE update_dept COMPILE;
+* call stored procedure
+    http://docs.oracle.com/cd/B10501_01/appdev.920/a96590/adg10pck.htm#37785
+  basically: EXECUTE <procedure name> or anonymous PLSQL block
+* example
+CREATE OR REPLACE PROCEDURE 
+      update_dept AS l_emp_id employee.emp_id%TYPE := 10;
+BEGIN
+    UPDATE employee
+    SET emp_dept_id = 2 
+      WHERE emp_id = l_emp_id; 
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE(SQLERRM); 
+        DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE); 
+        ROLLBACK;
+        RAISE;
+END update_dept;
+/
+= function =
+  * use DUAL table in order to run function
+SELECT yourfunction(args) AS ValueName FROM DUAL;
+== Oracle provided ==
+ROUND, CEIL.
+LPAD, LTRIM, UPPER - pad with spaces/trim spaces/uppercase
+NVL ( expr1 , expr2 ): If expr1 is null, then NVL returns expr2. If expr1 is not null, then NVL returns expr1.
+NVL2 ( expr1 , expr2 , expr3 ): If expr1 is null, then NVL2 returns expr3. If expr1 is not null, then NVL2 returns expr2
+== define function ==
+    CREATE [OR REPLACE] FUNCTION [schema.]<function_name> 
+    RETURN <datatype> IS | AS
+        <declaration section> 
+    BEGIN
+        statements;
+    RETURN <datatype>;
+    [EXCEPTION]
+    END [<function_name>];
+* example
+CREATE OR REPLACE FUNCTION get_emp_count 
+RETURN NUMBER AS 
+CURSOR cur_get_dept_id IS
+  SELECT dept_id FROM departments
+  WHERE dept_name = 'IT';
+  l_dept_id departments.dept_id%TYPE;
+  l_count NUMBER := 0;
+BEGIN
+    OPEN cur_get_dept_id;
+        FETCH cur_get_dept_id INTO l_dept_id; 
+    CLOSE cur_get_dept_id;
+    SELECT count(*) INTO l_count FROM employee
+    WHERE emp_dept_id = l_dept_id; 
+    RETURN l_count;
+EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE(SQLERRM); 
+    DBMS_OUTPUT.PUT_LINE(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE); 
+    RAISE;
+END get_emp_count;
+
+= package =
+= trigger =
+CREATE OR REPLACE TRIGGER drop_trigger
+  BEFORE DROP on hr.SCHEMA
+  BEGIN
+    RAISE APPLICATION ERROR (
+      num => -20000,
+      msg => 'Cannot drop object');
+  END
+
