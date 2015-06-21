@@ -26,12 +26,10 @@
 * [[java_junit_tests]]
 * [[java_spring]]
 * [[eclipse]]
-* [[gradle]]
-* [[maven]]
 * [[groovy]]
 * [[spock]]
-== SVN ==
-* [[svn]]
+* [[gradle]]
+* [[maven]]
 == GIT ==
 * [[git_howtos]]
 * [[git_add_empty_dir]]

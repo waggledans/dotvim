@@ -82,7 +82,6 @@ public class AppConfig {
 }
 = autowire =
  * byName, byType (when there is only one bean of this type is defined in xml
- * 
 = Spring annotations =
 http://www.tutorialspoint.com/spring/spring_annotation_based_configuration.htm
 * @Autowired
