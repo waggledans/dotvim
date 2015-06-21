@@ -75,3 +75,60 @@ public class AppConfig {
 }
 = autowire =
  * byName, byType (when there is only one bean of this type is defined in xml
+ * 
+= Spring annotations =
+http://www.tutorialspoint.com/spring/spring_annotation_based_configuration.htm
+* @Autowired
+some setterMethod()
+    * will look in xml for object of the same class as the one being set by this setter
+    * if many of them are found then the one with the same name is autowired
+    * or else @Qualifier("some_name") could be used. In XML the object being referenced should have <qualifier name="some_name"/> 
+        <bean class="com.pkg.SomeBean">
+            <qualifier type="YourQualifier"/>
+        </bean>
+    or
+        @YourQualifier
+        @Component
+        public class SomeBean implements Foo { .. }
+* JSR-250 annotations:
+  ** @Resource annotation. Also with the setter. It says that there is object defined in XML, autowire it.
+        @Resource(name="pointC")
+    @Resource means get me a known resource by name. The name is extracted from the name of the annotated setter or field, or it is taken from the name-Parameter.
+    @Inject or @Autowired try to wire in a suitable other component by type.
+  ** @PostConstruct/@PreDestroy
+    public void initializeTriangle() {}
+* @Component defines class to be a bean. See "Construction injection" above
+    IMPORTANT: need also to add the following line to xml:
+    <context:component-scan base-package="com.dans.training.spring"/>
+    or another way to use @Configuration:
+* @Configuration indicates that the class can be used by the Spring IoC container as a source of bean definitions.    
+    @Configuration
+    @Import({ AppConfigWeb.class })
+    @ImportResource( { "classpath*:/rest_config.xml" } )
+    @ComponentScan( basePackages = "org.rest" )
+    @PropertySource({ "classpath:rest.properties", "classpath:web.properties" })
+    public class AppConfig{
+        @Bean
+        public static PropertySourcesPlaceholderConfigurer properties() {
+            return new PropertySourcesPlaceholderConfigurer();
+        }
+    }
+* @Service - kind of like @Component (only its a service bean)
+* @Repository - data object bean
+* @Controller - controller bean (in MVC)
+* 
+= properties file =
+== using xml file ==
+File "mymessages.properties" contains key-value pairs
+greeting=Hello!
+the add message bean to XML:
+<bean id="messageSource" class="org.springframework.ocntext.support.ResourceBundleMessageSource"> 
+  <property name="basenames">
+      <list>
+        <value>mymessages</value>
+      <list>
+</bean>
+and then in the code:
+context.getMessage("greeting", null, "Default Greeting", null)
+== using annotations ==
+

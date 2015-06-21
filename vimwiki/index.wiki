@@ -25,6 +25,7 @@
 * [[java_spring]]
 * [[eclipse]]
 * [[gradle]]
+* [[maven]]
 == SVN ==
 * [[svn]]
 == GIT ==
