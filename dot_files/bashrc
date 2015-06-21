@@ -2,7 +2,8 @@ alias nali='vim ~/.bashrc'
 alias sali='source ~/.bashrc'
 alias m='most '
 alias l='less '
-alias g='grep -eir '
+alias gr='egrep -nir '
+alias g='grep -Rnif /dev/stdin . <<<'
 alias vim='/usr/local/Cellar/macvim/7.4-76/MacVim.app/Contents/MacOS/Vim -o'
 alias vi=vim
 alias gvim=mvim
@@ -13,7 +14,7 @@ if [ -f ~/.git-completion.bash ]; then
     source ~/.git-completion.bash
 fi
 
-
+alias vwu_ssh="sudo ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.systems.wvu.edu:2273 -L 443:dgtest.wvu.edu:443"
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home
 export PATH=/tomcat/bin:$PATH
 

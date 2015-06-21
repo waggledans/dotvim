@@ -27,6 +27,8 @@
 * [[java_spring]]
 * [[eclipse]]
 * [[gradle]]
+* [[groovy]]
+* [[spock]]
 == LINUX ==
 * [[virtual_box]]
 * [[linux_system]]
@@ -53,7 +55,6 @@
 == Python ==
 * [[python_notes]]
 == SQL DB Mongo NoSQL ==
-* [[sql_plsql]]
 * [[sql_mysql]]
 * [[sqlite]]
 * [[mongodb]]

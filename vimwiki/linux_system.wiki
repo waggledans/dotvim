@@ -22,13 +22,27 @@ $ su -
     find . -type f -name "*John*"	
 == grep ==    
 -l  :only file names are returned
-
+== uniq ==
+sort -u -t, -k1,1 file
+-u for unique
+-t, so comma is the delimiter
+-k1,1 for the key field 1
 = networking =
 curl -i -X POST -H "Content-Type:application/json" -d '{  "firstName" : "Frodo",  "lastName" : "Baggins" }' http://localhost:8080/
-wget 
-scp
+* wget
+  wget http://ftp.gnu.org/gnu/wget/wget-1.5.3.tar.gz ftp://ftp.gnu.org/gnu/wget/wget-1.10.1.tar.gz.sig
+  ** resume download: wget -c 
+  ** download in bg: wget -b 
+  ** wget --http-user=narad --http-password=password
+  ** wget --ftp-user=narad --ftp-password=password 
+* scp
 scp -i ~/Desktop/amazon.pem ~/Desktop/MS115.fa  ubuntu@ec2-54-166-128-20.compute-1.amazonaws.com:~/data/
-ssh
+* ssh
+-L [bind_address:]port:host:hostport
+  Specifies that the given port on the local (client) ho
+ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.systems.wvu.edu:2273 -L 443:dgtest.wvu.edu:443
+* netstat
+  prints all the ports
 = System info =
 * lscpu or	      less /proc/cpuinfo
 * free <-m|t|g> or    less /proc/meminfo
@@ -72,7 +86,23 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
     eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_rsa    
 == openssl ==
+    * generate private key (using des3 to protect the key by pw)
     openssl genrsa -des3 -out server.key 2048
+******  optional sidetrack block to use key to sign **********
+    * (optional) see what's inside there
+     openssl pkey -in server.key  -text
+    * generate public key
+     openssl pkey -in server.key -out pub.key -pubout
+    echo "sign me message" > messagetosign.txt
+    openssl pkeyutl -sign -in messagetosign.txt -inkey server.key -out signature 
+    openssl pkeyutl -verify -in messagetosign.txt -sigfile signature -pubin -inkey pub.key
+    openssl rsautl -verify  -in signature -pubin -inkey pub.key
+    * encrypt the message:
+    openssl pkeyutl -encrypt -in plainmessage.txt -pubin -inkey pub.key -out cyphermsg.bin
+    * decrypt the message (using private key):
+    openssl pkeyutl -decrypt -in cyphermsg.bin -inkey server.key -out  plainmessage.txt
+
+****** end of sidetrack **********
 ** (optional) to remove passphrase:
     cp server.key server.key.org
     openssl rsa -in server.key.org -out server.key

@@ -149,6 +149,7 @@ String input =
 print(Arrays.toString(Pattern.compile("!!").split(input)));
 == Regular expressions and Java I/O ==
 See TIJ book, Scanning input
-== SQL ==
+== SQL integration ==
 https://bitbucket.org/xerial/sqlite-jdbc
-
+= JPA java persistence API = 
+Object

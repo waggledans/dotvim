@@ -1,2 +1,5 @@
 Change host name as it is displayed in terminal window
 sudo scutil --set HostName name-you-want
+= Write NTFS =
+sudo echo LABEL=drivename none ntfs rw,auto,nobrowse >> /etc/fstab
+then in Spotlight type /Volumes to see the folder

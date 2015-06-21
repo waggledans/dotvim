@@ -126,7 +126,7 @@ db.books.update({title:"core java"},{$unset: {pages: 245});
 // or add a new key to all documents found:
 // false means dont create a new doc (see the next example)
 // true means apply to all found basically
-db.books.update({title:"core java"},{$set: {pages: 245}, false, true);
+db.books.update({title:"core java"},{$set: {pages: 245}}, false, true);
 // can also update number of keys:
 db.books.update({title:"core java"},{$set: {pages: 245, author: author_name}, false, true);
 

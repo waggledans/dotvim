@@ -1,3 +1,5 @@
+= Spring Basics =
+Implemented using Servlet Front Controller (basically on top of Java servlet)
 = Spring container = 
 Just write code using Factory Pattern where Spring manufactures objects using configuration file,
 which is xml file. Spring bean factory would generate beans after reading Spring XML.
@@ -14,7 +16,8 @@ public class DrawingApp {
   * request - new bean per servlet request
   * session - new bean per session
   * global session - new bean per http session (per portlet)
-= property file =
+= property file / property injection =
+http://www.baeldung.com/2012/02/06/properties-with-spring/
  * Register a Properties File in XML
     <context:property-placeholder location="classpath:foo.properties" />
     or
@@ -28,6 +31,10 @@ public class DrawingApp {
                 return new PropertySourcesPlaceholderConfigurer();
             }
         }   
+ * messages
+ <bean id="messageSource" 
+	class="org.springframework.context.support.ResourceBundleMessageSource" 
+	p:basename="messages"></bean>
 = constructor injection =
 == using xml ==
    <bean id="exampleBean" class="examples.ExampleBean">
@@ -75,3 +82,14 @@ public class AppConfig {
 }
 = autowire =
  * byName, byType (when there is only one bean of this type is defined in xml
+ * 
+= SPRING MVC =
+== Resolving static files ==
+Example:
+In servlet-config.xml
+<mvc:resources location="pdfs" mapping="/pdfs/**"/>
+in web.xml:
+    <servlet-mapping>
+        <servlet-name>ServletName</servlet-name>
+        <url-pattern>/pdfs/**</url-pattern>
+    </servlet-mapping>

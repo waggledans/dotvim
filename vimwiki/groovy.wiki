@@ -1,0 +1,11 @@
+= Operators =
+http://www.groovy-lang.org/operators.html
+* Direct field access operator:
+assert user.@name == 'Bob' 
+* Safe navigation operator
+ def name = person?.name 
+* Method pointer operator
+    def str = 'example of method reference'            
+    def fun = str.&toUpperCase      // here we define fun to reference toUpperCase method
+    def upper = fun()                                  
+    assert upper == str.toUpperCase() 

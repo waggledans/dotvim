@@ -15,6 +15,44 @@
     These SQL commands are used for providing security to database objects.
     These commands are GRANT and REVOKE.
 = SQLPLUS =
+== DDL ==
+=== TABLES ===
+CREATE TABLE MY_TABLE (col1(NUMBER(5), col2(VARCHAR2(2)));
+-- Create a table under other user schema
+    CREATE TABLE some_other_user_name.person (id NUMBER, first VARCHAR2(30), state VARCHAR2(2));
+-- add unique constraint to one field and Primary key to another    
+    ALTER TABLE person ADD CONSTRAINT pk_person PRIMARY KEY(id);
+    ALTER TABLE person ADD CONSTRAINT uk_person UNIQUE(state);
+-- Add another column    
+    ALTER TABLE person ADD zip_code VARCHAR(7) ;
+    ALTER TABLE person ADD marital_status CHAR(1) DEFAULT 'S';
+-- Modify column    
+    ALTER TABLE person MODIFY marital_status CHAR(1) DEFAULT 'M';
+-- add CHECK constraint (could be any condition)
+    ALTER TABLE person ADD CONSTRAINT ck_marital_status CHECK( marital_status in ('S', 'M', 'D'));
+-- Create a table from some other table
+    CREATE TABLE colorado_person AS
+        SELECT * FROM PERSON WHERE state = 'CO';
+-- add foreign key constraint
+    ALTER TABLE person ADD CONSTRAINT fk_person FOREIGN KEY(state) REFERENCES STATES(state);
+    
+    TRUNCATE table;
+    DROP table;
+=== VIEWS ===
+-- create a view called "person_view" with just one column 'name'
+  CREATE OR REPLACE VIEW person_view(name) AS
+    SELECT last || ', ' || first 
+    FROM person ORDER BY last, first;
+=== SEQUENCE ===
+CREATE SEQUENCE test_seq START_WITH 100 INCREMENT BY 1 NOMAXVALUE NOCACHE;
+INSERT INTO person VALUES (test_seq.NEXTVAL, 'name1', 'surname1');
+INSERT INTO person VALUES (test_seq.NEXTVAL, 'name2', 'surname2');
+INSERT INTO person VALUES (test_seq.NEXTVAL, 'name3', 'surname3');
+=== SYNONYM ===
+CREATE PUBLIC SYNONYM e1 FOR HR.employees;
+= DML =
+== INSERT ==
+INSERT INTO products (pid, prodname, price) VALUES (110, 'Foobar', 99.9);
 == queries ==
 * substition variables
 SELECT first_name, last_name FROM employees WHERE employee_id = &eid;
@@ -31,7 +69,7 @@ could be queried in 3 ways:
 SELECT e.FN, e.LN. d.DeptID
 FROM Emp e, Dept d WHERE e.DeptID = d.DeptID
  * natural (applicable where columns are named the same )
-SELECT e.FN, e.LN. d.DeptID
+SELECT= DML = e.FN, e.LN. d.DeptID
 FROM Emp e INNER JOIN ON Dept d 
 USING (DeptID);
  * explicit (the most 'verbal')
@@ -62,30 +100,6 @@ The order matters!!!
   Just like INNER JOIN that operates on every column
 
 == Tables ==
--- Create a table under other user schema
-    CREATE TABLE some_other_user_name.person (id NUMBER, first VARCHAR2(30), state VARCHAR2(2));
--- add unique constraint to one field and Primary key to another    
-    ALTER TABLE person ADD CONSTRAINT pk_person PRIMARY KEY(id);
-    ALTER TABLE person ADD CONSTRAINT uk_person UNIQUE(state);
--- Add another column    
-    ALTER TABLE person ADD zip_code VARCHAR(7) ;
-    ALTER TABLE person ADD marital_status CHAR(1) DEFAULT 'S';
--- Modify column    
-    ALTER TABLE person MODIFY marital_status CHAR(1) DEFAULT 'M';
--- add CHECK constraint (could be any condition)
-    ALTER TABLE person ADD CONSTRAINT ck_marital_status CHECK( marital_status in ('S', 'M', 'D'));
--- Create a table from some other table
-    CREATE TABLE colorado_person AS
-        SELECT * FROM PERSON WHERE state = 'CO';
--- add foreign key constraint
-    ALTER TABLE person ADD CONSTRAINT fk_person FOREIGN KEY(state) REFERENCES STATES(state);
--- create a view called "person_view" with just one column 'name'
-  CREATE OR REPLACE VIEW person_view(name) AS
-    SELECT last || ', ' || first 
-    FROM person ORDER BY last, first;
-
-
-
 describe employees;
 > returns columns of EMPLOYEES table along with data type and NULL/not NULL
 = check value for NULL =
@@ -123,6 +137,7 @@ variable_name datatype [NOT NULL := value ];
   * NUMBER(precision, scale)
     NUMBER(4,2)  => 25.21, 25.157 => 25.16...
   * BOOLEAN  -- could be TRUE, FALSE, NULL
+  * CLOB     -- up to 4G of text
 === Composite DataTypes ===
   * Records
     DECLARE
@@ -178,7 +193,8 @@ END;
 /
 NOTE: The backward slash '/' in the above program indicates to execute the above PL/SQL Block.     
 
-== COMMIT / ROLLBACK ==
+== COMMIT / ROLLBACK /SAVEPOINT ==
+SAVEPOINT sp_name; -- 
 BEGIN
     UPDATE departments
         SET dept_name = 'Marketing' WHERE dept_id = 2;
