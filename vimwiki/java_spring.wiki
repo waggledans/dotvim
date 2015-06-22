@@ -103,6 +103,9 @@ some setterMethod()
     @Inject or @Autowired try to wire in a suitable other component by type.
   ** @PostConstruct/@PreDestroy
     public void initializeTriangle() {}
+* JSR-303 annotations (hibernate-validator):
+  **
+  **
 * @Component defines class to be a bean. See "Construction injection" above
     IMPORTANT: need also to add the following line to xml:
     <context:component-scan base-package="com.dans.training.spring"/>
