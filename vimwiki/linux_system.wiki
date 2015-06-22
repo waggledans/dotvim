@@ -55,6 +55,8 @@ ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.system
 ssh -i /Users/dans/ama_test_key.pem ec2-user@52.11.163.16 -v    : AWS ubunthu
 ssh -i /Users/dans/ama_test_key.pem ec2-user@52.25.81.84 -v	: amazon_linux
 scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/home/ec2-user/downloads
+* vmstat
+vmstat 5
 == Disk administration ==
 * check how much space avail in /tmp
 df -h /tmp
