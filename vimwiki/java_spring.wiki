@@ -151,3 +151,41 @@ in web.xml:
         <servlet-name>ServletName</servlet-name>
         <url-pattern>/pdfs/**</url-pattern>
     </servlet-mapping>
+=Aspect OP=
+== Enable Aspects in Spring XML Configuration ==
+* using XML
+<beans>
+    <aop:aspectj-autoproxy /> <!-- Enable @Aspect Annotation -->
+    <context:component-scan base-package="simpleaspect" />
+</beans>
+* using annotations
+    @Configuration
+    @EnableAspectJAutoProxy
+    @ComponentScan(basePackages="simpleaspect")
+    public class SimpleAspectConfiguration { .. 
+== Advice ==
+* @Before
+* @After
+* @AfterThrowing(pointcut="execution(* *(..))", throwing="ex")
+* @AfterReturning(pointcut="execution(* *(..))", returning="string")
+* @Around 
+  Allows modify return value
+== Pointcut ==
+"execution(* *(..))"         : any method
+"execution(* *..*.*(..))"         : any method in any package OR its subpackage
+"execution(* *.*(..))"         : any method in DEFAULT package
+"execution(* *(*))"         : method that accepts one argument only
+"execution(String com.dans.training.Service.hello(String))"  : method full name
+"execution(* com.dans..Service.*(..))"      : any method class named *Service (ie name ENDS with Service) in package com.dans (or any subpackage of it)
+=== Pointcut by annotation ===
+execution(@com.smth.annotationName * *(..))
+execution(* (@com.smth.annotationName * *(..)). *(..))   // class must be annotated
+== bean examples ==
+    * tracing aspect
+        @Before("execution (void doSmth())");
+        @Before("execution (*  *(..))");
+    * joinPoint information
+        @Before("execution (*  *(..))");
+        public void entering(JoinPoint joinPoint) { 
+            logger.trace("entering " + joinPoint.getStaticPart().getSignature().toString());
+        } 

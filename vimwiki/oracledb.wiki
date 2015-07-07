@@ -17,7 +17,8 @@
 = mem structures =
 * Oracle instance = (server - instance connected to DB) instance means memory + proc that supports 1 DB 
   basically a bunch of memory objects required to tap into DB
-* RAC (Real Application Cluster)
+* RAC (Real Application Cluster) OCP - more than one instance, all focused on the same DB.
+      Clustering is good when you need 100% uptime (where one instance can run maintenance while others)
   a bunch of instances connected to DB
 * System Global Area - SGA
   ** DB buffer: Scratch space for SQL
@@ -40,6 +41,12 @@ arc  - archiver
 pmon - process monitor
 smon - system monitor
 = administration =
+== tools ==
+tnsping orcl.dadbm.com:1521/orcl
+== random stuff ==
+    * make loging case insensitive
+	Oracle 11g credentials are case sesnsitive.
+	Try ALTER SYSTEM SET SEC_CASE_SENSITIVE_LOGON = FALSE; and
 SYS and SYSTEM two default admin accounts 
 * AAA - autentification, authorization (privileges), accounting (logging users actions) 
 ** second A authorization: privileges:
@@ -94,6 +101,7 @@ P_SEND_ADD_REGISTRATION
   SELECT name FROM v$datafile;
 -- Create tablespace  
   CREATE TABLESPACE nologin DATAFILE /u01/oracle_home1/oradata/NEWDB/nologin.log size 10m nologging;
+  ALTER TABLESPACE bigtbs AUTOEXTEND ON NEXT 20G;
   
 === TEMPORARY TABLESPACE MANAGEMENT ===
 -- see all temp files
@@ -105,7 +113,19 @@ select property_value from database_properties where property_name like '%DEFAUL
     SELECT name FROM v$tempfile;
 -- create a new one (if the query didnt return anything)
     ALTER TABLESPACE temp ADD TEMPFILE '/tmp/name.dbf' SIZE 1024M AUTOEXTEND ON;
+== spool ==
+SET NEWPAGE 0
+SET SPACE 0
+SET PAGESIZE 0
+SET FEEDBACK OFF
+SET HEADING OFF
+set verify off
+SET ECHO OFF
+spool /tmp/spool.txt
+SELECT * FROM dba_views WHERE view_name like 'V%';
+spool off
 == useful commands ==
+list - to see command buffer
 show user     : to see whoami
 SELECT table_name FROM user_tables;
 DESC  some_table_name;	      : to see the table columns
@@ -125,6 +145,21 @@ SELECT column_name, column_default, column_type, nullable FROM user_tab_columns 
     FROM user_constraints a, user_cons_columns b, 
     WHERE a.constraint_name = b.constraint_name AND a.table_name='PERSON';
 
+== First DB start ==
+http://docs.oracle.com/cd/B19306_01/network.102/b14212/connect.htm
+* start listener
+    lsnrctl
+    LSNRCTL> STATUS [listener_name]
+    -- if listener run that all is good, if not start it
+* start DB
+    sqlplus /nolog
+    SQL> CONNECT username/password as sysdba
+    SQL> STARTUP database_name pfile=file
+* start DB
+    sqlplus /nolog
+	SQL> conn sys/sys as sysdba
+	SQL> shutdown abort
+	SQL> startup
 == First login ==
 sudo service oracle-xe start
 sudo usermod -a -G dba YOURUSERNAME
@@ -332,6 +367,7 @@ variable_name datatype [NOT NULL := value ];
   * Associative Arrays
 === %TYPE, %ROWTYPE ===
 === DATE ===
+http://www.oracle.com/technetwork/issue-archive/2012/12-jan/o12plsql-1408561.html
     11-NOV-2013 14:25:34
     l_date date := '10-nov-13';
     l_date := TO_DATE('10-NOV-2013 15:25:34', 'DD-MON-RRRR HH24:MI:SS');
@@ -348,6 +384,8 @@ variable_name datatype [NOT NULL := value ];
             (TO_DATE('02-02-1995','MM-DD-YYYY'),
             TO_DATE('01-01-1995','MM-DD-YYYY') ) "Months"
             FROM DUAL;
+  * 
+SELECT TO_CHAR(SYSDATE, 'MM-DD-YYYY HH24:MI:SS') "NOW"  FROM DUAL;
 === type casting === 
 TO_CHAR(num, date), TO_NUMBER(char), TO_DATE(CHAR)
 === Example === 

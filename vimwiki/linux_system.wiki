@@ -37,18 +37,37 @@ curl -i -X POST -H "Content-Type:application/json" -d '{  "firstName" : "Frodo",
   ** wget --ftp-user=narad --ftp-password=password 
 * scp
 scp -i ~/Desktop/amazon.pem ~/Desktop/MS115.fa  ubuntu@ec2-54-166-128-20.compute-1.amazonaws.com:~/data/
-* ssh
+* ssh port forwarding
 -L [bind_address:]port:host:hostport
   Specifies that the given port on the local (client) ho
 ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.systems.wvu.edu:2273 -L 443:dgtest.wvu.edu:443
 * netstat
   prints all the ports
+* nc
+    nc 127.0.0.1 123 < /dev/null; echo $?
+    Will output 0 if port 123 is open, and 1 if it's closed.   
+    nc -zv 127.0.0.1 80	    - single port
+    nc -zv 127.0.0.1 22 80 8080   - multiple ports
+* test if port is reachable
+ ** using telnet
+    /
+ ** using bash
+    /dev/tcp/host/port
+	If host is a valid hostname or Internet address, and port is an integer port number
+	or service name, bash attempts to open a TCP connection to the corresponding socket.
+    /dev/udp/host/port
+	If host is a valid hostname or Internet address, and port is an integer port number
+	or service name, bash attempts to open a UDP connection to the corresponding socket.
+		    > cat < /dev/tcp/127.0.0.1/22
+		    SSH-2.0-OpenSSH_6.2p2 Debian-6
+		    ^C pressed here
 = System info =
 * lscpu or	      less /proc/cpuinfo
 * free <-m|t|g> or    less /proc/meminfo
     ** free -gt, free -mt
 * dmidecode --type 17
 * lshw -short -C memory
+* uname -s -v -r -m
 * uname -mrs  : kernel info
 * lsb_release -a  : release info (it's not installed everywhere)
 * fdisk -l | grep '^Disk /dev/'  : Display installed hard disk and size
@@ -57,7 +76,7 @@ ssh -i /Users/dans/ama_test_key.pem ec2-user@52.25.81.84 -v	: amazon_linux
 scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/home/ec2-user/downloads
 * vmstat
 vmstat 5
-== Disk administration ==
+== administration ==
 * check how much space avail in /tmp
 df -h /tmp
 = user administration =hr-model30-247282

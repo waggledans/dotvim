@@ -565,6 +565,11 @@ Vgq                          : current line
 :s/.\{,69\};\s*\|.\{,69\}\s\+/&\r/g
 ----------------------------------------
 " Operate command over multiple files
+http://vim.wikia.com/wiki/Search_and_replace_in_multiple_buffers
+:arg *.cpp	All *.cpp files in current directory.
+:arg **/*.cpp	All *.cpp files in and below current directory.
+:argadd *.h	And all *.h files.
+:arg	Optional: Display the current arglist.
 :argdo %s/foo/bar/e          : operate on all files in :args
 :bufdo %s/foo/bar/e
 :windo %s/foo/bar/e

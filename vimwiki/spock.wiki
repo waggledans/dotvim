@@ -1,2 +1,13 @@
-* interactions
+= intro =
+http://java.dzone.com/articles/introduction-spock
+* @Before, @After, 
+== parameterized tests ==
+== Mock ==
+given:
+Subscriber subscriber1 = Mock()
+def subscriber2 = Mock(Subscriber)
+* return value is specified using >>
+subscriber1.isActive() >> true
+= interactions =
 https://code.google.com/p/spock/wiki/Interactions
+

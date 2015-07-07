@@ -3,3 +3,5 @@ sudo scutil --set HostName name-you-want
 = Write NTFS =
 sudo echo LABEL=drivename none ntfs rw,auto,nobrowse >> /etc/fstab
 then in Spotlight type /Volumes to see the folder
+= =
+On OS X, use DYLD_LIBRARY_PATH instead of LD_LIBRARY_PATH

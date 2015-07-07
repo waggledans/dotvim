@@ -1,0 +1,3 @@
+= key bindings =
+⌃+shift+Q (View | Context Info) to see the declaration of the current method 
+

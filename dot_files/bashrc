@@ -2,8 +2,8 @@ alias nali='vim ~/.bashrc'
 alias sali='source ~/.bashrc'
 alias m='most '
 alias l='less '
-alias gr='egrep -nir '
-alias g='grep -Rnif /dev/stdin . <<<'
+#alias gr='egrep -nir '
+#alias g='grep -Rnif /dev/stdin . <<<'
 alias vim='/usr/local/Cellar/macvim/7.4-76/MacVim.app/Contents/MacOS/Vim -o'
 alias vi=vim
 alias gvim=mvim
@@ -13,10 +13,22 @@ alias md=mkdir
 if [ -f ~/.git-completion.bash ]; then
     source ~/.git-completion.bash
 fi
+gf() {
+    egrep -Rni $1 $2
+}
+alias g=gf
+#find . -name '*.java' -exec grep -i 'dataSource' {} \; -print
 
+
+## PATH editing
+## Python libs for meld
+export PATH=/usr/local/share/python:$PATH
 alias vwu_ssh="sudo ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.systems.wvu.edu:2273 -L 443:dgtest.wvu.edu:443"
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_45.jdk/Contents/Home
 export PATH=/tomcat/bin:$PATH
 
 #THIS MUST BE AT THE END OF THE FILE FOR GVM TO WORK!!!
 [[ -s "/Users/dans/.gvm/bin/gvm-init.sh" ]] && source "/Users/dans/.gvm/bin/gvm-init.sh"
+export DYLD_LIBRARY_PATH=/Users/dans/Applications/instantclient_11_2
+export PYTHONPATH=/usr/local/lib/python2.7/site-packages/
+
