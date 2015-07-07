@@ -3,3 +3,8 @@ sudo scutil --set HostName name-you-want
 = Write NTFS =
 sudo echo LABEL=drivename none ntfs rw,auto,nobrowse >> /etc/fstab
 then in Spotlight type /Volumes to see the folder
+= press and hold feature enable/disable =
+iwhen you hold down down a key, you're presented with alternatives. It can be enabled/disabled
+defaults write -g ApplePressAndHoldEnabled -bool false
+= features =
+http://lifehacker.com/5824564/how-to-de-ios-ify-mac-os-x-lion

@@ -43,6 +43,7 @@ scp -i ~/Desktop/amazon.pem ~/Desktop/MS115.fa  ubuntu@ec2-54-166-128-20.compute
 ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.systems.wvu.edu:2273 -L 443:dgtest.wvu.edu:443
 * netstat
   prints all the ports
+* tcpdump  
 = System info =
 * lscpu or	      less /proc/cpuinfo
 * free <-m|t|g> or    less /proc/meminfo
@@ -113,4 +114,15 @@ ssh-add ~/.ssh/id_rsa
 ** restart apache and test
     /etc/init.d/httpd stop
     /etc/init.d/httpd start
-
+== random stuff from old notes ==
+get dns server:
+nslookup
+> server
+traceroute
+ifconfig -a
+flush dns cache:
+dscacheutil -flushcache
+list dns:
+networksetup listallnetworkservices
+set default dns server for wifi:
+sudo networksetup -setdnsservers Wi-Fi  8.8.8.8
