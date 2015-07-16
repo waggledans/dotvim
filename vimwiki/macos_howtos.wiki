@@ -1,10 +1,41 @@
-Change host name as it is displayed in terminal window
-sudo scutil --set HostName name-you-want
 = Write NTFS =
 sudo echo LABEL=drivename none ntfs rw,auto,nobrowse >> /etc/fstab
 then in Spotlight type /Volumes to see the folder
 = press and hold feature enable/disable =
 iwhen you hold down down a key, you're presented with alternatives. It can be enabled/disabled
 defaults write -g ApplePressAndHoldEnabled -bool false
+= all sorts of startup key combinations =
+https://support.apple.com/en-us/HT201255
+* Press SHIFT after power - Safe mode
+* OPTION                  - Startup manager
+* C                       - Bootable CD/USB
+* System recovery 
+    Command-R or COMMAND-OPTION-R 
+* AHT (hardware test) or Apple Diagnostics 
+    D or OPTION D
+= swap =
+ * disable
+sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.dynamic_pager.plist
+ * delete (after disabling)
+sudo rm /private/var/vm/swapfile*
+ * enable
+sudo launchctl load /System/Library/LaunchDaemons/com.apple.dynamic_pager.plist
+= restart from cmd =
+sudo shutdown -h now
+sudo shutdown -r now
+= Change host name as it is displayed in terminal window =
+sudo scutil --set HostName name-you-want
+= reset NVRAM =
+* Shut down your Mac.
+* Locate the following keys on the keyboard: Command (⌘), Option, P, and R. 
+* Turn on your Mac.
+* Press and hold the Command-Option-P-R keys immediately after you hear the startup sound.
+= SMC RESET =
+* Shut down the computer.
+* Plug in the MagSafe power adapter to a power source, connecting it to the Mac if its not already connected.
+* On the built-in keyboard, press the (left side) Shift-Control-Option keys and the power button at the same time.
+* Release all the keys and the power button at the same time.
+* Press the power button to turn on the computer.
 = features =
 http://lifehacker.com/5824564/how-to-de-ios-ify-mac-os-x-lion
+

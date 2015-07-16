@@ -109,7 +109,7 @@ use Moose::Role;
 
 
 
-= ONE LINERS  =
+= ONELINERS  =
 perldoc perlrun
 
 perl -pe 1    #1 is needed here to give smth to -e option. This would work exactly like cat

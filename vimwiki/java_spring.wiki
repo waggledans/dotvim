@@ -1,4 +1,4 @@
-= Spring Basics =
+[[=]] Spring Basics =
 Implemented using Servlet Front Controller (basically on top of Java servlet)
 = Spring container = 
 Just write code using Factory Pattern where Spring manufactures objects using configuration file,
@@ -108,6 +108,7 @@ http://www.tutorialspoint.com/spring/spring_annotation_based_configuration.htm
 * @Controller - controller bean (in MVC)
 * 
 = property file / property injection =
+http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html
 http://www.baeldung.com/2012/02/06/properties-with-spring/
  * Register a Properties File in XML
     <context:property-placeholder location="classpath:foo.properties" />
