@@ -26,6 +26,7 @@
 * [[java_junit_tests]]
 * [[java_spring]]
 * [[eclipse]]
+* [[intellij]]
 * [[groovy]]
 * [[spock]]
 * [[gradle]]

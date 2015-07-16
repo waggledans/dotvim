@@ -55,7 +55,7 @@ SYS and SYSTEM two default admin accounts
 ** grant/revoke privileges (to other users for  objects)
 * user is identified by pw, OS or globally by LDAP
 LDAP - enterprise lightweight directory access protocol
-(OID - oracle internet, mac os OD - open directory, windows Active Directory)
+(OID - oracle internet dir, mac os OD - open directory, windows Active Directory)
 * Create new user
 CREATE USER username IDENTIFIED BY some_pw DEFAULT TABLESPACE users
 QUOTA 100M ON users TEMPORARY TABLESPACE temp PROFILE corp_user PASSWORD EXPIRE;
