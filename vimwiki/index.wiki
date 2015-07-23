@@ -26,13 +26,9 @@
 * [[java_junit_tests]]
 * [[java_spring]]
 * [[eclipse]]
+* [[gradle]]
 * [[groovy]]
 * [[spock]]
-* [[gradle]]
-* [[maven]]
-== GIT ==
-* [[git_howtos]]
-* [[git_add_empty_dir]]
 == LINUX ==
 * [[virtual_box]]
 * [[linux_system]]

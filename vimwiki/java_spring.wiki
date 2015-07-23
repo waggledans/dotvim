@@ -1,4 +1,4 @@
-[[=]] Spring Basics =
+= Spring Basics =
 Implemented using Servlet Front Controller (basically on top of Java servlet)
 = Spring container = 
 Just write code using Factory Pattern where Spring manufactures objects using configuration file,
@@ -16,6 +16,25 @@ public class DrawingApp {
   * request - new bean per servlet request
   * session - new bean per session
   * global session - new bean per http session (per portlet)
+= property file / property injection =
+http://www.baeldung.com/2012/02/06/properties-with-spring/
+ * Register a Properties File in XML
+    <context:property-placeholder location="classpath:foo.properties" />
+    or
+    <context:property-placeholder location="classpath:foo.properties" />
+ * Register a Properties file using annotation PropertySource
+        @Configuration
+        @PropertySource("classpath:foo.properties")
+        public class PropertiesWithJavaConfig {
+            @Bean
+            public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+                return new PropertySourcesPlaceholderConfigurer();
+            }
+        }   
+ * messages
+ <bean id="messageSource" 
+	class="org.springframework.context.support.ResourceBundleMessageSource" 
+	p:basename="messages"></bean>
 = constructor injection =
 == using xml ==
    <bean id="exampleBean" class="examples.ExampleBean">
@@ -38,7 +57,7 @@ http://www.concretepage.com/spring/example_propertyoverrideconfigurer_spring
             // rest of the code
         } 
     } 
-  * where prop1 and prop2 are defined in spring propeties file (location is in property-placeholder):
+  * where prop1 and prop2 are defined in srping propeties file in property-placeholder:
     <context:property-override location="classpath:beanOverride.cfg"/>
   * beanOverride.cfg (format beanName.property=value):
     ExampleBean.prop1=type
@@ -63,88 +82,7 @@ public class AppConfig {
 }
 = autowire =
  * byName, byType (when there is only one bean of this type is defined in xml
-= Spring annotations =
-http://www.tutorialspoint.com/spring/spring_annotation_based_configuration.htm
-* @Autowired
-  ** some setterMethod()
-    * will look in xml for object of the same class as the one being set by this setter
-    * if many of them are found then the one with the same name is autowired
-    * or else @Qualifier("some_name") could be used. In XML the object being referenced should have <qualifier name="some_name"/> 
-        <bean class="com.pkg.SomeBean">
-            <qualifier type="YourQualifier"/>
-        </bean>
-    or
-        @YourQualifier
-        @Component
-        public class SomeBean implements Foo { .. }
-  ** Autowired before some non-method member
-  ** Autowired before class constructor
-	
-* JSR-250 annotations:
-  ** @Resource annotation. Also with the setter. It says that there is object defined in XML, autowire it.
-        @Resource(name="pointC")
-    @Resource means get me a known resource by name. The name is extracted from the name of the annotated setter or field, or it is taken from the name-Parameter.
-    @Inject or @Autowired try to wire in a suitable other component by type.
-  ** @PostConstruct/@PreDestroy
-    public void initializeTriangle() {}
-* JSR-303 annotations (hibernate-validator):
-  **
-  **
-* @Component defines class to be a bean. See "Construction injection" above
-    IMPORTANT: need also to add the following line to xml:
-    <context:component-scan base-package="com.dans.training.spring"/>
-    or another way to use @Configuration:
-* @Configuration indicates that the class can be used by the Spring IoC container as a source of bean definitions.    
-    @Configuration
-    @Import({ AppConfigWeb.class })
-    @ImportResource( { "classpath*:/rest_config.xml" } )
-    @ComponentScan( basePackages = "org.rest" )
-    @PropertySource({ "classpath:rest.properties", "classpath:web.properties" })
-    public class AppConfig{
-        @Bean
-        public static PropertySourcesPlaceholderConfigurer properties() {
-            return new PropertySourcesPlaceholderConfigurer();
-        }
-    }
-* @Service - kind of like @Component (only its a service bean, parts of model in MVC)
-* @Repository - data object bean
-* @Controller - controller bean (in MVC)
-* 
-= property file / property injection =
-http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html
-http://www.baeldung.com/2012/02/06/properties-with-spring/
- * Register a Properties File in XML
-    <context:property-placeholder location="classpath:foo.properties" />
-    or
-    <context:property-placeholder location="classpath:foo.properties" />
-== using annotations ==
- * Register a Properties file using annotation PropertySource
-        @Configuration
-        @PropertySource("classpath:foo.properties")
-        public class PropertiesWithJavaConfig {
-            @Bean
-            public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-                return new PropertySourcesPlaceholderConfigurer();
-            }
-        }   
-== using xml file ==
- * messages. Save properties file in classpath (like src/main/resources)
-File "mymessages.properties" contains key-value pairs
-greeting=Hello!
-or add message bean to XML:
- <bean id="messageSource" 
-	class="org.springframework.context.support.ResourceBundleMessageSource" 
-	p:basename="messages"></bean>
-or: 
-<bean id="messageSource" class="org.springframework.ocntext.support.ResourceBundleMessageSource"> 
-  <property name="basenames">
-      <list>
-        <value>mymessages</value>
-      <list>
-</bean>
-and then in the code:
-context.getMessage("greeting", null, "Default Greeting", null)
-
+ * 
 = SPRING MVC =
 == Resolving static files ==
 Example:
@@ -155,15 +93,3 @@ in web.xml:
         <servlet-name>ServletName</servlet-name>
         <url-pattern>/pdfs/**</url-pattern>
     </servlet-mapping>
-= spring boot =
-https://spring.io/guides/gs/spring-boot/
-@RestController  - instead of using @Controller at MVC
-  combines @Controller and @ResponseBody, two annotations that results in web requests returning data rather than a view.
-@SpringBootApplication   - at the class containing main() adds all of the following:
-    @Configuration tags the class as a source of bean definitions for the application context.
-    @EnableAutoConfiguration tells Spring Boot to start adding beans based on classpath settings, other beans, and various property settings.
-    Normally you would add @EnableWebMvc for a Spring MVC app, but Spring Boot adds it automatically when it sees spring-webmvc on the classpath. This flags the application as a web application and activates key behaviors such as setting up a DispatcherServlet.
-    @ComponentScan tells Spring to look for other components, configurations, and services in the the hello package, allowing it to find the HelloController.
-
-if pom.xml contains spring-boot-maven-plugin
-    mvn package && java -jar target/gs-spring-boot-0.1.0.jar
