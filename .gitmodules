@@ -77,7 +77,7 @@
 	path = bundle/gundo
 	url = https://github.com/sjl/gundo.vim.git
 [submodule "bundle/pep8"]
-	path = bundle/pep8
+	path = ftbundle/python/pep8
 	url = https://github.com/vim-scripts/pep8.git
 [submodule "bundle/command-t"]
 	path = bundle/command-t
