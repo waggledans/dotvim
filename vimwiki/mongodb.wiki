@@ -15,6 +15,8 @@ mongostat
 = BSON =
 
 = quick start =
+$ mongod --dbpath /usr/local/mongodb-data
+$ mongo
 > show dbs
 local	0.078125GB
 > use bookmarks

@@ -50,7 +50,7 @@ ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.system
     nc -zv 127.0.0.1 22 80 8080   - multiple ports
 * test if port is reachable
  ** using telnet
-    /
+    telnet localhost 2300
  ** using bash
     /dev/tcp/host/port
 	If host is a valid hostname or Internet address, and port is an integer port number

@@ -441,12 +441,9 @@ word boundary metacharacter
 control+C
 m:RE:
 Uses custom “:” delimiters and the default target of $_
-$'
-after match
-$`
-before match
-$&
-the match
+$'  after match
+$` before match
+$& the match
 \d
 digits
 \s
