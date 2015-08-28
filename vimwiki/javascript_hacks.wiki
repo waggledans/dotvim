@@ -31,8 +31,57 @@ Array.isArray()
 = function =
 function myFunction(p1, p2) {
     return p1 * p2;              // The function returns the product of p1 and p2
-}
-* calling myFunction without parentheses will return func definition
+}()           // adding () will execute the function
+*  adding property to prototypes
+    var speak = function(saywhat) { console.log(saywhat); }
+    var Dog = function() {   var name, breed; }
+    var Cat = function() { var name, breed;}
+    Dog.prototype.speak = speak;
+    Cat.prototype.speak = speak;
+    firstDog = new Dog; firstDog.name = "Rover"; firstDog.breed = "Doberman";
+    firstDog.speak('woof');
+
+*  reading function arguments with arguments[]
+        var plus = function() {
+        var sum =  0;
+        for (var i = arguments.length - 1; i >= 0; i--) {
+            sum += arguments[i];
+        };
+        return sum;
+        }
+        console.log(plus(2,2,2,3,2,3,4));
+*  call and apply are basically the same and they pass this to function (apply will pass arrays)
+    var speak = function(what) {
+    console.log(what);
+    console.log(this.love);
+    }
+    var saySomething = {normal: "meow", love: "purr"}
+    speak.apply(saySomething, ['meouff']);
+    speak.call(saySomething, 'meouff');
+
+= modules =
+    // module ray defines 2 functions: speak and run, that can be called with arguments: ray.speak({say: 'hi'}).run({speed: 'fast'}); or without
+    var ray = (function() {
+    var DEFAULTS = {
+        say: 'hello',
+        speed: 'normal'
+    }
+    return {
+        speak: function() {
+        var myArguments = arguments[0] || '';   // if no arguments set myArguments to empty line
+        var statement = myArguments.say || DEFAULTS.say; // this line makes sure statement isnt empty
+        console.log(statement);
+        return this;  // return this to allow chaining as in: ray.speak().run().speak()
+        },
+        run: function() {
+        var myArguments = arguments[0] || '';   // if no arguments set myArguments to empty line
+        var running = myArguments.speed || DEFAULTS.speed; // this line makes sure statement isnt empty
+        console.log('running speed: ' + running);
+        return this; // return this to allow chaining as in: ray.speak().run().speak()
+        }   
+    }; //return
+    })();
+
 == JavaScript Closures ==
 
 var add = (function () {
@@ -43,6 +92,7 @@ var add = (function () {
 add(); add(); add();
 
 // the counter is now 3
+
 = object =
 == prototype ==
 function person(first, last, age, eyecolor) {
@@ -229,73 +279,89 @@ return desc.call(this) + “, ”+ this.position;
 }
 }
 */
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-// Custom events
-/////////////////////////////////////////////////////////////////////////////////////////////////
-// DOM allows us to add/remove listener
-ver EventTarget = function(){
-	Object.defineProperty(this, “__listeners”, {
-value: {
-}
-});
-};
-Object.defineProperties(EventTarget.prototype, {
-	addListener: {
-	value: function (type, listener){
-		if(typeof this.__listeners[type] === “undefined”) {
-			this.__listeners[type] = []; }
-		this.__listeners[type].push(listener);
-},
-enumerable: true
-},
-__fire: {
-	value: function(evtObj) {
-		if (typeof evtObj.type === “underfined”){
-	throw new Error(“Event evtObj must have a type property”);
-}
-if (typeof evtObj.target === “underfined”){
-	evtObj.target = this;
-}
-	var listeners = this.__listeners[type];
-for (var i = 0, len = listeners.length, i < len; ++i) {
-	listeners[i].call(this, evtObj);
-}
-}
-},
-	removeListener: {
-value: function (type, listener){
-	var listeners = this.__listeners[type];
-	if(typeof listeners[type] === “undefined”) {
-		return;
-	}
-for (var i = 0, len = listeners.length, i < len; ++i) {
-if (listeners[i] == listener) {
-	listeners.splice(i,1);
-	break;
-}
-}
-},
-enumerable: true
-
-},
-});
-
-
-= finding DOM objects =
-// collection of objects having class name "example"
-var x = document.getElementsByClassName("example");
-// returns the first element with id "id"
-document.getElementById("id")
-// by name:
-var x = document.getElementsByName("animal");
-var i;
-for (i = 0; i < x.length; i++) {
-    if (x[i].type == "checkbox") {
-        x[i].checked = true;
+= DOM =
+== finding DOM objects ==
+    // querySelectorAll finds ALL selectors by a given name
+    // More specific search would be using getElementsByClassName, getElementById, getElementsByName or getElementsByTagName
+    var x = document.getElementsByClassName("example"); // collection of objects having class name "example"
+    document.getElementById("id") // returns the first element with id "id"
+    var x = document.getElementsByName("animal"); // by name:
+    for (var i = 0; i < x.length; i++) {
+        if (x[i].type == "checkbox") {
+            x[i].checked = true;
+        }
     }
-}
-// by tag name
-var list = document.getElementsByTagName("UL")[0];
-list.getElementsByTagName("LI")[0].innerHTML = "Milk";
+    var list = document.getElementsByTagName("UL")[0]; // by tag name
+    list.getElementsByTagName("LI")[0].innerHTML = "Milk";
+== example  Add a nav bar to all nav elements in DOM ==
+    var socialMedia = {
+        facebook : 'http://facebook.com/viewsource',
+        twitter: 'http://twitter.com/planetoftheweb',
+        flickr: 'http://flickr.com/planetotheweb',
+        youtube: 'http://youtube.com/planetoftheweb'
+    };
+    var socialList = function() {
+        var  output = '<ul>'; 
+        myList = document.querySelectorAll('.socialmediaicons');
+        for (var key in arguments[0]) {
+            output+= '<li><a href="' + socialMedia[key] + '">' +
+            '<img src="images/' + key + '.png" alt="icon for '+key+'">' +
+            '</a></li>';
+        }
+        output+= '</ul>';
+        for (var i = myList.length - 1; i >= 0; i--) {
+            myList[i].innerHTML = output;
+        };
+    }(socialMedia);
+
+== example 2 Custom events ==
+// DOM allows us to add/remove listener
+    ver EventTarget = function(){
+            Object.defineProperty(this, “__listeners”, {
+    value: {
+    }
+    });
+    };
+    Object.defineProperties(EventTarget.prototype, {
+            addListener: {
+            value: function (type, listener){
+                    if(typeof this.__listeners[type] === “undefined”) {
+                            this.__listeners[type] = []; }
+                    this.__listeners[type].push(listener);
+    },
+    enumerable: true
+    },
+    __fire: {
+            value: function(evtObj) {
+                    if (typeof evtObj.type === “underfined”){
+            throw new Error(“Event evtObj must have a type property”);
+    }
+    if (typeof evtObj.target === “underfined”){
+            evtObj.target = this;
+    }
+            var listeners = this.__listeners[type];
+    for (var i = 0, len = listeners.length, i < len; ++i) {
+            listeners[i].call(this, evtObj);
+    }
+    }
+    },
+            removeListener: {
+    value: function (type, listener){
+            var listeners = this.__listeners[type];
+            if(typeof listeners[type] === “undefined”) {
+                    return;
+            }
+    for (var i = 0, len = listeners.length, i < len; ++i) {
+    if (listeners[i] == listener) {
+            listeners.splice(i,1);
+            break;
+    }
+    }
+    },
+    enumerable: true
+
+    },
+    });
+
+
 

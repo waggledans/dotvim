@@ -50,6 +50,7 @@ SYS and SYSTEM two default admin accounts
 LDAP - enterprise lightweight directory access protocol
 (OID - oracle internet, mac os OD - open directory, windows Active Directory)
 * Create new user
+ALTER USER xyz QUOTA UNLIMITED ON tablespace_name
 CREATE USER username IDENTIFIED BY some_pw DEFAULT TABLESPACE users
 QUOTA 100M ON users TEMPORARY TABLESPACE temp PROFILE corp_user PASSWORD EXPIRE;
 * Drop  user
@@ -79,7 +80,14 @@ Grant select on table_name to user;
 alter user hr identified by hr account unlock;
 grant debug connect session to hr; 
 grant debug any procedure to hr
-P_SEND_ADD_REGISTRATION
+== type privileges ==
+CREATE TYPE enables you to create object types in your own schema
+CREATE ANY TYPE enables you to create object types in any schema
+ALTER ANY TYPE enables you to alter object types in any schema
+DROP ANY TYPE enables you to drop named types in any schema
+EXECUTE ANY TYPE enables you to use and reference named types in any schema
+UNDER ANY TYPE enables you to create subtypes under any non-final object types
+UNDER ANY VIEW enables you to create subviews under any object view`
 == Grant user SELECT on all tables in schema ==
     FOR x IN (SELECT * FROM user_tables)
     LOOP   
@@ -202,7 +210,7 @@ exit;
 = SQLPLUS =
 == DDL ==
 === TABLES ===
-CREATE TABLE MY_TABLE (col1(NUMBER(5), col2(VARCHAR2(2)));
+CREATE TABLE DUMMY (col1 INTEGER, col2 VARCHAR2(2) );
 -- Create a table under other user schema
     CREATE TABLE some_other_user_name.person (id NUMBER, first VARCHAR2(30), state VARCHAR2(2));
 -- add unique constraint to one field and Primary key to another    
@@ -223,6 +231,13 @@ CREATE TABLE MY_TABLE (col1(NUMBER(5), col2(VARCHAR2(2)));
     
     TRUNCATE table;
     DROP table;
+-- drop all tables in schema
+    Begin
+        for c in (select table_name from user_tables) loop
+            dbms_output.put_line(c.table_name);
+            execute immediate ('drop table ' ||c.table_name || ' cascade constraints');
+        end loop;
+    End;
 === VIEWS ===
 -- create a view called "person_view" with just one column 'name'
   CREATE OR REPLACE VIEW person_view(name) AS

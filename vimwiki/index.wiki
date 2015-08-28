@@ -54,6 +54,7 @@
 * [[kernel]]
 == MacOS ==
 * [[macos_plist]]
+* [[macos_howtos]]
 == Perl ==
 * [[perl_hacks]]
 == Python ==

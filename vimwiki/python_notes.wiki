@@ -10,19 +10,6 @@ global name
 boolean True, False
 integer, long, float, string, list, tuple, dictionary
 object, None, array
-== very basic script ==
-ui = input(“Enter a number: “)
-print (“The data type is originally”, (type(ui)))
-uconv = int (ui)
-print (“Now the d.t. is”, (type (uconv)))
-power = uciikonv ** 8
-print (ui, “raised to the 8th power is: “, power)#note the comma to separate literals from vars
-##
-* cool dev
-def wiper ():
->>> import re
->>> match = re.match('Hello[ \t]*(.*)world', 'Hello Python world') >>> match.group(1)
-'Python '
 = tuples =
 # tuples are immutable, ordered.
 # len (some_tuple) 
@@ -57,7 +44,7 @@ print(b)
 33
 >>> p                       # readable __repr__ with a name=value style
  =>  Point(x=11, y=22)
-= = strings = 
+= strings = 
 * String Slicing
   s = "Go Gators! Come on Gators!"
   x = s[0]  # x = "G" or  x = s[3:9] #x = "Gators" or x = s[:2] #x = "Go" or x = s[19:] #x = "Gators!"
@@ -89,10 +76,11 @@ boolean startswidth(sub [,start[,end]]): returns true if the string starts with 
   x = s.startswith("Go") #x = True
 string strip([chars]): returns a copy of the string with leading and trailing characters removed. If chars (a string) is not specified, leading and trailing whitespace is removed.
   line.rstrip()   strips trailing whitespace
-* formatted strings
+* formated strings or print with formated strings
 ame = 'marcog'
 number = 42
-print '%s %d' % (name, number)
+print '%s %d' % (name, number)    # in python2
+print("{0} was found {1} times because {0} is there".format(word, count)) # in python3
 # first define dictionary
 # these strings below expect a dictionary after
 # "something %(key_name)s blah-blah" % dictionary
@@ -103,9 +91,21 @@ LIGHT_MESSAGES = {
 def lights_message(language, number_of_lights):
     return LIGHT_MESSAGES[language] % locals()
 = regex = 
+* re.search
+    if re.search('(Len|Neverm)ore', line):
+            print(line, end='')   # end is set to nothing cause the line already has newline char
 * Group matching
 >>> import re
 >>> match = re.match('Hello[ \t]*(.*)world', 'Hello Python world') >>> match.group(1)   ==> 'Python '
+    if (match): print (match.group())
+* replace/sub
+    re.sub("(Len|Neverm)ore", "###", line)
+    # or
+    re.search([[]] line)
+    line.replace(match.group(), '###')
+* reuse pattern
+    pattern = re.compile("(Len|Neverm)ore", re.IGNORECASE)
+    re.search(pattern, line)
 = HASH DICTIONARY = 
 adict = {}
 adict["one"] = "uno"
@@ -154,13 +154,13 @@ a.append(5)
 print a
 -> ['test', 5]
 Finally, if you want a list to have a predetermined size- create a list and fill it with None's:
-a=[None]*length
-a[5] = "Fifth"
-a[3] = 6
-print len(a)
--> 10
-print a
--> [None, None, None, 6, None, 'Fifth', None, None, None, None]
+    a=[None]*length
+    a[5] = "Fifth"
+    a[3] = 6
+    print len(a)
+    -> 10
+    print a
+    -> [None, None, None, 6, None, 'Fifth', None, None, None, None]
 # Removing from lists: The pop method can be used to remove any item from the list:
 a.pop(5)
 print a
@@ -369,15 +369,6 @@ if __name__ == "__main__":
     for k, v in globals().items():             1
         print k, "=", v
         
-= CONDITION =
-== if/else/elif ==
-if choice==1: 
-    print(x + y)
-elif choice==2: 
-    print(x - y)
-else:
-    print(x * y)
-  
 = LOOPS =
 s = input("Please type some characters and press enter:")
 while test < num:
@@ -391,28 +382,55 @@ for word in s.split():
     print(word) 
 print("Done")
 
-
 = FUNCTIONS =
 def g(x):
     return x**4/4.0 - x**3/3.0 - 3 * x * x
 print(g(6))
 == keyed functions can passed as an argument ==
 def Last(x):
-  returnx[-1]
-
+  return x[-1]
 sorted(some_list,key=Last)
 
 = EXCEPTIONS =
-try:
-    top = int(input("Please enter the denominator:"))
-except ValueError: # This try-except catches only ValueErrors 
-    print ("You didn't enter an integer.")
-    exit(0)
-except ZeroDivisionError: # This try-except catches only zero division 
-except:                   # This try-except catches everything
+ * built-in exceptions:
+    https://docs.python.org/3/library/exceptions.html
+   **   IOError  # when open the file:
+        try:
+            fh = open("file_name")
+        except IOError as e:
+            print(e)
+   **   ValueError
+   **   ZeroDivisionError
+        try:
+            top = int(input("Please enter the denominator:"))
+        except ValueError: # This try-except catches only ValueErrors 
+            print ("You didn't enter an integer.")
+            exit(0)
+        except ZeroDivisionError: # This try-except catches only zero division 
+        except:                   # This try-except catches everything
+ * custom exceptions       
+== measure time with timeit ==
+    * from timeit import timeit (first arg is where the module is, the second is name of the method to report cpu time for)
+        timeit(setup="from __main__ import resolve", stmt="resolve('python.org')")
 = MODULE =
+== defining packages ==
+ * first create directory and in it create __init__.py
+  * install module BeautifulSoup using pip
+sudo python -m pip install BeautifulSoup
 https://docs.python.org/2/tutorial/modules.html
+* good way to import modules:
+    try:
+        from setuptools import setup
+    except ImportError:
+        from distutils.core import”
+
 * import module_name # no .py extension
+  import reader
+  reader.__file__   # will return /full/path/to/file.py
+  reader.__name__  # will return string 'reader'
+* to import specific function into local namespace do:
+  from reader import read_func  
+'/Users/dans/Programming/workspace_luna/Python3Training/advanced/reader/reader/reader.py'
 * execute module # unlike import that executes module in its namespace, exec overides local vars
 exec(open('script1.py').read())
 * import sys
@@ -427,9 +445,11 @@ bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
 * from fibo import fib1 ## allows instead of fibo.fib1() run fib1()
 = IO operations =
 == files ==
-catfile = open(filename,"r")
-for line in catfile: 
-    print(line)
+ * 
+    catfile = open(filename,"r")
+    for line in catfile: 
+        print(line)
+ * using open/readlines
 lines = catfile.readlines()	# like perl @lines = <catfile>
 line = catfile.read()		# like perl $lines = <catfile>
 catfile.close()
@@ -440,6 +460,7 @@ outfile.close()
 == stdin ==
 * the simplest way:
 age = raw_input("How old are you? ")
+age = input("how old are you? ")
 *
 import fileinput
 for line in fileinput.input():
@@ -459,9 +480,12 @@ os.path.realpath(path)
 os.path.split(os.path.abspath("."))[0]      # the current path "." is expanded to /Users/derek/work, so head is '/Users/derek' and tail is 'work'
 
 
-=== adding dirs to the search path ===
+=== sys.path adding dirs to the search path ===
+ * sys.path[0] is ''   which is equivalent to the current directory
+ * Python looks for modules in directories listed in sys.path. Therefore to add a new dir to search path need to: 
 import sys
 sys.path.append("/home/me/mypy")
+ * another way would be by defining PYTHONPATH env variable
 
 == Executing shell commands ==
 Execution: os.system('ls -l')
@@ -469,8 +493,7 @@ Execution: os.system('ls -l')
 * execute shell command AND read its output
 http://stackoverflow.com/questions/4760215/running-shell-command-from-python-and-capturing-the-output
 import subprocess
-p = subprocess.Popen(['ls', '-a'], stdout=subprocess.PIPE, 
-                                stderr=subprocess.PIPE)
+p = subprocess.Popen(['ls', '-a'], stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
 out, err = p.communicate()
 print out
 def runProcess(exe):    
@@ -484,12 +507,63 @@ def runProcess(exe):
 = yield =
 http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generators-explained/
 = OOP / object oriented python / class =
+== constructors ==
+ * "regular"
+        def __init__(self, data):
+            "Initialize MyData from a sequence"
+            self.data = data
+ * good practice constructor
+        def __init__(self, *args):
+            numargs = len(args)
+            if numargs < 1: raise TypeError('requires at least one arg')
+            elif numargs == 1:
+                pass
+            elif numargs == 2:
+                pass
+            else:
+                raise TypeError('too many args, received {}'.format(numargs))
+                
+ * keyword arguments  (dictionaries)
+        def __init__(self, **kwargs):
+            self.color = kwargs.get('color', 'white') # white is a default value
+   donald = Duck(color='blue)         # or donald = Duck()  # white donald
+ * combine keyword arguments with list arguments
+    def testfunc (this, that, other, *args, **kwargs):      # call it with testfunc(1,2,3,4,4,5,6,5, par1=2, part2=6)
+ * getters/setters for ALL members saved in dictionary
+        class PolymorphicDuck:
+            def __init__(self, **kwargs):
+                self.variables = kwargs
+            def quack(self):
+                print('Quaaack!')
+            def set_variable(self, key, value):
+                self.variables[key] = value
+            def get_variable(self, key):
+                return self.variables.get(key, None)
+ 
+== special member methods ==
+ * iterator method makes class iterable: __iter__
+    def __iter__ (self):     # class can be iterated upon in for koop, as in: for i in some_class(2, 100, 5):
+        i = self.lower
+        while(i <= self.upper):
+            yield i
+            i += self.step
+ * remember the state between the calls using __call__ function and object __cache__:
+    class Resolver:
+        def __init__(self):
+            self._cache = {}
+        def __call__(self, host):
+            if host not in self._cache:
+                self._cache[host] = socket.gethostbyname(host)
+            return self._cache[host]
+        def clear(self):
+            self._cache.clear()
+        def has_host(self, host):
+            return host in self._cache
 == constructor overloading using factory (@classmethod) ==
 >>> class MyData:
 ...     def __init__(self, data):
 ...         "Initialize MyData from a sequence"
 ...         self.data = data
-...     
 ...     @classmethod
 ...     def fromfilename(cls, filename):
 ...         "Initialize MyData from a file"
@@ -511,11 +585,17 @@ http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generator
 class Shape:
   def __init__(self):
     self.color = "blue"
-class Circle(Shape):
+class Circle(Shape):  # inherited class
   def __init__(self, r):
     Shape.__init__(self)
     self.radius = r
   def calcDiameter(self):
     return self.radius * 2
-== Overiding ==
+== Polymorphism / Overiding ==
+  * Python uses "duck" typing ie it quacks like a duck, it is a duck
+  * So polymorphism is natural:
+== generator ==
+http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generators-explained/
+=== yield ===
+
     

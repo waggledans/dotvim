@@ -116,6 +116,15 @@ ssh-add ~/.ssh/id_rsa
 ** restart apache and test
     /etc/init.d/httpd stop
     /etc/init.d/httpd start
+== crontab ==
+EDITOR="gvim" crontab -e
+# minute hour day-of-month month day-of-week command
+# */20  - here */ means interval ie every 20 min
+# Example: run job every 10 min
+*/10 * * * * /usr/bin/somedirectory/somecommand
+# run job every 10 min as root
+*/10 * * * * root /usr/bin/somedirectory/somecommand
+
 == random stuff from old notes ==
 get dns server:
 nslookup

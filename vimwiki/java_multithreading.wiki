@@ -1,13 +1,34 @@
+= synchronized =
+    * could be on method: 
+        public synchronized void increment() {
+            count++;
+        }
+    * or on object
+    private Object lock1 = new Object();
+    private Object lock2 = new Object();
+    public void stageOne() {
+        synchronized (lock1) {
+            try { Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } list1.add(random.nextInt(100));
+    }}
+The difference between the two is that method lock locks the whole class instance and oject lock locks just the block    
 = ReentrantLock =
+*  Basically has lock.lock(), lock.unlock() and cond.await(), cond.signal() 
+    private Lock lock = new ReentrantLock();
+    private Condition cond = lock.newCondition(); // Condition object is instanced by Lock object
+* lock.await()  releases the lock and waits for a signal from another thread (cond.signal()).
+                Having received it, the thread reaquires the lock and continues
+* in my understanding signal() should be called AFTER unlock() but I need to verify it
+* lock.tryLock() returns boolean and does as the name says : it is nonblocking   TODO::VERIFY THIS
+
 * may be used to implement a monitor
 http://baptiste-wicht.com/posts/2010/09/java-concurrency-part-5-monitors-locks-and-conditions.html
 * always unlock in finally block to avoid object being locked
 Private Lock lock = new ReentrantLock()
 /**
- * Source:<em>
- * http://www.journaldev.com/2377/java-lock-example-and-concurrency-lock-vs-synchronized</em>
- * <p>
- * {@link java.util.concurrent.locks.Lock}:
+ * Source: http://www.journaldev.com/2377/java-lock-example-and-concurrency-lock-vs-synchronized</em>
  * This is the base interface for Lock API. It provides all the features
  * of synchronized keyword with additional ways to create different Conditions
  * for locking, providing timeout for thread to wait for lock. Some of the
@@ -47,104 +68,71 @@ Private Lock lock = new ReentrantLock()
  * @author Z.B. Celik <celik.berkay@gmail.com>
  */
 
+= concurrent.util package in general Thread pools in particular =
+a lot of stuff. Example:
+http://tutorials.jenkov.com/java-util-concurrent/scheduledexecutorservice.html
+http://tutorials.jenkov.com/java-util-concurrent/threadpoolexecutor.html
 = Thread pools =
+    * Create fixed number of threads threadpool:  ExecutorService executor = Executors.newFixedThreadPool(2)
+    * Create unspecified number of threads threadpool:   ExecutorService executor = Executors.newCachedThreadPool(); // 
         ExecutorService executor = Executors.newFixedThreadPool(2);//two threads, try setting by 1 to observe time
-        long start = System.currentTimeMillis();
-        Worker worker = new Worker();
-        for (int i = 0; i < 2; i++) {//worker.run is called 2 (threads started) times by two threads
-            executor.submit(worker);
+        Worker worker = new Worker(); just some class implementing Runnable interface
+        for (int i = 0; i < 10; i++) {//worker.run is called 2 (threads started) times by two threads
+            executor.submit(worker);  // will only start 2 threads (5 times) for 10 iterations
         }
         executor.shutdown(); //prevents new tasks from being accepted by the ExecutorService
         try {
-            executor.awaitTermination(1, TimeUnit.DAYS);
-            // How long should I wait for termination If I do not know exactly when threads are done with the tasks ?
-            // Source:http://stackoverflow.com/questions/1250643/how-to-wait-for-all-threads-to-finish-using-executorservice
-            // For a perpetually running batch kind of thing u need to submit jobs and wait for them to
-            // finish before jumping ahead.
-            // In Such a case a latch or a barrier makes more sense than a shutdown (see CountDownLatch_6.App).
+            executor.awaitTermination(1, TimeUnit.DAYS);    // wait 1 day for threads to finish
+            // Examples here: http://stackoverflow.com/questions/1250643/how-to-wait-for-all-threads-to-finish-using-executorservice
         } catch (InterruptedException ex) {}
 = CountDownLatch =
-/**
- * {@link java.util.concurrent.CountDownLatch} Java class to synchronize your threads' activities.
- * <br><br>
- * Source:
- * <em>http://stackoverflow.com/questions/17827022/what-is-countdown-latch-in-java-multithreading</em><br>
- * {@link java.util.concurrent.CountDownLatch#await()} will wait until count reaches zero or its interrupted
- * by another thread. All other thread are required to do count down by calling
- * {@link java.util.concurrent.CountDownLatch#countDown()} once they are completed or ready.
- * <br>
- * As soon as count reaches zero, Thread awaiting starts running. One of the
- * disadvantage of {@link java.util.concurrent.CountDownLatch} is that it's
- * not reusable once the count reaches to
- * zero you can not use {@link java.util.concurrent.CountDownLatch} any more.
- * <br><br>
- * Use {@link java.util.concurrent.CountDownLatch} when one thread, like main
- * thread, require to wait for one or more threads to complete, before it can
- * start processing.
- * <br><br>
- * Classical example of using {@link java.util.concurrent.CountDownLatch} in
- * Java is any server side core  Java application which uses services
- * architecture, where multiple services
- * are provided by multiple threads and application can not start processing
- * until all services have started successfully.
- * <br><br>
- * Codes with minor comments are from <em>http://www.caveofprogramming.com/youtube/</em><br>
- * also freely available at
- * <em>https://www.udemy.com/java-multithreading/?couponCode=FREE</em>
- *
- * @author Z.B. Celik <celik.berkay@gmail.com>
- */
+ * CountDownLatch latch = new CountDownLatch(3);    // init CountDownLatch to 3
+ * latch.countDown();                               // will decrement it by one
+
+  Source:  http://stackoverflow.com/questions/17827022/what-is-countdown-latch-in-java-multithreading</em><br>
+  java.util.concurrent.CountDownLatch#await() will wait until count reaches zero or its interrupted
+  by another thread. All other thread are required to do count down by calling latch once they are completed or ready.
+  As soon as count reaches zero, Thread awaiting starts running. One of the
+  disadvantage of CountDownLatch is that it's not reusable once the count reaches to
+  zero you can not use {@link java.util.concurrent.CountDownLatch} any more.
+  Use CountDownLatch when one thread, like main thread, require to wait for one or more threads to complete, before it can
+  start processing.
+  Classical example of using CountDownLatch in Java is any server side core  Java application which uses services
+  architecture, where multiple services are provided by multiple threads and application can not start processing
+  until all services have started successfully.
 = Producer/consumer =
-   /**
-     * Thread safe implementation of {@link java.util.Queue} data structure so
-     * you do not need to worry about synchronization.
-     * More specifically {@link java.util.concurrent.BlockingQueue}
-     * implementations are thread-safe. All queuing methods are atomic in nature
-     * and use internal locks or other forms of concurrency control. If
-     * BlockingQueue is not used queue is shared data structure either
-     * {@code synchronized} or {@code wait() notify()} (see Course 8) should be
-     * used.
-     * Java 1.5 introduced a new concurrency library {@link java.util.concurrent}
-     * which was designed to provide a higher level abstraction over
-     * the wait/notify mechanism.
-     */
+
+      Thread safe implementation of Queue data structure so you do not need to worry about synchronization.
+      BlockingQueue implementations are thread-safe. All queuing methods are atomic in nature
+      and use internal locks or other forms of concurrency control. 
+      Java 1.5 introduced a new concurrency library {@link java.util.concurrent}
+      which was designed to provide a higher level abstraction over the wait/notify mechanism.
 = Notify NotifyAll wait =
+ * both wait and notify are used with the locking object:
+    synchronized (lock) {
+                
+                while(list.size() == LIMIT) {
+                    lock.wait();
+                }
+             // do stuff
+             lock.notifyAll();
+             }
 http://stackoverflow.com/questions/37026/java-notify-vs-notifyall-all-over-again
-/**
- * Some background knowledge<br>
- * Source: <em>http://www.programcreek.com/2009/02/notify-and-wait-example/</em>
- * <br><br>
- * {@code synchronized} keyword is used for exclusive accessing. To make a
- * method {@code synchronized}, simply add the {@code synchronized} keyword to its
- * declaration.<be>
- * Then no two invocations of synchronized methods on the same object can
- * interleave with each other.
- * <br>
- * Synchronized statements must specify the object that
- * provides the intrinsic lock. When {@code synchronized(this)} is used, you
- * have to avoid to synchronizing invocations of other objects' methods.
- * <br>
- * {@link Object#wait()} tells
- * the calling thread to give up the lock and go to sleep (not polling) until
- * some other thread enters the same lock and calls {@link Object#notify()}.
- * <br>
- * {@link Object#notify()} wakes up the first thread that called wait() on
- * the same object.
- * <br><br>
- * Codes with minor comments are from
- * <a href="http://www.caveofprogramming.com/youtube/">
- * <em>http://www.caveofprogramming.com/youtube/</em>
- * </a>
- * <br>
- * also freely available at
- * <a href="https://www.udemy.com/java-multithreading/?couponCode=FREE">
- *     <em>https://www.udemy.com/java-multithreading/?couponCode=FREE</em>
- * </a>
- *
- * @author Z.B. Celik <celik.berkay@gmail.com>
- */
+http://www.programcreek.com/2009/02/notify-and-wait-example/</em>
 
- 
-
-
-
+= Semaphore =
+* semaphore can be bumped from ANY thread
+* sem.availablePermits() returns 10 in the example below
+    private Semaphore sem = new Semaphore(10, true);
+    sem.acquire();
+* sem.acquire() and sem.release()
+*
+= Callable and Future =
+https://www.caveofprogramming.com/java-multithreading/java-multithreading-callable-future-video-tutorial-part-13.html
+to get results from your threads and to allow your threads to throw exceptions
+Future<Integer> future = executor.submit(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+            ....
+            return (Integer) someNumber;
+System.out.println("Result is: " + future.get());            
