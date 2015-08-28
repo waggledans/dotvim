@@ -4,6 +4,7 @@
 [submodule "bundle/youcompleteme"]
 	path = bundle/youcompleteme
 	url = https://github.com/Valloric/YouCompleteMe.git
+    ignore = untracked  
 [submodule "bundle/nerdtree"]
 	path = bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree
@@ -22,7 +23,7 @@
 [submodule "bundle/matchit"]
 	path = bundle/matchit
 	url = https://github.com/benjifisher/matchit.zip.git
-        ignore = untracked  
+    ignore = untracked  
 [submodule "bundle/commentary"]
 	path = bundle/commentary
 	url = https://github.com/tpope/vim-commentary
@@ -41,7 +42,7 @@
 [submodule "bundle/snipmate"]
 	path = bundle/snipmate
 	url = http://github.com/msanders/snipmate.vim
-        ignore = untracked  
+    ignore = untracked  
 [submodule "ftbundle/bash/bash-support"]
 	path = ftbundle/bash/bash-support
 	url = https://github.com/vim-scripts/bash-support.vim.git
