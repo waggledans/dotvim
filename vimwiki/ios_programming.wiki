@@ -1,0 +1,45 @@
+= objectiveC =
+= swift =
+= ios apps =
+ * tableview
+    Tableview is different from tableviewcontroller (controller adds another view controller)
+   * class ViewController: UIViewController, UITableViewDelegate     // add delegate for tables to get extra methods related to tables
+   * func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int 
+        method returns integer defining number of rows in a section
+   * func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+        define the content of each individual cell
+        func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+            let cell = UITableViewCell (style: UITableViewCellStyle.Default, reuseIdentifier: "Cell")
+            // prototype "Cell" is defined in TableView properties in GUI
+            cell.textLabel?.text = toDoList[indexPath.row]  // Why textLabel?    - I dont know
+            return cell
+        }
+   * Permanent storage
+       var arr = ["いち","に","さん","し","ご","ろく","しち","はち","きゅう","じゅう"]
+       NSUserDefaults.standardUserDefaults().setObject(arr, forKey: "toDoList")
+       toDoList = NSUserDefaults.standardUserDefaults().objectForKey("toDoList") as [String]
+   *
+   * df
+   *
+   * Modifying key behaviour - such as dismiss keyboard :  http://stackoverflow.com/questions/24126678/close-ios-keyboard-by-touching-anywhere-using-swift
+        * dismiss keyboard when tap outside the textfield and press enter
+            class ItemViewController: UIViewController, UITextFieldDelegate {
+                @IBOutlet var textFieldItemName: UITextField!
+                override func viewDidLoad() {
+                    super.viewDidLoad()
+                    textFieldItemName.delegate = self
+                }
+                // Called when 'return' key pressed. return NO to ignore.
+                func textFieldShouldReturn(textField: UITextField) -> Bool {
+                    textField.resignFirstResponder()
+                    return true
+                }
+               /**
+                * Called when the user click on the view (outside the UITextField).
+                */
+               override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+                    self.view.endEditing(true)
+               }
+            }
+    
+

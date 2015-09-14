@@ -1,15 +1,22 @@
 = language =
 * pass
-* generatore, yield
+* generator, yield
+* callable
+    callable(function) => True
 = scope =
 LEGB rule: Local Scope, Enclosing Scope, Global Scope, and Built-in Scope. 
-* global var definition:
-global name
-* global declaration makes function to look for a variabe in enclosing scope
+* global declaration makes function to look for a variabe in global scope
+    global name
+* nonlocal declaration makes function to look for a variabe in enclosing scope (it start in innermost and proceeds till the binding is found)
+    nonlocal name
+* in either global or nonlocal  python will throw SyntaxError if the variable name isnt foun    
 = data types =
 boolean True, False
 integer, long, float, string, list, tuple, dictionary
 object, None, array
+= loops, conditionals =
+* chained relational operators
+    instead of a<b and b < c   use a<b<c in if statement
 = tuples =
 # tuples are immutable, ordered.
 # len (some_tuple) 
@@ -44,6 +51,111 @@ print(b)
 33
 >>> p                       # readable __repr__ with a name=value style
  =>  Point(x=11, y=22)
+= FUNCTIONS =
+def g(x):
+    " This is the function doc"
+    return x**4/4.0 - x**3/3.0 - 3 * x * x
+print(g(6))
+== function dunder attributes ==
+ * functionName.__name__     # returns the name of the function
+ * functionName.__doc__     # returns the name of the function
+== keyed functions can passed as an argument ==
+def Last(x):
+  return x[-1]
+sorted(some_list,key=Last)
+
+== function factories ==
+    def raise_to(exp):
+        def raise_to_exp(x)
+            return pow(x, exp)
+        return raise_to_exp    
+== decorators ==
+ * decorator function - must return a function that would receive the function being decorated as an argument
+    def escape_unicode(f):
+        def wrap(*args, **kwargs):
+            x = f(*args, **kwargs)
+            return ascii(x)
+        return wrap
+   
+   @escape_unicode
+   def nothern_city:
+    return 'Tromsø'
+ * decorator class
+    class CallCount:
+        def __init__(self, f):
+            self.f = f
+            self.count = 0
+
+        def __call__(self, *args, **kwargs):
+            self.count += 1
+            return self.f(*args, **kwargs)
+
+    @CallCount
+    def hello(name):
+        print('Hello, {}'.format(name))
+    # now run hello("Some name"), hello("some other name") and then hello.count to see how many the funciton has been called  
+ * decorator instance
+    # The advantage of using instance (and not class) is that some instances could enabled/disabled as in example below
+    class Trace:
+        def __init__(self):
+            self.enabled = True
+
+        def __call__(self, f):
+            def wrap(*args, **kwargs):
+                if self.enabled:
+                    print('Calling {}'.format(f))
+                return f(*args, **kwargs)
+            return wrap
+
+    tracer = Trace()
+
+    @tracer
+    def rotate_list(l):
+        return l[1:] + [l[0]]
+ * decorating methods is done just like decorating functions
+ * functools.wrap()
+    import functools
+    def wrapper_func(f)
+        @functools.wraps(f)
+        def wrapper(f)
+            # do stuff
+            return f()
+        return wrapper    
+ * duck-tails validating arguments - here the return value of check_non_negative is actual decorator (here, validator function is kind of nested)
+    def check_non_negative(index):
+        def validator(f):
+            def wrap(*args):
+                if args[index] < 0:
+                    raise ValueError(
+                        'Argument {} must be non-negative.'.format(index))
+                return f(*args)
+            return wrap
+        return validator
+    # using validator function
+    @check_non_negative(1)
+    def create_list(value, size):
+        return [value] * size
+= EXCEPTIONS =
+ * built-in exceptions:
+    https://docs.python.org/3/library/exceptions.html
+   **   IOError  # when open the file:
+        try:
+            fh = open("file_name")
+        except IOError as e:
+            print(e)
+   **   ValueError
+   **   ZeroDivisionError
+        try:
+            top = int(input("Please enter the denominator:"))
+        except ValueError: # This try-except catches only ValueErrors 
+            print ("You didn't enter an integer.")
+            exit(0)
+        except ZeroDivisionError: # This try-except catches only zero division 
+        except:                   # This try-except catches everything
+ * custom exceptions       
+== measure time with timeit ==
+    * from timeit import timeit (first arg is where the module is, the second is name of the method to report cpu time for)
+        timeit(setup="from __main__ import resolve", stmt="resolve('python.org')")
 = strings = 
 * String Slicing
   s = "Go Gators! Come on Gators!"
@@ -80,7 +192,8 @@ string strip([chars]): returns a copy of the string with leading and trailing ch
 ame = 'marcog'
 number = 42
 print '%s %d' % (name, number)    # in python2
-print("{0} was found {1} times because {0} is there".format(word, count)) # in python3
+ *   print("{0} was found {1} times because {0} is there".format(word, count)) # in python3
+ *   "{a} smth {b}".format(a="Oslo", b="Stavanger")
 # first define dictionary
 # these strings below expect a dictionary after
 # "something %(key_name)s blah-blah" % dictionary
@@ -139,9 +252,11 @@ some_list.remove (element_name)
 some_list.insert (2, element_name)		# insert some_element to position indexed 2
 some_list.del(2)      # delete element with index 2
 some_list.sort ()
-sorted(some_list)
-sorted(some_list, reverse=True)
-sorted(some_list,key=len) # using key function
+ * sorted accepts lambda func (to use for sorting) as an argument
+    sorted(some_list_of_names, key=lambda name: name.split()[-1])
+    sorted(some_list)
+    sorted(some_list, reverse=True)
+    sorted(some_list,key=len) # using key function
 some_list.reverse ()
 list = [2, 4, 7, 9]
 list2 = [3, "test", True, 7.4]
@@ -207,157 +322,7 @@ print s4 + "test"
 print s4[:,1:3]
 -> [['Walsh', 'Roberson'],
 	['Redick', 'Ewing']]
-arange also works the same as with 1-d arrays except you need to pass the shape parameter:
-a = arange(25, shape=(5,5)),br> And finally, reshape can be used to convert a 1-d array into a multi-dimensional array. To create a 5x5 array with the elements numbered from 0 to 24, you could use:
-b = arange(25)
-b = reshape(b,5,5)
-* multidimensional arrays
-the format is ([[depth,] height,] width). 
-the row is listed first, then the column. 
-* array slicing
- - slicing array[i:j], it returns an array containing elements from i to j-1
-a=[0 1 2 3 4 5]
- - indices of arrays can be negative, in which case they count from the right instead of the left,
-a[-4:-1] = [2 3 4]
- - : can specify the rest of the elements or up to element
-print a[:3] #[0 1 2]
-print a[4:] #[4 5]
-print a[:] #[0 1 2 3 4 5]
-print a[[1,3,4]] #[1 3 4]
-Note that slicing in python does not create a new array but just a pointer to the original array. b=a[0:10] followed by b[0] = 5 also changes a[0] to 5. To avoid this, use b = copy(a[0:10])
-Array Operators:
-Concatenation:
-Lists: a + b
-For Lists, the + operator appends the list on the right (b) to the list on the left.
-a = ["Roberson", "Walsh"]
-b = ["Lee", "Humphrey"]
--> a+b = ["Roberson", "Walsh", "Lee", "Humphrey"]
-Arrays: concatenate((a,b)[,axis])
-For arrays, use the numarry function concatenate. It also allows you to specify the axis when concatenating multi-dimensional arrays.
-b = arange(5)
-print concatenate((b, arange(6)))
--> [0 1 2 3 4 0 1 2 3 4 5]
-b=reshape(b,5,1)
-print concatenate((b,a),axis=1)
--> [[0 0 0 0]
-	[1 0 0 0]
-	[2 0 8 0]
-	[3 0 0 0]
-	[4 0 0 0]]
-Equality: a == b and Inequality: a != b
-For lists, these work the same as for scalars, meaning they can be used in if statments. For arrays, they return an array containing true or false for each array element.
-Array Functions: All functions but len are for arrays only
-len: returns the length of a list/array.
-   s = ["Lee", "Walsh", "Roberson", "Brewer"]
-   print len(s) #4
-argmax([axis]): returns the index of the largest element in a 1D array or an array of the largest indices along the specified axis for a multi-dimensional array.
-   a = array([[1,6,9], [2,4,0], [7,4,8]])
-   print a.argmax(1)
-  -> [2 1 2]
-argmin([axis]): returns the index of the smallest element in a 1D array or an array of the smallest ndices along the specified axis for a multi-dimensional array.
-   b = array([2,4,7,1,3,-1,5])
-   print b.argmin()
-  -> 5
-argsort([axis]): returns an array of indices that allow access to the elements of the array in ascending order.
-   print b.argsort()
-  -> [5 3 0 4 1 6 2]
-   print b[b.argsort()]
-  -> [-1 1 2 3 4 5 7]
-   print a.argsort(1)
-  -> [[0 1 2]
-  	[2 0 1]
-  	[1 0 2]]
-astype(type): returns a copy of the array converted to the specified type.
-   a = a.astype('Float64')
-   b = b.astype('Int32')
-copy(): returns a copy of the array.
-   c = a[:,2].copy()
-   print c
-  -> [9 0 8]
-diagonal(): for multi-dimensional arrays, returns the diagonal elements of the array, where the row and column indices are equal.
-   print a.diagonal()
-  -> [1 4 8]
-info(): prints informations about the array which may be useful for debugging.
-max(): returns the largest element in the array
-   print a.max()
-  -> 9
-mean(): returns the average of all elements in an array
-   print a.mean()
-  -> 4.55555555556
-min(): returns the smallest element in the array
-   print b.min()
-  -> -1
-nelements(): returns the total number of elements in the array
-   print a.nelements()
-  -> 9
-product(array [,axis]): returns the product of an array or an array of the products along an axis of an array.
-   print product(b)
-  -> -840
-   print product(a,1)
-  -> [ 54 0 224]
-reshape(array, shape): function that changes the shape of an array. But the new shape must have the same size as the old shape, otherwise an error will occur.
-   c = reshape(a, 9)
-   a = reshape(c,(3,3))
-resize(shape): shrinks/grows the array to a new shape. Can be called as a method (replaces old array) or a function. The new shape does not have to be the same size as the old shape. If it is smaller, values will be cut off, and it if is bigger, values will repeat.
-   a.resize(5)
-   print a
-  -> [1 6 9 2 4]
-   a.resize(2,6)
-   print a
-  -> [[1 6 9 2 4 0]
-  	 [7 4 8 1 6 9]]
-   c = resize(a,(2,2))
-   print c
-  -> [[1 6]
-  	 [9 2]]
-shape(array): returns the dimensions of the array in a tuple
-   print shape(a), shape(b), shape(a)[0]*shape(a)[1]
-  -> (3,3)    (7,)    9
-sort(array [,axis]): returns an array containing a copy of the data in the array and the elements sorted in increasing order. In the case of a multi-dimensional array, the data will be sorted along one axis and not across the whole array.
-   print sort(b)
-  -> [-1 1 2 3 4 5 7]
-   print sort(a)
-  -> [[1 6 9]
-  	[0 2 4]
-  	[4 7 8]]
-   print sort(a,0)
-  -> [[1 4 0]
-  	[2 4 8]
-  	[7 6 9]]
-stddev(): returns the std deviation of all elements in the array
-   print a.stddev()
-  -> 3.16666666667
-sum(): Can be called as a method or a function. The behavior is identical for 1-d arrays. But for multi-dimensional arrays, calling as a method returns the sum of the entire array, whereas calling it as a function allows you to specify an axis and returns an array with the sums along that axis.
-   print a.sum()
-  -> 41
-   print sum(a)
-  -> [10 14 17]
-   print sum(a,1)
-  -> [16 6 19]
-trace(): Returns the sum of the diagonal elements of an array
-   print a.trace()
-  -> 13
-type(): returns a string containing the type of the array.
-   print a.type()
-  -> Int32
-tolist(): returns a list containing the same data as the array.
-   c = a.tolist()
-transpose(): Can be called as a method (replaces old array) or a function. Returns the transpose of the array.
-   a.transpose()
-   b = transpose(a)
-where(expr, 1, 0): Similar to the IDL where function. Returns an array of the same size and dimensions containing 1 if the condition is true and 0 if the condition is false. Any value may be substituted for 1 and 0, but they are the recommended values (i.e. true, false) so that compress can be used to extract values from the array: compress(mask_array, data_array).
-   c = where(b > 2, 1, 0)
-   print c
-  -> [0 1 1 0 1 0 1]
-   print compress(c,b)
-  -> [4 7 3 5]
-   c = where(a > 2, 1, 0)
-   print c
-  -> [[0 1 1]
-  	[0 1 0]
-  	[1 1 1]]
-   print compress(c,a)
-  -> [6 9 4 7 4 8]
+
 = locals globals =
 http://www.diveintopython.net/html_processing/locals_and_globals.html
 # locals returns dictionary of name,value of local to function variables
@@ -368,7 +333,10 @@ def unknown_starttag(self, tag, attrs):
 if __name__ == "__main__":
     for k, v in globals().items():             1
         print k, "=", v
-        
+= conditionals =
+ * if ..: elif: ... else ..
+ * result = true_value if condition else false_value  # smth like in C (cond):a?b
+    
 = LOOPS =
 s = input("Please type some characters and press enter:")
 while test < num:
@@ -382,36 +350,6 @@ for word in s.split():
     print(word) 
 print("Done")
 
-= FUNCTIONS =
-def g(x):
-    return x**4/4.0 - x**3/3.0 - 3 * x * x
-print(g(6))
-== keyed functions can passed as an argument ==
-def Last(x):
-  return x[-1]
-sorted(some_list,key=Last)
-
-= EXCEPTIONS =
- * built-in exceptions:
-    https://docs.python.org/3/library/exceptions.html
-   **   IOError  # when open the file:
-        try:
-            fh = open("file_name")
-        except IOError as e:
-            print(e)
-   **   ValueError
-   **   ZeroDivisionError
-        try:
-            top = int(input("Please enter the denominator:"))
-        except ValueError: # This try-except catches only ValueErrors 
-            print ("You didn't enter an integer.")
-            exit(0)
-        except ZeroDivisionError: # This try-except catches only zero division 
-        except:                   # This try-except catches everything
- * custom exceptions       
-== measure time with timeit ==
-    * from timeit import timeit (first arg is where the module is, the second is name of the method to report cpu time for)
-        timeit(setup="from __main__ import resolve", stmt="resolve('python.org')")
 = MODULE =
 == defining packages ==
  * first create directory and in it create __init__.py
@@ -507,7 +445,16 @@ def runProcess(exe):
 = yield =
 http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generators-explained/
 = OOP / object oriented python / class =
+== metaclasses ==
+http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python
+ * function type is in fact a metaclass
+ * using type to create class dynamically
+    class Foo(object):
+        bar = True          # equiv to Foo = type('Foo', (), {'bar':True})
+    class FooChild(Foo):
+        pass                # FooChild = type('FooChild', (Foo,), {})
 == constructors ==
+
  * "regular"
         def __init__(self, data):
             "Initialize MyData from a sequence"
@@ -540,25 +487,114 @@ http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generator
             def get_variable(self, key):
                 return self.variables.get(key, None)
  
-== special member methods ==
+== dunder methods / special member methods ==
  * iterator method makes class iterable: __iter__
     def __iter__ (self):     # class can be iterated upon in for koop, as in: for i in some_class(2, 100, 5):
         i = self.lower
         while(i <= self.upper):
             yield i
             i += self.step
- * remember the state between the calls using __call__ function and object __cache__:
-    class Resolver:
-        def __init__(self):
-            self._cache = {}
-        def __call__(self, host):
-            if host not in self._cache:
-                self._cache[host] = socket.gethostbyname(host)
-            return self._cache[host]
-        def clear(self):
-            self._cache.clear()
-        def has_host(self, host):
-            return host in self._cache
+ * modifying method callable property using __call__ (making instance callable)
+    class Foo:
+      def __call__(self):
+        print 'called' 
+    foo_instance = Foo()
+    foo_instance() #this is calling the __call__ method    
+     ** remember the state between the calls using __call__ function and object __cache__
+        class Resolver:
+            def __init__(self):
+                self._cache = {}
+            def __call__(self, host):
+                if host not in self._cache:
+                    self._cache[host] = socket.gethostbyname(host)
+                return self._cache[host]
+            def clear(self):
+                self._cache.clear()
+            def has_host(self, host):
+                return host in self._cache
+ * dunder closure method: __closure__
+    def enclosing()
+        x = "Im in enclosing"
+        def local_func(y)
+            print(x + ',' + y + "is enclosing");
+        return local_func()
+    lf = enclosing()    # here if we run lf.__closure__  we will get reference to enclosed var x
+    lf("lf function") # => Im in enclosing, lf function is enclosing 
+ * __str()__  __repr()__  __format()__
+    * when repr and str are defined for objects:   str(obj) or repr(obj) will the return object string representation
+    * format calls str() by default, unless r! is specified - as in '{r!}'.format(someObject)
+    def __format__ (self, f):
+        return 'Formatted point ({}, {}, {})'.format(self.x, self.y, f)
+    def __str__(self):
+        return '({}, {})'.format(self.x, self.y)
+    def __repr__(self):
+        return 'Point2D(x={}, y={})'.format(self.x, self.y)
+            
+    
+== staticmethod / classmethod ==
+ * examples are below
+ * http://stackoverflow.com/questions/136097/what-is-the-difference-between-staticmethod-and-classmethod-in-python
+ * bottom line: staticmethod doesnt know anything about containing class or instance and used just to add methods to class if they logically belong there
+ * classmethods are used for constructor overloading (for example) - see below
+== attributes ==
+ * class attributes (ie class variables) are defined just as methods
+    import iso6346
+    class ShippingContainer:
+        HEIGHT_FT = 8.5
+        WIDTH_FT = 8.0
+        next_serial = 1337 # can be referenced by ShippingContainer.next_serial
+        @staticmethod
+        def _make_bic_code(owner_code, serial):
+            return iso6346.create(owner_code=owner_code, serial=str(serial).zfill(6))
+        @classmethod
+        def _get_next_serial(cls):
+            result = cls.next_serial
+            cls.next_serial += 1
+            return result
+ * @property method built-in decorator
+        def __init__(self, owner_code, length_ft, contents, celsius):
+        super().__init__(owner_code, length_ft, contents)
+        self.celsius = celsius
+    @property
+    def celsius(self):          # this method will be called inst.celsius (read only)
+        return self._celsius
+ * creating setter using @property       
+    @celsius.setter
+    def celsius(self, value)
+        if value > RefrigeratedContrainer.MAX_CELSIUS:
+            raise ValueError("Temperature is too hot!")
+        self._value = value
+ * @property method could be override by inherited class
+    ** note that setter decorator is different
+    use super() function:
+    @property
+    def celsius(self):
+        return super().celsius + some_value
+    @ParentClass.celsius.setter
+    def celsius(self, value)
+        # do stuff
+        # Note that to refer to Parent class setter use: ParentClass.celsius.fset(super, value) and not super() # some python's quirck
+== abstract classes in python (or template methods) ==
+    class AbstractClass:
+        def template_method(self):
+            self._part1()
+            self._part2()
+            self._part3()
+        def _part2(self):
+            raise NotImplementedError("Override this method")
+        def _part3(self):
+            # Optionally override this
+            print("Done!")
+           
+    class ConcreteClass(AbstractClass):
+        def _part1(self):
+            print("About to perform action")
+        def _part2(self):
+            perform_action()
+        def _part3(self):
+            print("Action performed!")
+
+
 == constructor overloading using factory (@classmethod) ==
 >>> class MyData:
 ...     def __init__(self, data):
