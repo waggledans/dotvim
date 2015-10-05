@@ -1,5 +1,16 @@
 http://lukaszwrobel.pl/blog/tmux-tutorial-split-terminal-windows-easily
 https://gist.github.com/andreyvit/2921703
+= start =
+tmux new -s session_name
+ * attach to existing session
+   tmux a -t session-name
+ * detach from the session
+  tmux detach
+    or
+ Ctrl-b d
+ * kill the session
+  tmux kill-session -t session-name
+= work with tmux = 
 Ctrl+b " - split pane horizontally.
 Ctrl+b % - split pane vertically.
 Ctrl+b arrow key - switch pane.
@@ -8,5 +19,3 @@ Ctrl+b c - (c)reate a new window.
 Ctrl+b n - move to the (n)ext window.
 Ctrl+b p - move to the (p)revious window.
 
-Bash completion has been installed to:
-  /usr/local/etc/bash_completion.d

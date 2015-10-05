@@ -19,6 +19,16 @@ object, None, array
     datetime.date(2014,month=1,day=6)
     datetime.date.fromtimestamp(100000000)
     d = datetime.date.today() # d.year, d.month, d.weekday (d.isoweekday), d.isoformat() -> '2012-09-02', d.strftime('%A %d %B %Y') -> 'Thursday 27 February 2012'
+= network / sockets =
+http://www.tutorialspoint.com/python/python_networking.htm
+s = socket.socket (socket_family, socket_type, protocol=0)
+  socket_family = {AF_UNIX, AF_INET}
+  socket_type = {SOCK_STREAM or SOCK_DGRAM}
+  * example
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((host, port or 0))
+    sock.listen(5)
 = loops, conditionals =
 * chained relational operators
     instead of a<b and b < c   use a<b<c in if statement
@@ -387,6 +397,13 @@ import sys
 bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
 * from fibo import fib1 ## allows instead of fibo.fib1() run fib1()
 = IO operations =
+= print =
+ * print to stderr
+    print >>sys.stderr, 'Poem failed:', err
+ * print string with placeholders / formatters   
+    print 'Task %d: %d bytes of poetry' % (i, len(self.poems[i])) 
+    print "Let's talk about %s." % my_name
+    print "He's %d pounds heavy." % my_weight
 == files ==
  * 
     catfile = open(filename,"r")
@@ -493,6 +510,11 @@ http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python
                 return self.variables.get(key, None)
  
 == dunder methods / special member methods ==
+ * __init__  (called after __new__)
+ * __del__    (called when obj is garbage collected)
+   def __del__(self):
+        self.file.close()
+        del self.file
  * iterator method makes class iterable: __iter__
     def __iter__ (self):     # class can be iterated upon in for koop, as in: for i in some_class(2, 100, 5):
         i = self.lower
