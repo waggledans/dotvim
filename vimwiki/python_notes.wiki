@@ -14,6 +14,11 @@ LEGB rule: Local Scope, Enclosing Scope, Global Scope, and Built-in Scope.
 boolean True, False
 integer, long, float, string, list, tuple, dictionary
 object, None, array
+== datetime module types ==
+* https://docs.python.org/2/library/datetime.html
+    datetime.date(2014,month=1,day=6)
+    datetime.date.fromtimestamp(100000000)
+    d = datetime.date.today() # d.year, d.month, d.weekday (d.isoweekday), d.isoformat() -> '2012-09-02', d.strftime('%A %d %B %Y') -> 'Thursday 27 February 2012'
 = loops, conditionals =
 * chained relational operators
     instead of a<b and b < c   use a<b<c in if statement
