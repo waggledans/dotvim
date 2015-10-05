@@ -168,7 +168,6 @@ ORCLDB =
   
 
 = data dictionaries / System queries =
-SELECT * FROM PRODUCT_COMPONENT_VERSION;  -- get component version
 * SELECT table_name, comments FROM dict; -- to see all tables
 * SELECT table_name, comments FROM dict WHERE table_name LIKE '%SEQ%';
 * SELECT table_name, comments FROM dict_columns; -- to see all columns  for all tables

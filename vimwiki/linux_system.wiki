@@ -43,7 +43,6 @@ scp -i ~/Desktop/amazon.pem ~/Desktop/MS115.fa  ubuntu@ec2-54-166-128-20.compute
 ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.systems.wvu.edu:2273 -L 443:dgtest.wvu.edu:443
 * netstat
   prints all the ports
-* tcpdump  
 = System info =
 * lscpu or	      less /proc/cpuinfo
 * free <-m|t|g> or    less /proc/meminfo
@@ -56,8 +55,6 @@ ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.system
 ssh -i /Users/dans/ama_test_key.pem ec2-user@52.11.163.16 -v    : AWS ubunthu
 ssh -i /Users/dans/ama_test_key.pem ec2-user@52.25.81.84 -v	: amazon_linux
 scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/home/ec2-user/downloads
-* vmstat
-vmstat 5
 == Disk administration ==
 * check how much space avail in /tmp
 df -h /tmp
@@ -116,6 +113,7 @@ ssh-add ~/.ssh/id_rsa
 ** restart apache and test
     /etc/init.d/httpd stop
     /etc/init.d/httpd start
+<<<<<<< HEAD
 == crontab ==
 EDITOR="gvim" crontab -e
 # minute hour day-of-month month day-of-week command
@@ -137,3 +135,5 @@ list dns:
 networksetup listallnetworkservices
 set default dns server for wifi:
 sudo networksetup -setdnsservers Wi-Fi  8.8.8.8
+=======
+

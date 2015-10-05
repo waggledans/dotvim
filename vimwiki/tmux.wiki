@@ -7,3 +7,6 @@ Hold Ctrl+b, don't release it and hold one of the arrow keys - resize pane.
 Ctrl+b c - (c)reate a new window.
 Ctrl+b n - move to the (n)ext window.
 Ctrl+b p - move to the (p)revious window.
+
+Bash completion has been installed to:
+  /usr/local/etc/bash_completion.d

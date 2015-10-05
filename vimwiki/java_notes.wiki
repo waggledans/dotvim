@@ -5,6 +5,7 @@ unlike in C++ where protected members can only access by subclass
 // Java way would be final static class variable
 public final static String NAME = "I'm a static variable";
 * 
+<<<<<<< HEAD
 == generics / templates ==
 http://www.javacodegeeks.com/2013/07/java-generics-tutorial-example-class-interface-methods-wildcards-and-much-more.html
  * class
@@ -120,14 +121,7 @@ Runnable r2 = () -> {
     System.out.println("Print line One");
     }
 new Thread(r1).start(); new Thread(r2).start();
-== stream ==
-* Stream object:
-  Stream<person> stream = Stream.of(someArray); //or use Arrays.stream
-* predicate
-Predicate <Person> pred = (p) -> p.getAge()>65;
-Usage: if (pred.test(somePerson)) {...}
-* using predicates to filter
-  pplList.stream().filter(pred).forEach(p->System.out.println(p.name));
+
 = multithreading =
 see java_multithreading vimwiki
 = Generics =
@@ -161,22 +155,7 @@ int direction = (int) (Math.random() * 3); switch (direction) {
 } } }
 = Annotations =
 It is possible to add your own annotations
-= Java regex =
- * quantifiers
-  Greedy (.*)	Reluctant (.*?)	Possessive (.*+)
- * grouping and backreference
-  // Example removes whitespace [[between]] a word character and . or ,
-    String pattern = "(\\w)(\\s+)([\\.,])";
-    System.out.println(EXAMPLE_TEST.replaceAll(pattern, "$1$3"));
- * meta characters
-  \s whitespace, \S nonwhite, \w - [a-zA-Z_0-9], \b word boundary
-  word boundary example: \b(\w+)\s+\1\b    - match duplicated words separated by ws
- * greedy
-    X?  - X once or not at all
- * lookahead / predicate
-    a(?!b) matches a if it doesnt follow by b. (?!-in)\b(\w+)\s+\1\b   match duplicated word if it doesnt start with -in
- * [[or]]
-  X|Z
+
 = Pattern regex =
 private static final Pattern POINT_PATTERN = Pattern.compile("\\((\\d+),(\\d+),(\\d+)\\);?");
 Matcher matcher = POINT_PATTERN.matcher(line);
