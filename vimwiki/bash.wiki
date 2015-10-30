@@ -1,5 +1,4 @@
-##############  BASH #########
-###  terminal prompt
+= terminal prompt =
 # h is the host name, w the complete path 
 export PS1="\h:\w$ "
 host_name:current_directory_path$
@@ -11,10 +10,68 @@ You can also modify my example by using the following options in the export comm
 \u – User name
 \W – Current working directory (i.e: Desktop/)
 \w – Current working directory, full path (i.e: /Users/Admin/Desktop)
+= parameter expansion =
+http://www.gnu.org/software/bash/manual/bashref.html#Shell-Parameter-Expansion
+ * ${parameter:-word}
+   If parameter is unset or null, "word" is substituted. 
+   Otherwise, the value of parameter is substituted.
 
-#### bash scripting #######################
-###  arguments parsing:
-# 
+ * ${parameter:=word}
+   If parameter is unset or null, the expansion of word is assigned to parameter. 
+   The value of parameter is then substituted. Positional parameters and special parameters may not be assigned to in this way.
+
+ * ${parameter:?word}
+   If parameter is null or unset, the expansion of word (or a message to that effect if word is not present) is written to the standard error and the shell, if it is not interactive, exits. Otherwise, the value of parameter is substituted.
+
+ * ${parameter:+word}
+   If parameter is null or unset, nothing is substituted, otherwise the expansion of word is substituted.
+ * ${parameter:offset}
+ * ${parameter:offset:length}
+ * clone_name=${dataset_snapshot//@/--}
+ * ${dataset_snapshot%@*}
+= bash scripting =
+= tricks =
+  * $$ - script pid
+  * $IFS - field separator, whitespace by def. Ex. IFS=$'\n', IFS=":-;"
+  * use exit traps:  http://redsymbol.net/articles/bash-exit-traps/
+        scratch=$(mktemp -d -t tmp.XXXXXXXXXX)
+        function finish {
+        rm -rf "$scratch"
+        }
+        trap finish EXIT
+  * use traps for SIGHUP: trap "exit 1" SIGHUP 
+  * use tput for logging: http://linuxcommand.org/lc3_adv_tput.php
+    tput bold;  echo "This text has the bold attribute.";     tput sgr0
+    tput smul;  echo "This text is underlined (smul).";       tput rmul
+    # Most terminal emulators do not support blinking text (though xterm does)
+    # because blinking text is considered to be in bad taste ;-)
+    tput blink; echo "This text is blinking (blink).";        tput sgr0
+    tput rev;   echo "This text has the reverse attribute";   tput sgr0
+    # Standout mode is reverse on many terminals, bold on others. 
+    tput smso;  echo "This text is in standout mode (smso)."; tput rmso
+    tput sgr0
+  * tput can also change foreground/backround (fg/bc) colors for logging/echo
+    fgc_red=$(tput setaf 1)
+    fgc_maj=$(tput setaf 5)
+    echo -e "${fgc_maj}${bold}DEBUG:${unbold} $msg${c_clear}" >&2 
+  * echo to stderr
+    echo "Invalid option: -$OPTARG" >&2
+= ARRAYS =
+http://www.thegeekstuff.com/2010/06/bash-array-tutorial/
+    * declaring can be done element after element or using declare -a statement
+        Unix[0]='Debian'  ## and so on
+        declare -a arrayname=(element1 element2 element3)
+    * print array
+        echo ${Unix[@]}
+    * length of the array
+        declare -a Unix=('Debian' 'Red hat' 'Suse' 'Fedora' 'Ubuntu');
+        echo ${#Unix[@]} 	# Number of elements in the array
+        echo ${#Unix}  	# Number of characters in the first element of the array.i.e Debian
+        echo ${#Unix[3]}         # length of the element located at index 3 i.e 'Fedora'
+        echo ${Unix[@]:3:2}	# echo 2 elements starting from the 3d one i.e Fedora Ubuntu
+
+
+= arguments parsing =
 $@  array of arguments
 $# -  the index of the last argument
 $1, $2 are arguments
@@ -24,17 +81,23 @@ else
   	myArray=( "$@" )
 fi
 
-## substitute arguments
+== substitute arguments ==
 echo ====== original args =====
 echo $@	# original args will be echo’ed
 set -- apple banana "kiwi fruit"
 
 echo ====== new args =====
 echo $@	# apple banana kiwi fruit will be echo’ed
-
-
-
-# bash regex:
+= test / if =
+ * test variable is set: if [ -z "$SSH_AUTH_SOCK" ]; then
+ * test file: 
+  -e exists
+  -f is file (not directory or device file)
+  -d is directory
+  -b block device
+  -c character device
+  more: http://tldp.org/LDP/abs/html/fto.html
+= bash regex =
 The matches are assigned to an array variable BASH_REMATCH. The entire match is assigned to BASH_REMATCH[0], the first sub-pattern is assigned to BASH_REMATCH[1], etc..
 #!/bin/bash
 
@@ -63,7 +126,9 @@ do
     shift
 done
 
-####### get opts #################
+ * Example: rename files 
+    for f in *.csv; do [[ $f =~ $regex ]] && mv $f "${BASH_REMATCH[1]}.post.csv"; done
+= get opts =
 http://wiki.bash-hackers.org/howto/getopts_tutorial
 
 while test $# -gt 0; do
@@ -112,36 +177,5 @@ while test $# -gt 0; do
                         ;;
         esac
 done
-
-
-### echo to stderr
-echo "Invalid option: -$OPTARG" >&2
-
-
-
-
-
-################## general bash coding #####################33
-
-##### ARRAYS #########
-http://www.thegeekstuff.com/2010/06/bash-array-tutorial/
-# declaring can be done element after element or using declare -a statement
-Unix[0]='Debian'  ## and so on
-declare -a arrayname=(element1 element2 element3)
-# print array
-echo ${Unix[@]}
-
-# length of the array
-
-declare -a Unix=('Debian' 'Red hat' 'Suse' 'Fedora' 'Ubuntu');
-echo ${#Unix[@]} 	# Number of elements in the array
-echo ${#Unix}  	# Number of characters in the first element of the array.i.e Debian
-echo ${#Unix[3]}         # length of the element located at index 3 i.e 'Fedora'
-echo ${Unix[@]:3:2}	# echo 2 elements starting from the 3d one i.e Fedora Ubuntu
-
-
-rename files 
-
-for f in *.csv; do [[ $f =~ $regex ]] && mv $f "${BASH_REMATCH[1]}.post.csv"; done
 
 

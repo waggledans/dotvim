@@ -28,26 +28,83 @@ sort -u -t, -k1,1 file
 -t, so comma is the delimiter
 -k1,1 for the key field 1
 = networking =
+ * netcat nc
+    * scan all ports in a range (verbose)
+      netcat -z -v domain.com 1-1000
+      * -n means noDNS
+      netcat -z -n -v 111.111.111.111 1-1000 2>&1 | grep succeeded
+    * listen to specific port
+      netcat -l 4444
+      * sending side could do netcat domain.com 4444  to send messages
+    * netcat as web server
+      while true; do nc -l 8888 < index.html; done
+ * socat
+    * To redirect all port 80 conenctions to ip 202.54.1.5 (just like netcat):
+      socat TCP-LISTEN:80,fork TCP:202.54.1.5:80
+      (sleep 5; echo YOURSSHPASSWORDHERE; sleep 5; echo date; sleep 1) |socat - EXEC:'ssh -l userName server1.nixcraft.net.in',pty,setsid,ctty
+    * connect to the remote ssh server, use pty for communication between socat and ssh,
+      make it ssh's controlling tty (ctty), and makes this pty the owner of a new process group (setsid),
+      so ssh accepts the password from socat
+      (sleep 5; echo "echo hello"; sleep 5; echo date; sleep 1) |socat - EXEC:'ssh -l sauce dslov.dev.saucelabs.net',pty,setsid,ctty
+      
+    * use it as a file server:
+      http://unix.stackexchange.com/questions/22308/socat-reliable-file-transfer-over-tcp
+      socat -u FILE:test.dat TCP-LISTEN:9876,reuseaddr     # server side, -u means unidirectional
+      socat -u TCP:ramen2.dev.miso:9876 OPEN:test_client.dat,creat,trunc     # client side
+ * netstat
+  prints all the ports
+ * tcpdump  
+ * curl 
 curl -i -X POST -H "Content-Type:application/json" -d '{  "firstName" : "Frodo",  "lastName" : "Baggins" }' http://localhost:8080/
-* wget
+ * wget
   wget http://ftp.gnu.org/gnu/wget/wget-1.5.3.tar.gz ftp://ftp.gnu.org/gnu/wget/wget-1.10.1.tar.gz.sig
   ** resume download: wget -c 
   ** download in bg: wget -b 
   ** wget --http-user=narad --http-password=password
   ** wget --ftp-user=narad --ftp-password=password 
-* scp
+ * scp
 scp -i ~/Desktop/amazon.pem ~/Desktop/MS115.fa  ubuntu@ec2-54-166-128-20.compute-1.amazonaws.com:~/data/
-* ssh connection
--L [bind_address:]port:host:hostport
-  Specifies that the given port on the local (client) ho
+== ssh ==
+  * simple example
+    ssh -i /path/to/id_rsa -p 4242 myuser@serverhost
+http://blog.joncairns.com/2013/12/understanding-ssh-agent-and-ssh-add/
+  * running ssh-agent in your shell starts a daemon and outputs smth like:
+        SSH_AUTH_SOCK=/tmp/ssh-MUyniqn10506/agent.10506; export SSH_AUTH_SOCK;
+        SSH_AGENT_PID=10507; export SSH_AGENT_PID;
+  * port forwarding -L [bind_address:]port:host:hostport
+  Specifies that the given port on the local (client) host
 ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.systems.wvu.edu:2273 -L 443:dgtest.wvu.edu:443
   ** secure connection between two hosts (with entering pwd all the time
     http://mah.everybody.org/docs/ssh
   ** copy public key between 2 machines
     cat ~/.ssh/id_dsa.pub | ssh you@remote 'cat - >> ~/.ssh/authorized_keys'
-* netstat
-  prints all the ports
-* tcpdump  
+=== ssh config ===
+  * /etc/ssh/ssh_config  - system wide ssh config
+  * $HOME/.ssh/config    - user ssh config
+  * syntax:
+    * # - comment are line starting with #
+    * both equal sign and space used
+        config=value    or config value
+        config1=value1 value2   or  config value1 value2
+    * wildcard could be used in hostname    
+  * simple example will allow to run ssh server1
+    ### default for all ##
+    Host *
+        ForwardAgent no
+        ForwardX11 no
+        ForwardX11Trusted yes
+        User nixcraft
+        Port 22
+        Protocol 2
+        ServerAliveInterval 60
+        ServerAliveCountMax 30
+    Host server1
+     HostName server1.cyberciti.biz
+     User nixcraft
+     Port 4242
+     IdentityFile /path/to/id_rsa
+     LocalForward 3128 127.0.0.1:3128
+StrictHostKeyChecking 
 = System info =
 * lscpu or	      less /proc/cpuinfo
 * free <-m|t|g> or    less /proc/meminfo
@@ -63,6 +120,18 @@ scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/h
 * vmstat
 vmstat 5
 == Disk administration ==
+* mount
+  mount -t iso9660 -o ro /dev/cdrom /mnt
+  -t type, -o - mode (rw or ro)
+  * binding points:
+     mount -B /mydata /mnt    # old_dir new_dir
+        # mount | grep /mydata
+                /dev/sda6 on /mydata type ext2 (rw)
+                /mydata on /mnt type none (rw,bind)
+* df will show:
+  Filesystem     1K-blocks      Used Available Use% Mounted on
+    /dev/sda5      195069136 128345036  56958520  70% /
+    udev             2008336         4   2008332   1% /dev
 * check how much space avail in /tmp
 df -h /tmp
 = user administration =hr-model30-247282
@@ -142,3 +211,14 @@ list dns:
 networksetup listallnetworkservices
 set default dns server for wifi:
 sudo networksetup -setdnsservers Wi-Fi  8.8.8.8
+
+= filesystem =
+https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt
+* ramfs - fs/ramfs/inode.c
+* rootfs -  fs/ramfs/inode.c
+* yaffs2
+* extfs
+* tmpfs
+* 
+= memory management =
+ * /dev/shm http://www.cyberciti.biz/tips/what-is-devshm-and-its-practical-usage.html

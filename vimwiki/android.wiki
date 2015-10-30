@@ -10,5 +10,365 @@ ant debug
 # 2.Install the app in the phone
 adb install bin/MyFirstApp-debug.apk
 #### To run app on virtual device:
-# 1.Launch android virtual device
-android avd
+= manage SDK (install / update ) =
+android --help list sdk
+
+android update sdk --filter <component> --no-ui
+** to get all components
+android list sdk
+./android list sdk --extended
+./android update sdk -v -u -t 
+-n --dry-mode
+-f --force
+= filesystem =
+ * yafs2 - /system and /data
+ * vfat  - /sdcard
+rootfs / rootfs ro 0 0
+tmpfs /dev tmpfs rw,mode=755 0 0
+devpts /dev/pts devpts rw,mode=600 0 0
+proc /proc proc rw 0 0
+sysfs /sys sysfs rw 0 0
+tmpfs /sqlite_stmt_journals tmpfs rw,size=4096k 0 0
+none /dev/cpuctl cgroup rw,cpu 0 0
+/dev/block/mtdblock0 /system yaffs2 ro 0 0
+/dev/block/mtdblock1 /data yaffs2 rw,nosuid,nodev 0 0
+/dev/block/mtdblock2 /cache yaffs2 rw,nosuid,nodev 0 0
+/dev/block//vold/179:0 /sdcard vfat rw,dirsync,nosuid,nodev,noexec,uid=1000,gid=1015,fmask=0702,dmask=0702,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
+= emulator AVD =
+http://developer.android.com/tools/devices/emulator.html
+https://www.addthis.com/blog/2013/07/22/10-tips-for-android-emulator/#.VgSEBI9VhBc
+ * Launch android virtual device
+    android avd
+ * start emulator instance
+    emulator -avd <avd_name> [<options>]
+ * get all the mapped keys
+    emulator -help-keys 
+    Create ~/.android/default.keyset to change default keyset
+        CHANGE_LAYOUT_PREV Keypad_7, Ctrl-F11, RCtrl-F11, Ctrl-P, RCtrl-P
+        CHANGE_LAYOUT_NEXT Keypad_9, Ctrl-F12, RCtrl-F11, Ctrl-L, RCtrl-L
+    
+= ADB (Android Debug Bridge) help =
+http://developer.android.com/tools/help/adb.html
+http://web.archive.org/web/20130316123241/http://en.androidwiki.com/wiki/ADB_Shell_Command_Reference 
+ * one way of pressing Home button
+ am start -a android.intent.action.MAIN -c android.intent.category.HOME
+ * change device settings
+  http://www.xanh.co.uk/programmically-change-device-settings/
+ * list all devices
+  adb devices
+ * restart adb
+    adb kill-server
+    adb start-server
+ * adb shell : http://developer.android.com/tools/help/shell.html#shellcommands
+ *  mount - o rw,remount -t yaffs2 /system
+   ** adb shell mount -o remount, rw /system
+   ** adb adb push su /system/xbin/su
+   ** adb shell chown 0.0 /system/xbin/su     # root.root, 0.2000 is root.shell
+   ** adb shell chmod 06755 /system/xbin/su
+   ** adb shell mount -o remount, ro /system
+   ** 
+
+   ** adb shell am start -a android.intent.action.VIEW
+   ** adb shell pm install/uninstall com.example.MyApp
+   ** adb shell pm path com.google.android.gms   # get the path for APK
+   ** adb shell screencap /sdcard/screen.png   adb pull /sdcard/screen.png
+   ** adb shell screenrecord /sdcard/demo.mp4
+   ** adb shell logcat [option]... [filter-spec]...
+      example:   
+        adb -e logcat -v time WebCore:V browser:V *:S
+            The -e flag tells it to attach to the running emulator, “-v time” tells it to add a timestamp. 
+            The *:S parameter tells it to silence output from anything not otherwise white-listed.
+            Include the tag names for Android apps/processes you want to see the logs for,
+            and the log level to show. Here we’ve included WebCore and browser, 
+            which are tags that I’ve read are used for the built in web browser. 
+            The :V portion causes logcat to show maximum verbosity.
+   ** pm install -r "/data/local/tmp/com.reeuse.location"
+   ** am start -D -n "com.reeuse.location/com.reeuse.location.ALocationTestSplash" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER
+   ** pm list packages -f
+   ** adb shell dumpsys package my.package | grep versionName
+   ** adb shell settings put secure location_providers_allowed gps
+   ** adb shell dumpsys window   # get state of the phone
+   ** adb shell input keyevent 82  # send "swipe"
+   ** adb shell input text 1111  # input text
+   ** adb shell input keyevent 66  # "enter" key
+ * send command to specific instance
+  adb -s emulator-5556 install helloWorld.apk
+ * forwarding ports/sockets
+  adb forward tcp:6100 tcp:7100
+  adb forward tcp:6100 local:logd
+ * copy files between adb and host
+  adb pull <remote> <local>
+  adb push <local> <remote>
+  adb push foo.txt /sdcard/foo.txt
+ * get the state of the phone screen
+    adb -s emulator-5554 shell dumpsys window | grep mLastSystemUiFlags 
+
+
+ -a                            - directs adb to listen on all interfaces for a connection
+ -d                            - directs command to the only connected USB device
+                                 returns an error if more than one USB device is present.
+ -e                            - directs command to the only running emulator.
+                                 returns an error if more than one emulator is running.
+ -s <specific device>          - directs command to the device or emulator with the given
+                                 serial number or qualifier. Overrides ANDROID_SERIAL
+                                 environment variable.
+ -p <product name or path>     - simple product name like 'sooner', or
+                                 a relative/absolute path to a product
+                                 out directory like 'out/target/product/sooner'.
+                                 If -p is not specified, the ANDROID_PRODUCT_OUT
+                                 environment variable is used, which must
+                                 be an absolute path.
+ -H                            - Name of adb server host (default: localhost)
+ -P                            - Port of adb server (default: 5037)
+ devices [-l]                  - list all connected devices
+                                 ('-l' will also list device qualifiers)
+ connect <host>[:<port>]       - connect to a device via TCP/IP
+                                 Port 5555 is used by default if no port number is specified.
+ disconnect [<host>[:<port>]]  - disconnect from a TCP/IP device.
+                                 Port 5555 is used by default if no port number is specified.
+                                 Using this command with no additional arguments
+                                 will disconnect from all connected TCP/IP devices.
+
+device commands:
+  adb push [-p] <local> <remote>
+                               - copy file/dir to device
+                                 ('-p' to display the transfer progress)
+  adb pull [-p] [-a] <remote> [<local>]
+                               - copy file/dir from device
+                                 ('-p' to display the transfer progress)
+                                 ('-a' means copy timestamp and mode)
+  adb sync [ <directory> ]     - copy host->device only if changed
+                                 (-l means list but don't copy)
+                                 (see 'adb help all')
+  adb shell                    - run remote shell interactively
+  adb shell <command>          - run remote shell command
+  adb emu <command>            - run emulator console command
+  adb logcat [ <filter-spec> ] - View device log
+  adb forward --list           - list all forward socket connections.
+                                 the format is a list of lines with the following format:
+                                    <serial> " " <local> " " <remote> "\n"
+  adb forward <local> <remote> - forward socket connections
+                                 forward specs are one of:
+                                   tcp:<port>
+                                   localabstract:<unix domain socket name>
+                                   localreserved:<unix domain socket name>
+                                   localfilesystem:<unix domain socket name>
+                                   dev:<character device name>
+                                   jdwp:<process pid> (remote only)
+  adb forward --no-rebind <local> <remote>
+                               - same as 'adb forward <local> <remote>' but fails
+                                 if <local> is already forwarded
+  adb forward --remove <local> - remove a specific forward socket connection
+  adb forward --remove-all     - remove all forward socket connections
+  adb reverse --list           - list all reverse socket connections from device
+  adb reverse <remote> <local> - reverse socket connections
+                                 reverse specs are one of:
+                                   tcp:<port>
+                                   localabstract:<unix domain socket name>
+                                   localreserved:<unix domain socket name>
+                                   localfilesystem:<unix domain socket name>
+  adb reverse --norebind <remote> <local>
+                               - same as 'adb reverse <remote> <local>' but fails
+                                 if <remote> is already reversed.
+  adb reverse --remove <remote>
+                               - remove a specific reversed socket connection
+  adb reverse --remove-all     - remove all reversed socket connections from device
+  adb jdwp                     - list PIDs of processes hosting a JDWP transport
+  adb install [-lrtsdg] <file>
+                               - push this package file to the device and install it
+                                 (-l: forward lock application)
+                                 (-r: replace existing application)
+                                 (-t: allow test packages)
+                                 (-s: install application on sdcard)
+                                 (-d: allow version code downgrade)
+                                 (-g: grant all runtime permissions)
+  adb install-multiple [-lrtsdpg] <file...>
+                               - push this package file to the device and install it
+                                 (-l: forward lock application)
+                                 (-r: replace existing application)
+                                 (-t: allow test packages)
+                                 (-s: install application on sdcard)
+                                 (-d: allow version code downgrade)
+                                 (-p: partial application install)
+                                 (-g: grant all runtime permissions)
+  adb uninstall [-k] <package> - remove this app package from the device
+                                 ('-k' means keep the data and cache directories)
+  adb backup [-f <file>] [-apk|-noapk] [-obb|-noobb] [-shared|-noshared] [-all] [-system|-nosystem] [<packages...>]
+                               - write an archive of the device's data to <file>.
+                                 If no -f option is supplied then the data is written
+                                 to "backup.ab" in the current directory.
+                                 (-apk|-noapk enable/disable backup of the .apks themselves
+                                    in the archive; the default is noapk.)
+                                 (-obb|-noobb enable/disable backup of any installed apk expansion
+                                    (aka .obb) files associated with each application; the default
+                                    is noobb.)
+                                 (-system|-nosystem toggles whether -all automatically includes
+                                    system applications; the default is to include system apps)
+                                 (<packages...> is the list of applications to be backed up.  If
+                                    the -all or -shared flags are passed, then the package
+                                    list is optional.  Applications explicitly given on the
+                                    command line will be included even if -nosystem would
+                                    ordinarily cause them to be omitted.)
+
+  adb restore <file>           - restore device contents from the <file> backup archive
+
+  adb disable-verity           - disable dm-verity checking on USERDEBUG builds
+  adb enable-verity            - re-enable dm-verity checking on USERDEBUG builds
+  adb keygen <file>            - generate adb public/private key. The private key is stored in <file>,
+                                 and the public key is stored in <file>.pub. Any existing files
+                                 are overwritten.
+  adb help                     - show this help message
+  adb version                  - show version num
+
+scripting:
+  adb wait-for-device          - block until device is online
+  adb start-server             - ensure that there is a server running
+  adb kill-server              - kill the server if it is running
+  adb get-state                - prints: offline | bootloader | device
+  adb get-serialno             - prints: <serial-number>
+  adb get-devpath              - prints: <device-path>
+  adb remount                  - remounts the /system, /vendor (if present) and /oem (if present) partitions on the device read-write, equiv to: mount -o rw,remount -t ext4 /system
+  adb reboot [bootloader|recovery]
+                               - reboots the device, optionally into the bootloader or recovery program.
+  adb reboot sideload          - reboots the device into the sideload mode in recovery program (adb root required).
+  adb reboot sideload-auto-reboot
+                               - reboots into the sideload mode, then reboots automatically after the sideload regardless of the result.
+  adb reboot-bootloader        - reboots the device into the bootloader
+  adb root                     - restarts the adbd daemon with root permissions
+  adb unroot                   - restarts the adbd daemon without root permissions
+  adb usb                      - restarts the adbd daemon listening on USB
+  adb tcpip <port>             - restarts the adbd daemon listening on TCP on the specified port
+networking:
+  adb ppp <tty> [parameters]   - Run PPP over USB.
+ Note: you should not automatically start a PPP connection.
+ <tty> refers to the tty for PPP stream. Eg. dev:/dev/omap_csmi_tty1
+ [parameters] - Eg. defaultroute debug dump local notty usepeerdns
+
+adb sync notes: adb sync [ <directory> ]
+  <localdir> can be interpreted in several ways:
+
+  - If <directory> is not specified, /system, /vendor (if present), /oem (if present) and /data partitions will be updated.
+
+  - If it is "system", "vendor", "oem" or "data", only the corresponding partition
+    is updated.
+
+environmental variables:
+  ADB_TRACE                    - Print debug information. A comma separated list of the following values
+                                 1 or all, adb, sockets, packets, rwx, usb, sync, sysdeps, transport, jdwp
+  ANDROID_SERIAL               - The serial number to connect to. -s takes priority over this if given.
+  ANDROID_LOG_TAGS             - When used with the logcat option, only these debug tags are printed.
+  
+= Android apk install process =
+There are mainly two categories of Android applications.
+
+System Apps : installed when system is initialized
+User Apps : installed from Play store, using ADB or coping .apk file in SD card.
+Following are the step by step installation process.
+
+AndroidManifest.xml is parse, information is extracted and stored into /data/system/packages.xml and /data/system/packages.list
+.apk file is copied to a specific directory and a directory for data storage is created for this app
+XML parsing, resource analysis and .apk file copy are done by
+
+PackageManageService.java
+however directory creation is done by
+
+installd.c
+PackageManageService.java communicates with installd.c via a local socket, located at /dev/socket/installed
+
+Package where .apk file got copied is different for system apps and user apps. for system apps it is
+
+/system/app/
+Where as for user app .apk file copied in to .apk file is copied to
+
+/data/app
+.dex file, which is extracted from the .apk file, is copied to /data/dalvik-cache/.
+
+Package Manager create data directory /data/data// to store database, shared preference, native library and cache data
+
+= hacking Google API = 
+  * diff between apps in google API and stock android:
+        /system/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk=com.google.android.gms
+        /system/app/Maps/Maps.apk=com.google.android.apps.maps
+        /system/app/Street/Street.apk=com.google.android.street
+        /system/app/LicenseChecker/LicenseChecker.apk=com.android.vending
+        /system/priv-app/GoogleServicesFramework/GoogleServicesFramework.apk=com.google.android.gsf
+        /system/priv-app/GoogleLoginService/GoogleLoginService.apk=com.google.android.gsf.login
+        
+  * permissions for gms (found in googly emu):
+            <item name="com.google.android.gms.permission.CHECKIN_NOW" />
+            <item name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+            <item name="com.google.android.gms.permission.GAMES_DEBUG_SETTINGS" />
+            <item name="com.google.android.gms.permission.INTERNAL_BROADCAST" />
+            <item name="com.google.android.gms.auth.permission.FACE_UNLOCK" />
+            <item name="com.google.android.gms.trustagent.framework.model.DATA_ACCESS" />
+            <item name="com.google.android.gms.DRIVE" />
+            <item name="com.google.android.gms.trustagent.permission.TRUSTAGENT_STATE" />
+            <item name="com.google.android.gms.auth.permission.GOOGLE_ACCOUNT_CHANGE" />
+            <item name="com.google.android.gms.permission.CAR_SPEED" />
+            <item name="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE" />
+            <item name="com.google.android.gms.permission.C2D_MESSAGE" />
+            <item name="com.google.android.gms.cloudsave.BIND_EVENT_BROADCAST" />
+            <item name="com.google.android.gms.chromesync.permission.CONTENT_PROVIDER_ACCESS" />
+            <item name="com.google.android.gms.permission.CAR" />
+            <item name="com.google.android.gms.auth.permission.POST_SIGN_IN_ACCOUNT" />
+            <item name="com.google.android.gms.trustagent.framework.model.DATA_CHANGE_NOTIFICATION" />
+
+
+            com.google.android.gms 10007 0 /data/data/com.google.android.gms default 3003,1028,1015,3002,3001,1005,1007,3007,2001,3006
+
+        
+= install app =
+There are mainly two categories of Android applications.
+
+AndroidManifest.xml is parse, information is extracted and stored into /data/system/packages.xml and /data/system/packages.list
+.apk file is copied to a specific directory and a directory for data storage is created for this app
+XML parsing, resource analysis and .apk file copy are done by
+
+PackageManageService.java
+however directory creation is done by
+
+installd.c
+PackageManageService.java communicates with installd.c via a local socket, located at /dev/socket/installed
+
+Package where .apk file got copied is different for system apps and user apps. for system apps it is
+
+/system/app/
+Where as for user app .apk file copied in to .apk file is copied to
+
+/data/app
+.dex file, which is extracted from the .apk file, is copied to /data/dalvik-cache/.
+
+Package Manager create data directory /data/data// to store database, shared preference, native library and cache data
+
+= settings mysqldb =
+ * set pin lock
+    adb shell
+    # sqlite3 /data/data/com.android.providers.settings/databases/settings.db
+    sqlite> update secure set value=131072 where name='lockscreen.password_type';
+    sqlite> .exit
+    # exit
+ * remove pin lock
+    adb shell
+    # sqlite3 /data/data/com.android.providers.settings/databases/settings.db
+    adb shell
+    # sqlite3 /data/data/com.android.providers.settings/databases/settings.db
+    sqlite> 
+    sqlite> .exit
+ *
+ update secure set value=65536 where name='lockscreen.password_type';
+= ruby code to check for the keyboard = 
+    def keyboard_present?
+    if $driver.device_is_android?
+        `adb shell dumpsys input_method`[/mInputShown=\w+/i].split('=')[1] == 'true'
+    else
+        begin
+        # $driver.driver will return Selenium::WebDriver instance
+        # we set implicit wait to 0.1 to get immediate response 
+        $driver.driver.manage.timeouts.implicit_wait = 0.1
+        # make sure to reset implicit wait back to default (20, I guess), if needed
+        $driver.find_element(:xpath, '//UIAKeyboard').displayed?
+        rescue Selenium::WebDriver::Error::NoSuchElementError
+        false
+        end
+    end
+    end

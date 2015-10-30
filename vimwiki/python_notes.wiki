@@ -1,8 +1,11 @@
 = language =
+
 * pass
 * generator, yield
 * callable
     callable(function) => True
+* with .. as
+  http://effbot.org/zone/python-with-statement.htm
 = scope =
 LEGB rule: Local Scope, Enclosing Scope, Global Scope, and Built-in Scope. 
 * global declaration makes function to look for a variabe in global scope
@@ -250,7 +253,9 @@ len (adict)	#will return the number of pairs, 2 in this case
 adict.pop(‘two’)		#will pop the pair with the key ‘two’
 del adict('one')  # deletes key-value pair from the dictionary
 * iterating over the dictionary:
-for key in adict:
+  * for key in adict:
+  * for key in adict.keys():
+  * for key, value in adrict.items():
 = LIST ARRAY =
 * declare
 result_list = list()
@@ -467,6 +472,7 @@ def runProcess(exe):
 = yield =
 http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generators-explained/
 = OOP / object oriented python / class =
+
 == metaclasses ==
 http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python
  * function type is in fact a metaclass
@@ -645,6 +651,9 @@ http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python
 >>> MyData.fromdict({"spam": "ham"}).data
 [('spam', 'ham')]
 == Inheritance ==
+ * number of ways to call base class:
+    * super(ChildClass, self).__init__()
+    * BaseClass.__init__(self)
 class Shape:
   def __init__(self):
     self.color = "blue"
@@ -661,4 +670,89 @@ class Circle(Shape):  # inherited class
 http://www.jeffknupp.com/blog/2013/04/07/improve-your-python-yield-and-generators-explained/
 === yield ===
 
+= testing =
+== unittest ==
+        import unittest
+        from mock import patch
+        def a(n):
+            if n > 10:
+                b()
+        def b():
+            print "test"
+        class MyTestCase(unittest.TestCase):
+            @patch('__main__.b')
+            def test_b_called(self, mock):
+                a(11)
+                self.assertTrue(mock.called)
+            @patch('__main__.b')
+            def test_b_not_called(self, mock):
+                a(10)
+                self.assertFalse(mock.called)
+        if __name__ == "__main__":
+            unittest.main()
+== nose ==
+== py.test ==
+== mock == 
+ * mock.patch replaces the class with a mock object and lets you work with the mock instance. Take a look at this snippet:
+
+    >>> class MyClass(object):
+    ...   def __init__(self):
+    ...     print 'Created MyClass@{0}'.format(id(self))
+    ... 
+    >>> def create_instance():
+    ...   return MyClass()
+    ... 
+    >>> x = create_instance()
+    Created MyClass@4299548304
+    >>> 
+    >>> @mock.patch('__main__.MyClass')
+    ... def create_instance2(MyClass):
+    ...   MyClass.return_value = 'foo'
+    ...   return create_instance()
+    ... 
+    >>> i = create_instance2()
+    >>> i
+    'foo'
+    >>> def create_instance():
+    ...   print MyClass
+    ...   return MyClass()
+    ...
+    >>> create_instance2()
+    <mock.Mock object at 0x100505d90>
+    'foo'
+    >>> create_instance()
+    <class '__main__.MyClass'>
+    Created MyClass@4300234128
+    <__main__.MyClass object at 0x100505d90>
+    patch replaces MyClass in a way that allows you to control the usage of the class in functions that you call. Once you patch a class, references to the class are completely replaced by the mock instance.
+
+    mock.patch is usually used when you are testing something that creates a new instance of a class inside of the test.  mock.Mock instances are clearer and are preferred. If your self.sut.something method created an instance of MyClass instead of receiving an instance as a parameter, then mock.patch would be appropriate here.
     
+    * further use
+      @patch.object(aw, 'Clear') can become:
+        import mock
+
+        def testClearWasCalled(self):
+            aw = aps.Request("nv1")
+            with patch.object(aw, 'Clear') as mock:
+                aw2 = aps.Request("nv2", aw)
+            mock.assert_called_with(42) # or mock.assert_called_once_with(42)`
+ 
+= zope.interface =
+ *  class implements an interface and instances of that class provide the interface
+= twisted =
+ *  reactor.callWhenRunning(hello)  - call immeidately after reactor.run()
+ * reactor.callLater(1, self.count) - call after 1 sec
+ * reactor.connectTCP(host, port, protocolFactory)
+== interfaces ==
+ * ILoggingContext(Interface):   # def logPrefix(): returns a string, used as prefix for log messages
+ * class IFileDescriptor(ILoggingContext):   # def fileno(), def connectionLost(reason),
+ * class IReactorFDSet(Interface): # to be able to use L{FileDescriptor<twisted.internet.abstract.FileDescriptor>} 
+    addReader, removeReader... require argument implementing IReadDescriptor interface
+ * class IReadDescriptor(IFileDescriptor) /  IWriteDescriptor(IFileDescriptor) : # doRead() or doWrite() methods   
+ * class ITransport(Interface)  abstracts TCP connection
+    * write(data), loseConnection(), getPeer(), getHost()
+ * IProtocol - FTP, IMAP...
+    * makeConnection, dataReceived, connectionLost, connectionMade 
+ * IProtocolFactory
+    * buildProtocol, doStart, doStop 

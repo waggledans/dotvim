@@ -49,13 +49,7 @@ let g:miniBufExplorerMoreThanOne = 100
 let g:miniBufExplUseSingleClick = 1
 " ,b to display current buffers list
 nmap <Leader>b :MBEOpen<cr>
-
-let g:Conque_ReadTimeout = 50 " timeout for waiting for command output.
-let g:Conque_TERM = 'xterm'
-" ,sh shell window
-nmap <Leader>sh :ConqueSplit bash<cr>
-" ,r run command
-nmap <Leader>R :ConqueSplit
+nmap :bd  :MBEbd<cr>
 
 " yankring
 let g:yankring_replace_n_pkey = '<leader>['
