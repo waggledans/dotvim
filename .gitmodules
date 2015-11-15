@@ -4,7 +4,8 @@
 [submodule "bundle/youcompleteme"]
 	path = bundle/youcompleteme
 	url = https://github.com/Valloric/YouCompleteMe.git
-    ignore = untracked  
+        ignore = untracked  
+        ignore = dirty  
 [submodule "bundle/nerdtree"]
 	path = bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree

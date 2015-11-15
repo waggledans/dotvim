@@ -2,4 +2,4 @@ view
 *.swp
 .DS_Store
 .netrwhist
-doc/tags 
+tags 
