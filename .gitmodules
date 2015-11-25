@@ -1,11 +1,6 @@
 [submodule "bundle/fugitive"]
 	path = bundle/fugitive
 	url = http://github.com/tpope/vim-fugitive.git
-[submodule "bundle/youcompleteme"]
-	path = bundle/youcompleteme
-	url = https://github.com/Valloric/YouCompleteMe.git
-        ignore = untracked  
-        ignore = dirty  
 [submodule "bundle/nerdtree"]
 	path = bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree
@@ -87,15 +82,6 @@
 [submodule "bundle/ack"]
 	path = bundle/ack
 	url = https://github.com/mileszs/ack.vim.git
-[submodule "bundle/vimux"]
-	path = bundle/vimux
-	url = https://github.com/benmills/vimux.git
 [submodule "bundle/minibufexpl"]
 	path = bundle/minibufexpl
 	url = https://github.com/weynhamz/vim-plugin-minibufexpl.git
-[submodule "bundle/vundle"]
-	path = bundle/vundle
-	url = https://github.com/gmarik/Vundle.vim.git
-[submodule "vim-bbye"]
-	path = vim-bbye
-	url = https://github.com/moll/vim-bbye.git

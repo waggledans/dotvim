@@ -17,20 +17,11 @@ let g:acp_behaviorPerlOmniLength=0
 let g:delimitMate_expand_space = 1
 let g:delimitMate_expand_cr = 1
 
-" vimux
-" Prompt for a command to run map
-nnoremap <Leader>vp :VimuxPromptCommand<CR>
-
 " nerdtree
 " Ctrl-P to Display the file browser tree
 nmap <C-P> :NERDTreeToggle<CR>
 " ,p to show current file in the tree
 nmap <leader>p :NERDTreeFind<CR>
-
-" nerdcommenter
-" ,/ to invert comment on the current line/selection
-nmap <leader>/ :call NERDComment(0, "invert")<cr>
-vmap <leader>/ :call NERDComment(0, "invert")<cr>
 
 " ,t to show tags window
 let Tlist_Show_Menu=1
