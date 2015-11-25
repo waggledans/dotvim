@@ -10,3 +10,5 @@
     vboxmanage clonehd "virtualdisk.vmdk" "new-virtualdisk.vdi" --format vdi
 ** resize
     vboxmanage modifyhd "new-virtualdisk.vdi" --resize 30720
+* get usb devices:
+  VBoxManage list usbhost

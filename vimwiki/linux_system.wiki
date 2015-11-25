@@ -1,3 +1,6 @@
+= shutdown / restart = 
+    sudo shutdown -r now
+    sudo reboot
 = bash boot source sequence =
 /etc/profile
 ~/.bash_profile
@@ -20,6 +23,8 @@ $ su -
     find . -name \*.cpp -exec grep -q "debug" '{}' \; -print
   * return file names only
     find . -type f -name "*John*"	
+  * find and remove all symbolic link
+    rm $(find / -type l | xargs ls -l | grep /mnt/test | awk '{print $9}')
 == grep ==    
 -l  :only file names are returned
 == uniq ==
@@ -27,6 +32,45 @@ sort -u -t, -k1,1 file
 -u for unique
 -t, so comma is the delimiter
 -k1,1 for the key field 1
+= xargs =
+# instead of cp -r -v -p /share/media/mp3/ /backup/iscsi/mp3
+find -L /share/media/mp3/ -type f -name "*.mp3" -print0 | xargs -0 -r -I file cp -v -p file --target-directory=/backup/iscsi/mp3
+# explanation
+-0    (or -null) is useful when the name may contain white spaces
+-I  replace_str  (used to be -r)   - 
+    replace occurrences of replace-str in the initial-arguments 
+    with names read from standard input.
+ -print0   -  print the full file name on the standard output, followed by a null character  (instead  of the  newline  character  that  `-print' uses)
+-L  - follow symbolic links
+= tar / tar.gz =
+* list contents of tar.gz
+    tar -tvzf file.tar.gz
+* list contents of tar.bz2
+    tar -jtvf file.tar.bz2
+* extract just one file/dir from the tarball
+    tar -zxvf mytar.ball.tar.gz directory-name
+* update file in tarball (not zipped)
+  add new files and update modified
+    tar -uvf my.tar some-directory/
+* delete a directory from tarball
+    tar --delete -f file.tar 'path1/dir1'
+= crontab =
+usage:  crontab [-u user] file
+        crontab [-u user] [ -e | -l | -r ]
+                (default operation is replace, per 1003.2)
+        -e      (edit user's crontab)
+        -l      (list user's crontab)
+        -r      (delete user's crontab)
+*     *     *   *    *        command to be executed
+-     -     -   -    -
+|     |     |   |    |
+|     |     |   |    +----- day of week (0 - 6) (Sunday=0)
+|     |     |   +------- month (1 - 12)
+|     |     +--------- day of        month (1 - 31)
+|     +----------- hour (0 - 23)
++------------- min (0 - 59)
+
+0 20 * 1,6,12 1-5   From Su to Fr on Jan, June and Dec at 20:00
 = networking =
  * netcat nc
     * scan all ports in a range (verbose)
@@ -51,17 +95,23 @@ sort -u -t, -k1,1 file
       http://unix.stackexchange.com/questions/22308/socat-reliable-file-transfer-over-tcp
       socat -u FILE:test.dat TCP-LISTEN:9876,reuseaddr     # server side, -u means unidirectional
       socat -u TCP:ramen2.dev.miso:9876 OPEN:test_client.dat,creat,trunc     # client side
+    * socat verbose mode
+      sudo  socat -d -d -d  TCP:localhost:9876 OPEN:/tmp/lxchef.453,creat,trunc
  * netstat
   prints all the ports
  * tcpdump  
  * curl 
-curl -i -X POST -H "Content-Type:application/json" -d '{  "firstName" : "Frodo",  "lastName" : "Baggins" }' http://localhost:8080/
+    curl -O http://github.com/tpope/vim-vividchalk/raw/master/colors/vividchalk.vim
+    curl 'www.vim.org/scripts/download_script.php?src_id=19375'  > ~/.vim/autoload/pathogen.vim
+    curl -i -X POST -H "Content-Type:application/json" -d '{  "firstName" : "Frodo",  "lastName" : "Baggins" }' http://localhost:8080/
+    curl -sSL https://get.docker.com/ | sh
  * wget
   wget http://ftp.gnu.org/gnu/wget/wget-1.5.3.tar.gz ftp://ftp.gnu.org/gnu/wget/wget-1.10.1.tar.gz.sig
   ** resume download: wget -c 
   ** download in bg: wget -b 
   ** wget --http-user=narad --http-password=password
   ** wget --ftp-user=narad --ftp-password=password 
+  ** wget --accept pdf,jpg --mirror --progress --adjust-extension --convert-links --backup-converted --no-parent http://site/path/
  * scp
 scp -i ~/Desktop/amazon.pem ~/Desktop/MS115.fa  ubuntu@ec2-54-166-128-20.compute-1.amazonaws.com:~/data/
 == ssh ==
@@ -105,7 +155,28 @@ ssh dslov@100.65.0.17 -L 2272:foghorn.systems.wvu.edu:2272 -L 2273:dgtest.system
      IdentityFile /path/to/id_rsa
      LocalForward 3128 127.0.0.1:3128
 StrictHostKeyChecking 
-= System info =
+= device management =
+ * cat /proc/mounts
+ * mount
+ * unmount issues:
+  http://unix.stackexchange.com/questions/15024/umount-device-is-busy-why
+   * first check is lsof
+    lsof /mnt/test/
+   * nfs-kernel-server is exporting the directory  
+    showmount -e
+    /etc/init.d/nfs-kernel-server stop
+    umount /mnt/test
+   * loopback device backing file exists in the dir
+      losetup -a
+      losetup -d /dev/loop1
+   * A swapfile exists in the dir
+      swapoff /mnt/test/testdir/swapfile
+   *  device failed
+      dmesg
+   * if chroot is the culprit (replace "chroot" with the path to the chroot). 
+     sudo ls -l /proc/*/root | grep chroot
+= System administration =
+* kill -l will list all signals
 * lscpu or	      less /proc/cpuinfo
 * free <-m|t|g> or    less /proc/meminfo
     ** free -gt, free -mt
@@ -119,6 +190,29 @@ ssh -i /Users/dans/ama_test_key.pem ec2-user@52.25.81.84 -v	: amazon_linux
 scp  -i ~/ama_test_key.pem ~/Downloads/chef-server.rpm  ec2-user@52.11.163.16:/home/ec2-user/downloads
 * vmstat
 vmstat 5
+* systemctl
+== chroot ==
+ * install dchroot and debootstrap
+ * vim /etc/schroot/schroot.conf
+    [vivid]
+    description=Ubunutu15.04 Vivid Vervet
+    location=/home/vagrant/experiments/chr
+    priority=3
+    users=vagrant
+    groups=sbuild
+    root-groups=root
+ * sudo debootstrap --variant=buildd --arch i386 vivid /home/vagrant/experiments/chr http://mirror.url.com/ubuntu/
+ * to get into jailed system: sudo chroot /home/vagrant/experiments/chr, to get out: exit
+ * to be able to send signals to processes running in jail do:
+   sudo mount -o bind /proc /my/chroot/folder/proc
+ * network support (cp dns file):
+   cp /etc/resolv.conf to jailed folder
+ * in chroot: export DISPLAY=0.0  
+== mount ==
+http://www.linuxchix.org/content/courses/filesystem/Lesson5.html
+ * /etc/mtab
+ * /proc/mounts
+ * /etc/fstab
 == Disk administration ==
 * mount
   mount -t iso9660 -o ro /dev/cdrom /mnt

@@ -1,7 +1,11 @@
 = Document Base =
 == android ==
 * [[android]]
+* [[android_progr]]
+== work ==
+* [[sauce_notes]]
 == C/C++ programming ==
+* [[assembly]]
 * [[makefile]]
 * [[c_notes]]
 * [[gcc]]
@@ -29,10 +33,16 @@
 * [[gradle]]
 * [[groovy]]
 * [[spock]]
+* [[gradle]]
+* [[maven]]
+== GIT ==
+* [[git_howtos]]
 == LINUX ==
+* [[vagrant]]
 * [[virtual_box]]
 * [[linux_system]]
 * [[linux_programming]]
+* [[ansible]]
 * [[ack]]
 * [[apt-get]]
 * [[bash]]
@@ -49,7 +59,7 @@
 * [[xargs]]
 * [[kernel]]
 == MacOS ==
-* [[macos_plist]]
+* [[ios_howtos]]
 * [[macos_howtos]]
 == Perl ==
 * [[perl_hacks]]

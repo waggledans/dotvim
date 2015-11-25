@@ -1,3 +1,15 @@
+= ubuntu =
+ * get your ubuntu version
+  lsb_release -a
+== apt-get ==
+ * add new repository
+    sudo add-apt-repository ppa:nilarimogard/webupd8
+ * update repo index   
+    sudo apt-get update
+    (sudo gedit /etc/apt/sources.list)
+ * install
+    sudo apt-get install <name>
+
 #######################
 # Clear history:
  rm $HOME/.local/share/zeitgeist/activity.sqlite
@@ -7,3 +19,29 @@
 # Disable history
 sudo chattr -i .recently-used.xbel
 #######################
+= dpkg =
+sudo dpkg -i flashget-1.0.2-0_en.noarch.deb
+
+If you want to make both source and binary packages use:
+dpkg-buildpackage -F -tc
+
+If you want to make only binary packages use:
+dpkg-buildpackage -b -tc
+
+If you want to make only source packages use:
+dpkg-buildpackage -S -tc
+
+lxsplit -s hugefile.bin 15M
+lxsplit -j smallfiles.bin.001
+
+cowsay -l | grep -v ^Cow | sed -e s% %n%g | sed -e s%(.*)%cowsay -f 1 Now I am a 1% | sh | less
+= update-alternatives =
+update-alternatives --config pager
+update-alternatives --display pager
+= networking =
+ * add nameserver (DNS). Add nameserver lines to resolv.conf
+   http://unix.stackexchange.com/questions/128220/how-do-i-set-my-dns-on-ubuntu-14-04
+  sudo vim /etc/resolvconf/resolv.conf.d/base
+    nameserver 8.8.8.8
+    nameserver 8.8.4.4
+  sudo resolvconf -u  

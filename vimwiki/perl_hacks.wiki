@@ -109,7 +109,7 @@ use Moose::Role;
 
 
 
-= ONE LINERS  =
+= ONELINERS  =
 perldoc perlrun
 -l   - remove newline and then adds it back
 -p   - print automatically

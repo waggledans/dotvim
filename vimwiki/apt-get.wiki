@@ -1,3 +1,6 @@
+= ubuntu =
+ * get your ubuntu version
+  lsb_release -a
 ## how to add new repository
 sudo add-apt-repository ppa:nilarimogard/webupd8
 sudo apt-get update

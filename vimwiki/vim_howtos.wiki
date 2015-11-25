@@ -834,6 +834,8 @@ nmap <silent> gw    "_yiw:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<cr><c-o><c-l> *
 :grep some_keyword *.c            : get list of all c-files containing keyword
 :cn                               : go to next occurrence
 ----------------------------------------
+" enable syntax highlighting
+:syn off | syn on
 " Force Syntax coloring for a file that has no extension .pl
 :set syntax=perl
 " Remove syntax coloring (useful for all sorts of reasons)
@@ -855,9 +857,19 @@ gvim file1.c file2.c lib/lib.h lib/lib2.h : load files for "session"
 gvim -S Session.vim               : Reload all files
 ----------------------------------------
 = tags (jumping to subroutines/functions) =
-taglist.vim                       : popular plugin
+http://www.thegeekstuff.com/2009/04/ctags-taglist-vi-vim-editor-as-sourece-code-browser/
+taglist.vim                       : tag plugin
 :Tlist                            : display Tags (list of functions)
 <C-]>                             : jump to function under cursor
+g]                                : get the list of all matches.
+<C-T>                             : return back from the function
+:ta function_name                 : navigate to the function_name
+:ta /^get                         : navigate to the function starts with get
+:ts                               : shows the list.
+:tn                               : goes to the next tag in that list.
+:tp                               : goes to the previous tag in that list.
+:tf                               : goes to the function which is in the first of the list.
+:tl                               : goes to the function which is in the last of the list.
 ----------------------------------------
 " columnise a csv file for display only as may crop wide columns
 :let width = 20
@@ -878,7 +890,12 @@ zf}                               : fold paragraph using motion
 v}zf                              : fold paragraph using visual
 zf'a                              : fold to mark
 zo                                : open fold
-zc                                : re-close fold
+zc                                : close current fold
+zi                                : switch folding on or off
+za                                : toggle current fold open/closed
+zR                                : open all folds
+zM                                : close all folds
+zv                                : expand folds to reveal cursor
 :mkview	<number>		  : to save the view (with folds) folds
 :loadview <number>	      	  : load the view
 or to automatically save folding:

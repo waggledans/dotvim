@@ -11,6 +11,8 @@ tmux new -s session_name
  * kill the session
   tmux kill-session -t session-name
 = work with tmux = 
+ * Ctrl+b [  scroll (using arrow keys). press q to exit scroll mode
+= work with tmux = 
 Ctrl+b " - split pane horizontally.
 Ctrl+b % - split pane vertically.
 Ctrl+b arrow key - switch pane.
@@ -18,4 +20,6 @@ Hold Ctrl+b, don't release it and hold one of the arrow keys - resize pane.
 Ctrl+b c - (c)reate a new window.
 Ctrl+b n - move to the (n)ext window.
 Ctrl+b p - move to the (p)revious window.
+
+
 

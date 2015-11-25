@@ -14,13 +14,16 @@ Commands :
 do or :diffget : Diff obtain (get the changes to the current buffer/file from the other buffer)
 dp or :diffput : Diff Put (Put the changes from the current buffer/file to the other buffer)
 diffupdate : refresh diffs
+:windo diffthis       : diff  two files opened in vertical split
+:diffoff              : to turn off diff mode
 
 nmap <F7> [czz 
 nmap <F8> ]czz
 nmap <F2> do
 nmap <F3> dp
 :set diffopt=filler
-By default, diffopt is set to filler. Filler doesnt do much, it just adds vertical spaces to keep the text of the left and right pane aligned. Its a good setting, and I dont much like working without it. But there are other settings which are overlooked, even by experts.
+        By default, diffopt is set to filler. Filler doesnt do much, it just adds vertical spaces to keep the text of the left and right pane aligned. Its a good setting, and I dont much like working without it. 
+        But there are other settings which are overlooked, even by experts.
 : set diffopt+=iwhite
 ignore whitespace. It makes gvimdiff ignore leading, trailing, and embedded spaces so that simple acts like retabbing or deleting vertical spaces wont obscure actual changes. It really helps you to merge changes in situations where youve adopted code that was built to entirely different standards.
 :set diffopt+=icase
@@ -166,6 +169,15 @@ set showmode
 map #1 :!more ~/.vi_help
 map #2 :set number
 map #3 :set nonumber
-map #4 o<table>  <tr>    <td>    </td>  </tr></table>
-map #5 o<ul>  <li></li></ul>
-map #6 o<ul>  <li><a href=""></a></li></ul>
+map #4 o<table>
+  <tr>
+    <td>
+    </td>
+  </tr>
+</table>
+map #5 o<ul>
+  <li></li>
+</ul>
+map #6 o<ul>
+  <li><a href=""></a></li>
+</ul>

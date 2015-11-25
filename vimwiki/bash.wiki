@@ -1,3 +1,12 @@
+= output redirect =
+ * stderr to file
+   grep da * 2> grep-errors.txt
+ * stdout to stderr
+   grep da * 1>&2
+ * stderr to stdout
+   grep * 2>&1  
+ * both stderr stdout to file
+   rm -f $(find / -name core) &> /dev/null
 = terminal prompt =
 # h is the host name, w the complete path 
 export PS1="\h:\w$ "
@@ -13,9 +22,7 @@ You can also modify my example by using the following options in the export comm
 = parameter expansion =
 http://www.gnu.org/software/bash/manual/bashref.html#Shell-Parameter-Expansion
  * ${parameter:-word}
-   If parameter is unset or null, "word" is substituted. 
-   Otherwise, the value of parameter is substituted.
-
+   If parameter is unset or null, "word" is substituted. Otherwise, the value of parameter is substituted.
  * ${parameter:=word}
    If parameter is unset or null, the expansion of word is assigned to parameter. 
    The value of parameter is then substituted. Positional parameters and special parameters may not be assigned to in this way.
@@ -26,12 +33,17 @@ http://www.gnu.org/software/bash/manual/bashref.html#Shell-Parameter-Expansion
  * ${parameter:+word}
    If parameter is null or unset, nothing is substituted, otherwise the expansion of word is substituted.
  * ${parameter:offset}
- * ${parameter:offset:length}
+ * ${parameter:offset:length}      # firstletter=${word:0:1}
  * clone_name=${dataset_snapshot//@/--}
  * ${dataset_snapshot%@*}
 = bash scripting =
 = tricks =
   * $$ - script pid
+  * colon operator (like the following will not evaluate 'value' (and without colon it will)
+    It will not assign value to SOMETHING if $SOMETHING is already set
+    http://www.gnu.org/software/bash/manual/bashref.html#Bourne-Shell-Builtins
+    : ${SOMETHING='value'}
+  * dot operator  
   * $IFS - field separator, whitespace by def. Ex. IFS=$'\n', IFS=":-;"
   * use exit traps:  http://redsymbol.net/articles/bash-exit-traps/
         scratch=$(mktemp -d -t tmp.XXXXXXXXXX)

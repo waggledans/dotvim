@@ -237,6 +237,7 @@ eliminated)
   git stash drop        stash@{0} 
   git stash clear       : deletes all stashes
 = Merge (merging branches) =
+https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging
 * --no-ff flag would not incorporate commits of the branch being merged:
     $ git merge alternate
     $ git merge --no-ff alternate
@@ -246,6 +247,8 @@ eliminated)
     $ git merge --abort
 * use merge tool
   $ git mergetool --tool=meld
+* git diff --ours
+  To compare your result to what you had in your branch before the merge, in other words, to see what the merge introduced
 = REBASE =
 * eliminates merge-commit(ie commit after merge)
 * local rebase example: rebase hotfix branch on develop branch:
